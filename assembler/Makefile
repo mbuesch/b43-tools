@@ -5,7 +5,7 @@ PREFIX = /usr/local
 CFLAGS = -std=c99 -O2 -fomit-frame-pointer -Wall -D_BSD_SOURCE -D_GNU_SOURCE
 LDFLAGS = -lfl
 
-BINARY = bcm43xx-asm.bin
+BINARY = b43-asm.bin
 OBJECTS = parser.o scanner.o main.o initvals.o util.o args.o
 
 # YACC related CFLAGS
@@ -38,10 +38,10 @@ $(BINARY): $(OBJECTS)
 
 install: all
 	-install -o 0 -g 0 -m 755 $(BINARY) $(PREFIX)/bin/
-	-cp bcm43xx-asm bcm43xx-asm.inst
-	-sed -i -e 's/installed=0/installed=1/' bcm43xx-asm.inst
-	-install -o 0 -g 0 -m 755 bcm43xx-asm.inst $(PREFIX)/bin/bcm43xx-asm
-	-rm -f bcm43xx-asm.inst
+	-cp b43-asm b43-asm.inst
+	-sed -i -e 's/installed=0/installed=1/' b43-asm.inst
+	-install -o 0 -g 0 -m 755 b43-asm.inst $(PREFIX)/bin/b43-asm
+	-rm -f b43-asm.inst
 
 clean:
 	-rm -f *~ *.o *.orig *.rej $(BINARY) scanner.c scanner.h parser.c parser.h
