@@ -1,0 +1,27 @@
+#!/bin/sh
+
+installed=0
+
+if [ -z "$BCM43xx_ASM" ]; then
+	if [ $installed -eq 0 ] && [ -x "./bcm43xx-asm.bin" ]; then
+		BCM43xx_ASM="./bcm43xx-asm.bin"
+	else
+		BCM43xx_ASM="bcm43xx-asm.bin"
+	fi
+fi
+
+if [ -z "$CPP" ]; then
+	CPP="cpp"
+fi
+
+if [ $# -lt 2 ]; then
+	$BCM43xx_ASM --help
+	exit 1
+fi
+
+infile="$1"
+shift
+outfile="$1"
+shift
+
+cat "$infile" | $CPP -traditional-cpp | $BCM43xx_ASM "-" "$outfile" $@

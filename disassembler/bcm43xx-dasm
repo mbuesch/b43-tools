@@ -1,0 +1,22 @@
+#!/bin/sh
+
+installed=0
+
+if [ $# -ne 2 ]; then
+	echo "Usage: $0 input_file.fw output_file.asm"
+	exit 1
+fi
+
+if [ -z "$BCM43xx_DASM" ]; then
+	if [ $installed -eq 0 ] && [ -x "./bcm43xx-dasm.bin" ]; then
+		BCM43xx_DASM="./bcm43xx-dasm.bin"
+	else
+		BCM43xx_DASM="bcm43xx-dasm.bin"
+	fi
+fi
+
+infile="$1"
+outfile="$2"
+
+cat "$infile" | $BCM43xx_DASM "$outfile"
+

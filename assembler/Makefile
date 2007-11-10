@@ -1,0 +1,47 @@
+CC = gcc
+LEX = flex
+YACC = bison
+PREFIX = /usr/local
+CFLAGS = -std=c99 -O2 -fomit-frame-pointer -Wall -D_BSD_SOURCE -D_GNU_SOURCE
+LDFLAGS = -lfl
+
+BINARY = bcm43xx-asm.bin
+OBJECTS = parser.o scanner.o main.o initvals.o util.o args.o
+
+# YACC related CFLAGS
+CFLAGS += -DYYSTYPE="void *" -DYYERROR_VERBOSE -DYYDEBUG -Wno-unused
+
+all: $(BINARY)
+
+scanner.c: scanner.l parser.c main.h
+	$(LEX) -o scanner.c --header-file=scanner.h scanner.l
+
+scanner.o: scanner.c
+	$(CC) $(CFLAGS) -c -o scanner.o scanner.c
+
+parser.c: parser.y main.h util.h
+	$(YACC) --defines -o parser.c parser.y
+
+parser.o: parser.c
+	$(CC) $(CFLAGS) -c -o parser.o parser.c
+
+main.o: parser.c main.h list.h util.h args.h initvals.h
+
+initvals.o: initvals.h main.h list.h util.h args.h
+
+util.o: util.h
+
+args.o: args.h main.h util.h
+
+$(BINARY): $(OBJECTS)
+	$(CC) $(CFLAGS) -o $(BINARY) $(OBJECTS) $(LDFLAGS)
+
+install: all
+	-install -o 0 -g 0 -m 755 $(BINARY) $(PREFIX)/bin/
+	-cp bcm43xx-asm bcm43xx-asm.inst
+	-sed -i -e 's/installed=0/installed=1/' bcm43xx-asm.inst
+	-install -o 0 -g 0 -m 755 bcm43xx-asm.inst $(PREFIX)/bin/bcm43xx-asm
+	-rm -f bcm43xx-asm.inst
+
+clean:
+	-rm -f *~ *.o *.orig *.rej $(BINARY) scanner.c scanner.h parser.c parser.h
