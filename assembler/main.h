@@ -112,10 +112,7 @@ struct asmdir {
 		ADIR_START,
 	} type;
 	union {
-		enum {
-			OLDWORLD,
-			NEWWORLD,
-		} arch;
+		unsigned int arch;
 		struct label *start;
 	} u;
 };

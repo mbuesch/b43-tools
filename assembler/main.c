@@ -64,7 +64,9 @@ struct code_output {
 };
 
 struct assembler_context {
-	int arch;
+	/* The architecture version (802.11 core revision) */
+	unsigned int arch;
+
 	struct label *start_label;
 
 	/* Tracking stuff */
@@ -119,6 +121,10 @@ static void eval_directives(struct assembler_context *ctx)
 				if (have_arch)
 					asm_error(ctx, "Multiple %%arch definitions");
 				ctx->arch = ad->u.arch;
+				if (ctx->arch != 5 && ctx->arch != 15) {
+					asm_error(ctx, "Architecture version %u unsupported",
+						  ctx->arch);
+				}
 				have_arch = 1;
 				break;
 			case ADIR_START:
@@ -135,13 +141,11 @@ static void eval_directives(struct assembler_context *ctx)
 
 	if (!have_arch)
 		asm_error(ctx, "No %%arch defined");
-	if (ctx->arch != NEWWORLD)
-		asm_error(ctx, "TODO: Only NEWWORLD arch supported, yet");
 	if (!have_start_label)
 		asm_info(ctx, "Using start address 0");
 }
 
-static int is_possible_imm(unsigned int imm)
+static bool is_possible_imm(unsigned int imm)
 {
 	unsigned int mask;
 
@@ -160,29 +164,48 @@ static int is_possible_imm(unsigned int imm)
 	return 1;
 }
 
-static int is_valid_imm(unsigned int imm)
+static bool is_valid_imm(struct assembler_context *ctx,
+			 unsigned int imm)
 {
 	unsigned int mask;
+	unsigned int immediate_size;
 
 	/* This function checks if the immediate value is representable
 	 * as a native immediate operand.
 	 *
-	 * The value itself is 10bit long, signed.
-	 * We also honor sign-extension, so we allow values
-	 * of 0xFFFF, for example.
+	 * For v5 architecture the immediate can be 10bit long.
+	 * For v15 architecture the immediate can be 11bit long.
+	 *
+	 * The value is sign-extended, so we allow values
+	 * of 0xFFFA, for example.
 	 */
 
 	if (!is_possible_imm(imm))
 		return 0;
 	imm &= 0xFFFF;
 
-	/* assert sign extension */
-	mask = 0xFC00;
-	if (imm & (1 << 9)) {
-		/* sign-extended */
+	if (ctx->arch == 5) {
+		immediate_size = 10; /* 10bit */
+	} else if (ctx->arch == 15) {
+		immediate_size = 11; /* 11bit */
+	} else {
+		asm_error(ctx, "Unknown immediate size for arch %u",
+			  ctx->arch);
+	}
+
+	/* First create a mask with all possible bits for
+	 * an immediate value unset. */
+	mask = (~0 << immediate_size) & 0xFFFF;
+	/* Is the sign bit of the immediate set? */
+	if (imm & (1 << (immediate_size - 1))) {
+		/* Yes, so all bits above that must also
+		 * be set, otherwise we can't represent this
+		 * value in an operand. */
 		if ((imm & mask) != mask)
 			return 0;
 	} else {
+		/* All bits above the immediate's size must
+		 * be unset. */
 		if (imm & mask)
 			return 0;
 	}
@@ -190,33 +213,33 @@ static int is_valid_imm(unsigned int imm)
 	return 1;
 }
 
-static int is_contiguous_bitmask(unsigned int mask)
+/* This checks if the value is nonzero and a power of two. */
+static bool is_power_of_two(unsigned int value)
 {
-	int bit;
-	int only_zero_now = 0;
+	return (value && ((value & (value - 1)) == 0));
+}
 
-	/* This checks if the mask is contiguous.
-	 * A contiguous mask is:
-	 *   0b0001111110000
-	 * A non-contiguous mask is:
-	 *   0b0001101110000
-	 */
+/* This checks if all bits set in the mask are contiguous.
+ * Zero is also considered a contiguous mask. */
+static bool is_contiguous_bitmask(unsigned int mask)
+{
+	unsigned int low_zeros_mask;
+	bool is_contiguous;
 
-	bit = ffs(mask);
-	if (!bit)
+	if (mask == 0)
 		return 1;
-	if (bit > 16)
-		return 1;
-	bit--;
-	for ( ; bit < 16; bit++) {
-		if (mask & (1 << bit)) {
-			if (only_zero_now)
-				return 0;
-		} else
-			only_zero_now = 1;
-	}
+	/* Turn the lowest zeros of the mask into a bitmask.
+	 * Example:  0b00011000 -> 0b00000111 */
+	low_zeros_mask = (mask - 1) & ~mask;
+	/* Adding the low_zeros_mask to the original mask
+	 * basically is a bitwise OR operation.
+	 * If the original mask was contiguous, we end up with a
+	 * contiguous bitmask from bit 0 to the highest bit
+	 * set in the original mask. Adding 1 will result in a single
+	 * bit set, which is a power of two. */
+	is_contiguous = is_power_of_two(mask + low_zeros_mask + 1);
 
-	return 1;
+	return is_contiguous;
 }
 
 static unsigned int generate_imm_operand(struct assembler_context *ctx,
@@ -224,21 +247,25 @@ static unsigned int generate_imm_operand(struct assembler_context *ctx,
 {
 	unsigned int val, tmp;
 	unsigned int mask;
-	int too_long = 0;
 
 	/* format: 0b11ii iiii iiii */
 
 	val = 0xC00;
+	if (ctx->arch == 15)
+		val <<= 1;
 	tmp = imm->imm;
 
-	if (!is_valid_imm(tmp)) {
+	if (!is_valid_imm(ctx, tmp)) {
 		asm_warn(ctx, "IMMEDIATE 0x%X (%d) too long "
 			      "(> 9 bits + sign). Did you intend to "
 			      "use implicit sign extension?",
 			 tmp, (int)tmp);
 	}
 
-	tmp &= 0x3FF;
+	if (ctx->arch == 15)
+		tmp &= 0x7FF;
+	else
+		tmp &= 0x3FF;
 	val |= tmp;
 
 	return val;
@@ -253,13 +280,17 @@ static unsigned int generate_reg_operand(struct assembler_context *ctx,
 	case GPR:
 		/* format: 0b1011 11rr rrrr */
 		val |= 0xBC0;
-		if (reg->nr & ~0x3F)
+		if (ctx->arch == 15)
+			val <<= 1;
+		if (reg->nr & ~0x3F) //FIXME 128 regs for v15 arch possible?
 			asm_error(ctx, "GPR-nr too big");
 		val |= reg->nr;
 		break;
 	case SPR:
 		/* format: 0b100. .... .... */
 		val |= 0x800;
+		if (ctx->arch == 15) //FIXME is this ok?
+			val <<= 1;
 		if (reg->nr & ~0x1FF)
 			asm_error(ctx, "SPR-nr too big");
 		val |= reg->nr;
@@ -267,6 +298,8 @@ static unsigned int generate_reg_operand(struct assembler_context *ctx,
 	case OFFR:
 		/* format: 0b1000 0110 0rrr */
 		val |= 0x860;
+		if (ctx->arch == 15) //FIXME is this ok?
+			val <<= 1;
 		if (reg->nr & ~0x7)
 			asm_error(ctx, "OFFR-nr too big");
 		val |= reg->nr;
@@ -287,7 +320,7 @@ static unsigned int generate_mem_operand(struct assembler_context *ctx,
 	case MEM_DIRECT:
 		/* format: 0b0mmm mmmm mmmm */
 		off = mem->offset;
-		if (off & ~0x7FF) {
+		if (off & ~0x7FF) { //FIXME 4096 words for v15 arch possible?
 			asm_warn(ctx, "DIRECT memoffset 0x%X too long (> 11 bits)", off);
 			off &= 0x7FF;
 		}
@@ -298,6 +331,7 @@ static unsigned int generate_mem_operand(struct assembler_context *ctx,
 		off = mem->offset;
 		reg = mem->offr_nr;
 		val |= 0xA00;
+		//FIXME what about v15 arch?
 		if (off & ~0x3F) {
 			asm_warn(ctx, "INDIRECT memoffset 0x%X too long (> 6 bits)", off);
 			off &= 0x3F;
@@ -481,7 +515,7 @@ static void emulate_mov_insn(struct assembler_context *ctx,
 		tmp = in->u.imm->imm;
 		if (!is_possible_imm(tmp))
 			asm_error(ctx, "MOV operand 0x%X > 16bit", tmp);
-		if (!is_valid_imm(tmp)) {
+		if (!is_valid_imm(ctx, tmp)) {
 			/* Immediate too big for plain OR */
 			em_insn.op = OP_ORX;
 
@@ -563,7 +597,7 @@ static void emulate_jand_insn(struct assembler_context *ctx,
 		 * Check if it's representable by a normal JAND insn.
 		 */
 		tmp = imm_oper->u.imm->imm;
-		if (!is_valid_imm(tmp)) {
+		if (!is_valid_imm(ctx, tmp)) {
 			/* Nope, this must be emulated by JZX/JNZX */
 			if (!is_contiguous_bitmask(tmp)) {
 				asm_error(ctx, "Long bitmask 0x%X is not contiguous",
@@ -987,26 +1021,39 @@ static void emit_code(struct assembler_context *ctx)
 			}
 			code = 0;
 
-			/* Instruction binary format is: xxyy yzzz  0000 oooX
-			 * Big-Endian, X is the most significant part of Xxx.
-			 */
-			code |= (c->opcode << 4);
-
-			code |= (((uint64_t)c->operands[0].u.operand & 0xF00) >> 8);
-			code |= (((uint64_t)c->operands[0].u.operand & 0x0FF) << 56);
-
-			code |= ((uint64_t)c->operands[1].u.operand << 44);
-
-			code |= ((uint64_t)c->operands[2].u.operand << 32);
-
-			outbuf[7] = (code & 0x00000000000000FFULL);
-			outbuf[6] = (code & 0x000000000000FF00ULL) >> 8;
-			outbuf[5] = (code & 0x0000000000FF0000ULL) >> 16;
-			outbuf[4] = (code & 0x00000000FF000000ULL) >> 24;
-			outbuf[3] = (code & 0x000000FF00000000ULL) >> 32;
-			outbuf[2] = (code & 0x0000FF0000000000ULL) >> 40;
-			outbuf[1] = (code & 0x00FF000000000000ULL) >> 48;
-			outbuf[0] = (code & 0xFF00000000000000ULL) >> 56;
+			if (ctx->arch == 5) {
+				/* Instruction binary format is: xxyyyzzz0000oooX
+				 *                        byte-0-^       byte-7-^
+				 * ooo is the opcode
+				 * Xxx is the first operand
+				 * yyy is the second operand
+				 * zzz is the third operand
+				 */
+				code |= ((uint64_t)c->operands[2].u.operand);
+				code |= ((uint64_t)c->operands[1].u.operand) << 12;
+				code |= ((uint64_t)c->operands[0].u.operand) << 24;
+				code |= ((uint64_t)c->opcode) << 36;
+				code = ((code & (uint64_t)0xFFFFFFFF00000000ULL) >> 32) |
+				       ((code & (uint64_t)0x00000000FFFFFFFFULL) << 32);
+			} else if (ctx->arch == 15) {
+				code |= ((uint64_t)c->operands[2].u.operand);
+				code |= ((uint64_t)c->operands[1].u.operand) << 13;
+				code |= ((uint64_t)c->operands[0].u.operand) << 26;
+				code |= ((uint64_t)c->opcode) << 39;
+				code = ((code & (uint64_t)0xFFFFFFFF00000000ULL) >> 32) |
+				       ((code & (uint64_t)0x00000000FFFFFFFFULL) << 32);
+			} else {
+				asm_error(ctx, "No emit format for arch %u",
+					  ctx->arch);
+			}
+			outbuf[0] = (code & (uint64_t)0xFF00000000000000ULL) >> 56;
+			outbuf[1] = (code & (uint64_t)0x00FF000000000000ULL) >> 48;
+			outbuf[2] = (code & (uint64_t)0x0000FF0000000000ULL) >> 40;
+			outbuf[3] = (code & (uint64_t)0x000000FF00000000ULL) >> 32;
+			outbuf[4] = (code & (uint64_t)0x00000000FF000000ULL) >> 24;
+			outbuf[5] = (code & (uint64_t)0x0000000000FF0000ULL) >> 16;
+			outbuf[6] = (code & (uint64_t)0x000000000000FF00ULL) >> 8;
+			outbuf[7] = (code & (uint64_t)0x00000000000000FFULL) >> 0;
 
 			if (fwrite(&outbuf, ARRAY_SIZE(outbuf), 1, fd) != 1) {
 				fprintf(stderr, "Could not write microcode outfile\n");

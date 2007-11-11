@@ -143,9 +143,6 @@ shm32			{ update_lineinfo(); return IVAL_SHM32; }
 0x[0-9a-fA-F]+		{ update_lineinfo(); return HEXNUM; }
 -?[0-9]+		{ update_lineinfo(); return DECNUM; }
 
-bcm43xx_newworld	{ update_lineinfo(); return ARCH_NEWWORLD; }
-bcm43xx_oldworld	{ update_lineinfo(); return ARCH_OLDWORLD; }
-
 {IDENTIFIER}:		{ update_lineinfo(); return LABEL; }
 {IDENTIFIER}		{ update_lineinfo(); return IDENT; }
 

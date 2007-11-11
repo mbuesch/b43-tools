@@ -487,8 +487,11 @@ statement	: asmdir {
 		;
 
 /* ASM directives */
-asmdir		: asmarch {
-			$$ = $1;
+asmdir		: ASM_ARCH hexnum_decnum {
+			struct asmdir *ad = xmalloc(sizeof(struct asmdir));
+			ad->type = ADIR_ARCH;
+			ad->u.arch = (unsigned int)(unsigned long)$2;
+			$$ = ad;
 		  }
 		| ASM_START identifier {
 			struct asmdir *ad = xmalloc(sizeof(struct asmdir));
@@ -497,20 +500,6 @@ asmdir		: asmarch {
 			label->direction = LABELREF_ABSOLUTE;
 			ad->type = ADIR_START;
 			ad->u.start = label;
-			$$ = ad;
-		  }
-		;
-
-asmarch		: ASM_ARCH ARCH_NEWWORLD {
-			struct asmdir *ad = xmalloc(sizeof(struct asmdir));
-			ad->type = ADIR_ARCH;
-			ad->u.arch = NEWWORLD;
-			$$ = ad;
-		  }
-		| ASM_ARCH ARCH_OLDWORLD {
-			struct asmdir *ad = xmalloc(sizeof(struct asmdir));
-			ad->type = ADIR_ARCH;
-			ad->u.arch = OLDWORLD;
 			$$ = ad;
 		  }
 		;

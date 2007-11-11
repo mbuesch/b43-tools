@@ -18,7 +18,10 @@
 ;
 
 
-%arch	bcm43xx_newworld	; or bcm43xx-oldworld
+; The target architecture. Supported versions are 5 and 15
+%arch	5
+
+; Program entry point
 %start	testlabel
 
 #define	PSM_BRC		spr848
