@@ -947,8 +947,16 @@ recalculate_addresses:
 				if (addr < 0)
 					goto does_not_exist;
 				c->operands[i].u.operand = addr;
-				if (i != 2) /* Is not a jump target */
-					c->operands[i].u.operand |= 0xC00; /* Make it be an immediate */
+				if (i != 2) {
+					/* Is not a jump target.
+					 * Make it be an immediate */
+					if (ctx->arch == 5)
+						c->operands[i].u.operand |= 0xC00;
+					else if (ctx->arch == 15)
+						c->operands[i].u.operand |= 0xC00 << 1;
+					else
+						asm_error(ctx, "Internal error: label res imm");
+				}
 			}
 			break;
 		case OUT_LABEL:
