@@ -644,7 +644,8 @@ static void emit_asm(struct disassembler_context *ctx)
 			outfile_name);
 		exit(1);
 	}
-	fprintf(fd, "%%arch bcm43xx_newworld\n\n");
+	/* FIXME: We currently only support v5 architecture. */
+	fprintf(fd, "%%arch 5\n\n");
 	list_for_each_entry(stmt, &ctx->stmt_list, list) {
 		switch (stmt->type) {
 		case STMT_INSN:
