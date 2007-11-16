@@ -289,7 +289,7 @@ static unsigned int generate_reg_operand(struct assembler_context *ctx,
 	case SPR:
 		/* format: 0b100. .... .... */
 		val |= 0x800;
-		if (ctx->arch == 15) //FIXME is this ok?
+		if (ctx->arch == 15)
 			val <<= 1;
 		if (reg->nr & ~0x1FF)
 			asm_error(ctx, "SPR-nr too big");
@@ -298,7 +298,7 @@ static unsigned int generate_reg_operand(struct assembler_context *ctx,
 	case OFFR:
 		/* format: 0b1000 0110 0rrr */
 		val |= 0x860;
-		if (ctx->arch == 15) //FIXME is this ok?
+		if (ctx->arch == 15)
 			val <<= 1;
 		if (reg->nr & ~0x7)
 			asm_error(ctx, "OFFR-nr too big");
