@@ -1,17 +1,20 @@
-CC = gcc
-LEX = flex
-YACC = bison
-PREFIX = /usr/local
-CFLAGS = -std=c99 -O2 -fomit-frame-pointer -Wall -D_BSD_SOURCE -D_GNU_SOURCE
-LDFLAGS = -lfl
+CC		= gcc
+LEX		= flex
+YACC		= bison
 
-BINARY = b43-asm.bin
-OBJECTS = parser.o scanner.o main.o initvals.o util.o args.o
+PREFIX		?= /usr/local
+
+CFLAGS		?= -O2 -fomit-frame-pointer -D_BSD_SOURCE -D_GNU_SOURCE
+CFLAGS		+= -std=c99 -Wall -D_BSD_SOURCE -D_GNU_SOURCE
+LDFLAGS		+= -lfl
+
+BIN		= b43-asm.bin
+OBJECTS		= parser.o scanner.o main.o initvals.o util.o args.o
 
 # YACC related CFLAGS
-CFLAGS += -DYYSTYPE="void *" -DYYERROR_VERBOSE -DYYDEBUG -Wno-unused
+CFLAGS		+= -DYYSTYPE="void *" -DYYERROR_VERBOSE -DYYDEBUG -Wno-unused
 
-all: $(BINARY)
+all: $(BIN)
 
 scanner.c: scanner.l parser.c main.h
 	$(LEX) -o scanner.c --header-file=scanner.h scanner.l
@@ -33,15 +36,18 @@ util.o: util.h
 
 args.o: args.h main.h util.h
 
-$(BINARY): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $(BINARY) $(OBJECTS) $(LDFLAGS)
+$(BIN): $(OBJECTS)
+	$(CC) $(CFLAGS) -o $(BIN) $(OBJECTS) $(LDFLAGS)
 
 install: all
-	-install -o 0 -g 0 -m 755 $(BINARY) $(PREFIX)/bin/
+	-install -o 0 -g 0 -m 755 $(BIN) $(PREFIX)/bin/
 	-cp b43-asm b43-asm.inst
 	-sed -i -e 's/installed=0/installed=1/' b43-asm.inst
 	-install -o 0 -g 0 -m 755 b43-asm.inst $(PREFIX)/bin/b43-asm
 	-rm -f b43-asm.inst
 
 clean:
-	-rm -f *~ *.o *.orig *.rej $(BINARY) scanner.c scanner.h parser.c parser.h
+	-rm -f *~ *.o *.orig *.rej scanner.c scanner.h parser.c parser.h
+
+distclean: clean
+	-rm -f $(BIN)
