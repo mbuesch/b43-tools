@@ -1,27 +1,51 @@
-#!/bin/sh
+#!/bin/bash
+#
+#  b43-asm preprocessing frontend
+#
+#  Copyright (c) 2007 Michael Buesch <mb@bu3sch.de>
+#  Licensed under the GNU/GPL version 2.
+#
 
+
+# The b43-asm backend binary
+B43_ASM="b43-asm.bin"
+# The C preprocessor binary
+CPP="cpp"
+
+
+# This variable is changed by the installer scripts.
 installed=0
-
-if [ -z "$B43_ASM" ]; then
-	if [ $installed -eq 0 ] && [ -x "./b43-asm.bin" ]; then
-		B43_ASM="./b43-asm.bin"
-	else
-		B43_ASM="b43-asm.bin"
-	fi
+if [ $installed -eq 0 ] && [ -x "./$B43_ASM" ]; then
+	B43_ASM="./$B43_ASM"
 fi
 
-if [ -z "$CPP" ]; then
-	CPP="cpp"
+# Probe the CPP binary
+$CPP --help >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+	echo "ERROR: Failed to execute the C preprocessor \"$CPP\""
+	exit 1
+fi
+# Probe the b43-asm binary
+$B43_ASM a b --help >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+	echo "ERROR: Failed to execute the b43-asm binary \"$B43_ASM\""
+	exit 2
 fi
 
 if [ $# -lt 2 ]; then
 	$B43_ASM --help
-	exit 1
+	exit 3
 fi
-
 infile="$1"
 shift
 outfile="$1"
 shift
 
-cat "$infile" | $CPP -traditional-cpp | $B43_ASM "-" "$outfile" $@
+if [ "$infile" != "-" ]; then
+	if ! [ -r "$infile" ]; then
+		echo "ERROR: Can not read input file \"$infile\""
+		exit 4
+	fi
+fi
+
+$CPP -traditional-cpp "$infile" | $B43_ASM "-" "$outfile" $@

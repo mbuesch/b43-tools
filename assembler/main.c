@@ -1106,8 +1106,12 @@ int main(int argc, char **argv)
 	int err, res = 1;
 
 	err = parse_args(argc, argv);
-	if (err)
+	if (err < 0)
 		goto out;
+	if (err > 0) {
+		res = 0;
+		goto out;
+	}
 	err = open_input_file();
 	if (err)
 		goto out;

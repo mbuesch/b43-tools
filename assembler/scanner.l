@@ -193,9 +193,6 @@ static void interpret_cppinfo(const char *str)
 	       min(sizeof(cur_lineinfo.file) - 1,
 		   (int)(found - str)));
 
-	if (strcmp(cur_lineinfo.file, "<stdin>") == 0)
-		strcpy(cur_lineinfo.file, "Input File");
-
 	return;
 error:
 	fprintf(stderr, "Invalid CPP line directive:  %s\n", orig);

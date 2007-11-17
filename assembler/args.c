@@ -110,7 +110,8 @@ int parse_args(int argc, char **argv)
 
 	for (i = 3; i < argc; i++) {
 		if ((res = cmp_arg(argv, &i, "--help", "-h", 0)) == ARG_MATCH) {
-			goto out_usage;
+			usage(argc, argv);
+			return 1;
 		} else if ((res = cmp_arg(argv, &i, "--debug", "-d", 0)) == ARG_MATCH) {
 			_debug++;
 		} else {
