@@ -11,6 +11,7 @@
  *   GNU General Public License for more details.
  */
 
+#include "main.h"
 #include "list.h"
 #include "util.h"
 #include "args.h"
@@ -19,20 +20,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define ARRAY_SIZE(x)	(sizeof(x)/sizeof(x[0]))
-
-/* The header that fwcutter puts in to every .fw file */
-struct fw_header {
-	/* Type of the firmware data */
-	uint8_t type;
-	/* Version number of the firmware data format */
-	uint8_t ver;
-	uint8_t __padding[2];
-	/* Size of the data. For ucode and PCM this is in bytes.
-	 * For IV this is in number-of-ivs. */
-	uint32_t size;
-} __attribute__ ((__packed__));
 
 
 struct bin_instruction {
@@ -699,11 +686,11 @@ static int read_input(struct disassembler_context *ctx)
 		fprintf(stderr, "Corrupt input file (not fwcutter output)\n");
 		goto err_close;
 	}
-	if (hdr.type != 'u') {
+	if (hdr.type != FW_TYPE_UCODE) {
 		fprintf(stderr, "Corrupt input file. Not a microcode image.\n");
 		goto err_close;
 	}
-	if (hdr.ver != 1) {
+	if (hdr.ver != FW_HDR_VER) {
 		fprintf(stderr, "Invalid input file header version.\n");
 		goto err_close;
 	}

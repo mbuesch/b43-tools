@@ -15,6 +15,8 @@ main.o: main.h util.h list.h args.h
 
 util.o: util.h
 
+args.o: args.h main.h util.h
+
 $(BIN): $(OBJECTS)
 	$(CC) $(CFLAGS) -o $(BIN) $(OBJECTS) $(LDFLAGS)
 
