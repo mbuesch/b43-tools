@@ -13,6 +13,7 @@
 
 #include "list.h"
 #include "util.h"
+#include "args.h"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -64,6 +65,9 @@ struct statement {
 };
 
 struct disassembler_context {
+	/* The architecture of the input file. */
+	unsigned int arch;
+
 	struct bin_instruction *code;
 	size_t nr_insns;
 
@@ -71,7 +75,9 @@ struct disassembler_context {
 };
 
 
-static FILE *infile;
+FILE *infile;
+FILE *outfile;
+const char *infile_name;
 const char *outfile_name;
 
 
@@ -635,48 +641,46 @@ static void resolve_labels(struct disassembler_context *ctx)
 static void emit_asm(struct disassembler_context *ctx)
 {
 	struct statement *stmt;
-	FILE *fd;
 	int first, i;
+	int err;
 
-	fd = fopen(outfile_name, "w+");
-	if (!fd) {
-		fprintf(stderr, "Could not open output file \"%s\"\n",
-			outfile_name);
+	err = open_output_file();
+	if (err)
 		exit(1);
-	}
-	/* FIXME: We currently only support v5 architecture. */
-	fprintf(fd, "%%arch 5\n\n");
+
+	fprintf(outfile, "%%arch %u\n\n", ctx->arch);
 	list_for_each_entry(stmt, &ctx->stmt_list, list) {
 		switch (stmt->type) {
 		case STMT_INSN:
-			fprintf(fd, "\t%s", stmt->u.insn.name);
+			fprintf(outfile, "\t%s", stmt->u.insn.name);
 			first = 1;
 			for (i = 0; i < ARRAY_SIZE(stmt->u.insn.operands); i++) {
 				if (stmt->u.insn.is_labelref == i) {
-					fprintf(fd, ",%s",
+					fprintf(outfile, ",%s",
 						stmt->u.insn.labelref->u.label.name);
 				}
 				if (!stmt->u.insn.operands[i])
 					continue;
 				if (first)
-					fprintf(fd, "\t");
+					fprintf(outfile, "\t");
 				if (!first)
-					fprintf(fd, ",");
+					fprintf(outfile, ",");
 				first = 0;
-				fprintf(fd, "%s",
+				fprintf(outfile, "%s",
 					stmt->u.insn.operands[i]);
 			}
-			fprintf(fd, "\n");
+			fprintf(outfile, "\n");
 			break;
 		case STMT_LABEL:
-			fprintf(fd, "%s:\n", stmt->u.label.name);
+			fprintf(outfile, "%s:\n", stmt->u.label.name);
 			break;
 		}
 	}
-	fclose(fd);
+
+	close_output_file();
 }
 
-static void read_input(struct disassembler_context *ctx)
+static int read_input(struct disassembler_context *ctx)
 {
 	size_t size = 0, pos = 0;
 	size_t ret;
@@ -684,21 +688,24 @@ static void read_input(struct disassembler_context *ctx)
 	unsigned char tmp[sizeof(uint64_t)];
 	uint64_t codeword;
 	struct fw_header hdr;
+	int err;
+
+	err = open_input_file();
+	if (err)
+		goto error;
 
 	ret = fread(&hdr, 1, sizeof(hdr), infile);
-	if (!ret || ret != sizeof(hdr)) {
+	if (ret != sizeof(hdr)) {
 		fprintf(stderr, "Corrupt input file (not fwcutter output)\n");
-		exit(1);
-	}	
-
-	if (hdr.ver != 1) {
-		fprintf(stderr, "Invalid fwcutter header version\n");
-		exit(1);
+		goto err_close;
 	}
-
 	if (hdr.type != 'u') {
-		fprintf(stderr, "Not a microcode image\n");
-		exit(1);
+		fprintf(stderr, "Corrupt input file. Not a microcode image.\n");
+		goto err_close;
+	}
+	if (hdr.ver != 1) {
+		fprintf(stderr, "Invalid input file header version.\n");
+		goto err_close;
 	}
 
 	while (1) {
@@ -711,7 +718,7 @@ static void read_input(struct disassembler_context *ctx)
 			break;
 		if (ret != sizeof(uint64_t)) {
 			fprintf(stderr, "Corrupt input file (not 8 byte aligned)\n");
-			exit(1);
+			goto err_free_code;
 		}
 
 		codeword = 0;
@@ -735,41 +742,50 @@ static void read_input(struct disassembler_context *ctx)
 
 	ctx->code = code;
 	ctx->nr_insns = pos;
+
+	close_input_file();
+
+	return 0;
+
+err_free_code:
+	free(code);
+err_close:
+	close_input_file();
+error:
+	return -1;
 }
 
 static void disassemble(void)
 {
 	struct disassembler_context ctx;
+	int err;
 
 	memset(&ctx, 0, sizeof(ctx));
 	INIT_LIST_HEAD(&ctx.stmt_list);
+	ctx.arch = cmdargs.arch;
 
-	read_input(&ctx);
+	err = read_input(&ctx);
+	if (err)
+		exit(1);
 	disasm_opcodes(&ctx);
 	resolve_labels(&ctx);
 	emit_asm(&ctx);
 }
 
-static void usage(int argc, char **argv)
-{
-	fprintf(stderr, "Usage: %s output_file\n", argv[0]);
-}
-
-static void parse_args(int argc, char **argv)
-{
-	if (argc != 2) {
-		usage(argc, argv);
-		exit(1);
-	}
-	outfile_name = argv[1];
-}
-
 int main(int argc, char **argv)
 {
-	infile = stdin;
-	parse_args(argc, argv);
-	disassemble();
+	int err, res = 1;
 
+	err = parse_args(argc, argv);
+	if (err < 0)
+		goto out;
+	if (err > 0) {
+		res = 0;
+		goto out;
+	}
+	disassemble();
+	res = 0;
+out:
 	/* Lazyman simply leaks all allocated memory. */
-	return 0;
+	return res;
 }
