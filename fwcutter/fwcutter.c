@@ -553,7 +553,7 @@ static int do_cmp_arg(char **argv, int *pos,
 		if (param) {
 			/* Skip the parameter on the next iteration. */
 			(*pos)++;
-			if (*param == 0) {
+			if (!*param) {
 				printf("%s needs a parameter\n", arg);
 				return ARG_ERROR;
 			}
@@ -591,34 +591,34 @@ static int parse_args(int argc, char *argv[])
 	if (argc < 2)
 		goto out_usage;
 	for (i = 1; i < argc; i++) {
-		res = cmp_arg(argv, &i, "--list", "-l", 0);
+		res = cmp_arg(argv, &i, "--list", "-l", NULL);
 		if (res == ARG_MATCH) {
 			cmdargs.mode = FWCM_LIST;
 			continue;
 		} else if (res == ARG_ERROR)
 			goto out;
 
-		res = cmp_arg(argv, &i, "--version", "-v", 0);
+		res = cmp_arg(argv, &i, "--version", "-v", NULL);
 		if (res == ARG_MATCH) {
 			print_banner();
 			return 1;
 		} else if (res == ARG_ERROR)
 			goto out;
 
-		res = cmp_arg(argv, &i, "--help", "-h", 0);
+		res = cmp_arg(argv, &i, "--help", "-h", NULL);
 		if (res == ARG_MATCH)
 			goto out_usage;
 		else if (res == ARG_ERROR)
 			goto out;
 
-		res = cmp_arg(argv, &i, "--identify", "-i", 0);
+		res = cmp_arg(argv, &i, "--identify", "-i", NULL);
 		if (res == ARG_MATCH) {
 			cmdargs.mode = FWCM_IDENTIFY;
 			continue;
 		} else if (res == ARG_ERROR)
 			goto out;
 
-		res = cmp_arg(argv, &i, "--unsupported", NULL, 0);
+		res = cmp_arg(argv, &i, "--unsupported", NULL, NULL);
 		if (res == ARG_MATCH) {
 			cmdargs.unsupported = 1;
 			continue;

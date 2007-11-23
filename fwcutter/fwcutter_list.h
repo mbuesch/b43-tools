@@ -1,6 +1,6 @@
 
 /* file member lists */
-struct extract _e08665c5c5b66beb9c3b2dd54aa80cb3[] =
+static struct extract _e08665c5c5b66beb9c3b2dd54aa80cb3[] =
 {
 	{ .name = "ucode2", .offset = 0x59ca0, .length = 0x3fe0, .type = EXT_UCODE_1, },
 	{ .name = "ucode4", .offset = 0x5dc84, .length = 0x4e78, .type = EXT_UCODE_1, },
@@ -21,7 +21,7 @@ struct extract _e08665c5c5b66beb9c3b2dd54aa80cb3[] =
 	EXTRACT_LIST_END
 };
 
-struct extract _9207bc565c2fc9fa1591f6c7911d3fc0[] =
+static struct extract _9207bc565c2fc9fa1591f6c7911d3fc0[] =
 {
 	{ .name = "ucode4",  .offset = 0x66220 +  0x7ad8, .length = 0x4e68, .type = EXT_UCODE_1, },
 	{ .name = "ucode5",  .offset = 0x66220 +  0xc944, .length = 0x5640, .type = EXT_UCODE_2, },
@@ -48,7 +48,7 @@ struct extract _9207bc565c2fc9fa1591f6c7911d3fc0[] =
 	EXTRACT_LIST_END
 };
 
-struct extract _722e2e0d8cc04b8f118bb5afe6829ff9[] =
+static struct extract _722e2e0d8cc04b8f118bb5afe6829ff9[] =
 {
 	{ .name = "ucode4",  .offset = 0x76a10 +  0x8960, .length = 0x4e68, .type = EXT_UCODE_1, },
 	{ .name = "ucode5",  .offset = 0x76a10 +  0xd7cc, .length = 0x5640, .type = EXT_UCODE_2, },
@@ -75,7 +75,7 @@ struct extract _722e2e0d8cc04b8f118bb5afe6829ff9[] =
 	EXTRACT_LIST_END
 };
 
-struct extract _1e4763b4cb8cfbaae43e5c6d3d6b2ae7[] =
+static struct extract _1e4763b4cb8cfbaae43e5c6d3d6b2ae7[] =
 {
 	{ .name = "ucode5",  .offset = 0x71c80 +  0xacd0, .length = 0x5768, .type = EXT_UCODE_2, },
 	{ .name = "ucode9",  .offset = 0x71c80 + 0x1043c, .length = 0x6240, .type = EXT_UCODE_2, },
