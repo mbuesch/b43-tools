@@ -1,8 +1,9 @@
 #ifndef _FWCUTTER_H_
 #define _FWCUTTER_H_
 
-#define FW_FLAG_LE	0x01	/* little endian? convert */
-#define FW_FLAG_V4	0x02	/* b43 vs. b43legacy */
+#define FW_FLAG_LE		0x01	/* little endian? convert */
+#define FW_FLAG_V4		0x02	/* b43 vs. b43legacy */
+#define FW_FLAG_UNSUPPORTED	0x04	/* not supported/working */
 
 #define fwcutter_stringify_1(x)	#x
 #define fwcutter_stringify(x)	fwcutter_stringify_1(x)
@@ -20,10 +21,17 @@ typedef uint32_t be32_t; /* Big-endian 32bit */
 #define ARG_NOMATCH	1
 #define ARG_ERROR	-1
 
+enum fwcutter_mode {
+	FWCM_EXTRACT = 0,	/* default */
+	FWCM_LIST,
+	FWCM_IDENTIFY,
+};
+
 struct cmdline_args {
 	const char *infile;
 	const char *target_dir;
-	int identify_only;
+	enum fwcutter_mode mode;
+	int unsupported;
 };
 
 struct insn {

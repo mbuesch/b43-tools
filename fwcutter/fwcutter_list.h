@@ -147,7 +147,7 @@ static const struct file files[] =
 		.name		= "wl_ap.o",
 		.ucode_version	= "410.2160",
 		.md5		= "1e4763b4cb8cfbaae43e5c6d3d6b2ae7",
-		.flags		= FW_FLAG_LE | FW_FLAG_V4,
+		.flags		= FW_FLAG_LE | FW_FLAG_V4 | FW_FLAG_UNSUPPORTED,
 		.extract	= _1e4763b4cb8cfbaae43e5c6d3d6b2ae7,
 	},
 };

@@ -59,6 +59,12 @@
 static struct cmdline_args cmdargs;
 
 
+/* check whether file will be listed/extracted from */
+static int file_ok(const struct file *f)
+{
+	return !(f->flags & FW_FLAG_UNSUPPORTED) || cmdargs.unsupported;
+}
+
 /* Convert a CPU-endian 16bit integer to Big-Endian */
 static be16_t to_be16(uint16_t v)
 {
@@ -398,7 +404,7 @@ static void extract_or_identify(FILE *f, const struct extract *extract,
 		exit(255);
 	}
 
-	if (!cmdargs.identify_only)
+	if (cmdargs.mode == FWCM_EXTRACT)
 		write_file(extract->name, buf, data_length, &hdr, flags);
 
 	free(buf);
@@ -449,10 +455,10 @@ static void print_supported_files(void)
 	       "<MD5 checksum>\n\n");
 	/* print for legacy driver first */
 	for (i = 0; i < FILES; i++)
-		if (!(files[i].flags & FW_FLAG_V4))
+		if (file_ok(&files[i]) && !(files[i].flags & FW_FLAG_V4))
 			print_file(&files[i]);
 	for (i = 0; i < FILES; i++)
-		if (files[i].flags & FW_FLAG_V4)
+		if (file_ok(&files[i]) && files[i].flags & FW_FLAG_V4)
 			print_file(&files[i]);
 	printf("\n");
 }
@@ -478,7 +484,8 @@ static const struct file *find_file(FILE *fd)
 		 signature[12], signature[13], signature[14], signature[15]);
 
 	for (i = 0; i < FILES; ++i) {
-		if (strcasecmp(md5sig, files[i].md5) == 0) {
+		if (file_ok(&files[i]) &&
+		    strcasecmp(md5sig, files[i].md5) == 0) {
 			printf("This file is recognised as:\n");
 			printf("  filename   :  %s\n", files[i].name);
 			printf("  version    :  %s\n", files[i].ucode_version);
@@ -497,6 +504,8 @@ static void print_usage(int argc, char *argv[])
 {
 	print_banner();
 	printf("\nUsage: %s [OPTION] [driver.sys]\n", argv[0]);
+	printf("  --unsupported         "
+	       "Allow working on extractable but unsupported drivers\n");
 	printf("  -l|--list             "
 	       "List supported driver versions\n");
 	printf("  -i|--identify         "
@@ -584,8 +593,8 @@ static int parse_args(int argc, char *argv[])
 	for (i = 1; i < argc; i++) {
 		res = cmp_arg(argv, &i, "--list", "-l", 0);
 		if (res == ARG_MATCH) {
-			print_supported_files();
-			return 1;
+			cmdargs.mode = FWCM_LIST;
+			continue;
 		} else if (res == ARG_ERROR)
 			goto out;
 
@@ -604,7 +613,14 @@ static int parse_args(int argc, char *argv[])
 
 		res = cmp_arg(argv, &i, "--identify", "-i", 0);
 		if (res == ARG_MATCH) {
-			cmdargs.identify_only = 1;
+			cmdargs.mode = FWCM_IDENTIFY;
+			continue;
+		} else if (res == ARG_ERROR)
+			goto out;
+
+		res = cmp_arg(argv, &i, "--unsupported", NULL, 0);
+		if (res == ARG_MATCH) {
+			cmdargs.unsupported = 1;
 			continue;
 		} else if (res == ARG_ERROR)
 			goto out;
@@ -620,7 +636,7 @@ static int parse_args(int argc, char *argv[])
 		break;
 	}
 
-	if (!cmdargs.infile)
+	if (!cmdargs.infile && cmdargs.mode != FWCM_LIST)
 		goto out_usage;
 	return 0;
 
@@ -645,6 +661,11 @@ int main(int argc, char *argv[])
 	else if (err != 0)
 		return err;
 
+	if (cmdargs.mode == FWCM_LIST) {
+		print_supported_files();
+		return 0;
+	}
+
 	fd = fopen(cmdargs.infile, "rb");
 	if (!fd) {
 		fprintf(stderr, "Cannot open input file %s\n", cmdargs.infile);
@@ -664,7 +685,7 @@ int main(int argc, char *argv[])
 	extract = file->extract;
 	while (extract->name) {
 		printf("%s %s/%s.fw\n",
-		       cmdargs.identify_only ? "Contains" : "Extracting",
+		       cmdargs.mode == FWCM_IDENTIFY ? "Contains" : "Extracting",
 		       dir, extract->name);
 		extract_or_identify(fd, extract, file->flags);
 		extract++;
