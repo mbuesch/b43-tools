@@ -32,6 +32,8 @@
 
 
 struct cmdline_args cmdargs;
+uint8_t sprom_rev;
+uint16_t sprom_size;
 
 static int value_length_map[] = { /* value to number of bits */
 	[VALUE_RAW] = 8,
@@ -77,7 +79,7 @@ static int hexdump_sprom(const uint8_t *sprom, char *buffer, size_t bsize)
 {
 	int i, pos = 0;
 
-	for (i = 0; i < SPROM_SIZE; i++) {
+	for (i = 0; i < sprom_size; i++) {
 		pos += snprintf(buffer + pos, bsize - pos - 1,
 				"%02X", sprom[i] & 0xFF);
 	}
@@ -90,7 +92,7 @@ static uint8_t sprom_crc(const uint8_t *sprom)
 	int i;
 	uint8_t crc = 0xFF;
 
-	for (i = 0; i < SPROM_SIZE - 1; i++)
+	for (i = 0; i < sprom_size - 1; i++)
 		crc = crc8(crc, sprom[i]);
 	crc ^= 0xFF;
 
@@ -101,7 +103,7 @@ static int write_output_binary(int fd, const uint8_t *sprom)
 {
 	ssize_t w;
 
-	w = write(fd, sprom, SPROM_SIZE);
+	w = write(fd, sprom, sprom_size);
 	if (w < 0)
 		return -1;
 
@@ -111,11 +113,11 @@ static int write_output_binary(int fd, const uint8_t *sprom)
 static int write_output_hex(int fd, const uint8_t *sprom)
 {
 	ssize_t w;
-	char tmp[SPROM_SIZE * 2 + 10] = { 0 };
+	char tmp[SPROM4_SIZE * 2 + 10] = { 0 };
 
 	hexdump_sprom(sprom, tmp, sizeof(tmp));
 	prinfo("Raw output:  %s\n", tmp);
-	w = write(fd, tmp, SPROM_SIZE * 2);
+	w = write(fd, tmp, sprom_size * 2);
 	if (w < 0)
 		return -1;
 
@@ -150,22 +152,31 @@ static int modify_value(uint8_t *sprom,
 {
 	const uint16_t v = vparm->u.value;
 	uint16_t tmp = 0;
+	uint16_t offset;
 
 	switch (vparm->type) {
 	case VALUE_RAW:
 		sprom[vparm->u.raw.offset] = vparm->u.raw.value;
 		break;
 	case VALUE_SUBP:
-		sprom[SPROM_SUBP + 0] = (v & 0x00FF);
-		sprom[SPROM_SUBP + 1] = (v & 0xFF00) >> 8;
+		if (sprom_rev == 4)
+			offset = SPROM4_SUBP;
+		else
+			offset = SPROM_SUBP;
+		sprom[offset + 0] = (v & 0x00FF);
+		sprom[offset + 1] = (v & 0xFF00) >> 8;
 		break;
 	case VALUE_SUBV:
 		sprom[SPROM_SUBV + 0] = (v & 0x00FF);
 		sprom[SPROM_SUBV + 1] = (v & 0xFF00) >> 8;
 		break;
 	case VALUE_PPID:
-		sprom[SPROM_PPID + 0] = (v & 0x00FF);
-		sprom[SPROM_PPID + 1] = (v & 0xFF00) >> 8;
+		if (sprom_rev == 4)
+			offset = SPROM4_PPID;
+		else
+			offset = SPROM_PPID;
+		sprom[offset + 0] = (v & 0x00FF);
+		sprom[offset + 1] = (v & 0xFF00) >> 8;
 		break;
 	case VALUE_BFLHI:
 		sprom[SPROM_BFLHI + 0] = (v & 0x00FF);
@@ -176,28 +187,46 @@ static int modify_value(uint8_t *sprom,
 		sprom[SPROM_BOARDFLAGS + 1] = (v & 0xFF00) >> 8;
 		break;
 	case VALUE_BGMAC:
-		sprom[SPROM_IL0MACADDR + 1] = vparm->u.mac[0];
-		sprom[SPROM_IL0MACADDR + 0] = vparm->u.mac[1];
-		sprom[SPROM_IL0MACADDR + 3] = vparm->u.mac[2];
-		sprom[SPROM_IL0MACADDR + 2] = vparm->u.mac[3];
-		sprom[SPROM_IL0MACADDR + 5] = vparm->u.mac[4];
-		sprom[SPROM_IL0MACADDR + 4] = vparm->u.mac[5];
+		if (sprom_rev == 3)
+			offset = SPROM3_IL0MACADDR;
+		else if (sprom_rev == 4)
+			offset = SPROM4_IL0MACADDR;
+		else
+			offset = SPROM_IL0MACADDR;
+		sprom[offset + 1] = vparm->u.mac[0];
+		sprom[offset + 0] = vparm->u.mac[1];
+		sprom[offset + 3] = vparm->u.mac[2];
+		sprom[offset + 2] = vparm->u.mac[3];
+		sprom[offset + 5] = vparm->u.mac[4];
+		sprom[offset + 4] = vparm->u.mac[5];
 		break;
 	case VALUE_ETMAC:
-		sprom[SPROM_ET0MACADDR + 1] = vparm->u.mac[0];
-		sprom[SPROM_ET0MACADDR + 0] = vparm->u.mac[1];
-		sprom[SPROM_ET0MACADDR + 3] = vparm->u.mac[2];
-		sprom[SPROM_ET0MACADDR + 2] = vparm->u.mac[3];
-		sprom[SPROM_ET0MACADDR + 5] = vparm->u.mac[4];
-		sprom[SPROM_ET0MACADDR + 4] = vparm->u.mac[5];
+		if (sprom_rev == 3)
+			offset = SPROM3_ET0MACADDR;
+		else if (sprom_rev == 4)
+			offset = SPROM4_ET0MACADDR;
+		else
+			offset = SPROM_ET0MACADDR;
+		sprom[offset + 1] = vparm->u.mac[0];
+		sprom[offset + 0] = vparm->u.mac[1];
+		sprom[offset + 3] = vparm->u.mac[2];
+		sprom[offset + 2] = vparm->u.mac[3];
+		sprom[offset + 5] = vparm->u.mac[4];
+		sprom[offset + 4] = vparm->u.mac[5];
 		break;
 	case VALUE_AMAC:
-		sprom[SPROM_ET1MACADDR + 1] = vparm->u.mac[0];
-		sprom[SPROM_ET1MACADDR + 0] = vparm->u.mac[1];
-		sprom[SPROM_ET1MACADDR + 3] = vparm->u.mac[2];
-		sprom[SPROM_ET1MACADDR + 2] = vparm->u.mac[3];
-		sprom[SPROM_ET1MACADDR + 5] = vparm->u.mac[4];
-		sprom[SPROM_ET1MACADDR + 4] = vparm->u.mac[5];
+		if (sprom_rev == 3)
+			offset = SPROM3_ET1MACADDR;
+		else if (sprom_rev == 4)
+			offset = SPROM4_ET1MACADDR;
+		else
+			offset = SPROM_ET1MACADDR;
+		sprom[offset + 1] = vparm->u.mac[0];
+		sprom[offset + 0] = vparm->u.mac[1];
+		sprom[offset + 3] = vparm->u.mac[2];
+		sprom[offset + 2] = vparm->u.mac[3];
+		sprom[offset + 5] = vparm->u.mac[4];
+		sprom[offset + 4] = vparm->u.mac[5];
 		break;
 	case VALUE_ET0PHY:
 		tmp |= sprom[SPROM_ETHPHY + 0];
@@ -224,7 +253,10 @@ static int modify_value(uint8_t *sprom,
 			sprom[SPROM_ETHPHY + 1] |= (1 << 7);
 		break;
 	case VALUE_BREV:
-		sprom[SPROM_BOARDREV + 0] = v;
+		if (sprom_rev == 4)
+			sprom[SPROM4_BOARDREV + 0] = v;
+		else
+			sprom[SPROM_BOARDREV + 0] = v;
 		break;
 	case VALUE_LOC:
 		tmp = (sprom[SPROM_BOARDREV + 1] & 0xF0);
@@ -232,24 +264,33 @@ static int modify_value(uint8_t *sprom,
 		sprom[SPROM_BOARDREV + 1] = (tmp & 0xFF);
 		break;
 	case VALUE_ANTA0:
+		if (sprom_rev == 4)
+			sprom[SPROM4_BOARDREV + 1] &= ~(1 << 6);
+		else
+			sprom[SPROM_BOARDREV + 1] &= ~(1 << 6);
+		if (v) {
+			if (sprom_rev == 4) {
+				if (sprom_rev == 4)
+					sprom[SPROM4_BOARDREV + 1] |= ~(1 << 6);
+				else
+					sprom[SPROM_BOARDREV + 1] |= (1 << 6);
+			}
+		}
+		break;
+	case VALUE_ANTA1:
+		sprom[SPROM_BOARDREV + 1] &= ~(1 << 7);
+		if (v)
+			sprom[SPROM_BOARDREV + 1] |= (1 << 7);
+		break;
+	case VALUE_ANTBG0:
 		sprom[SPROM_BOARDREV + 1] &= ~(1 << 4);
 		if (v)
 			sprom[SPROM_BOARDREV + 1] |= (1 << 4);
 		break;
-	case VALUE_ANTA1:
+	case VALUE_ANTBG1:
 		sprom[SPROM_BOARDREV + 1] &= ~(1 << 5);
 		if (v)
 			sprom[SPROM_BOARDREV + 1] |= (1 << 5);
-		break;
-	case VALUE_ANTBG0:
-		sprom[SPROM_BOARDREV + 1] &= ~(1 << 6);
-		if (v)
-			sprom[SPROM_BOARDREV + 1] |= (1 << 6);
-		break;
-	case VALUE_ANTBG1:
-		sprom[SPROM_BOARDREV + 1] &= ~(1 << 7);
-		if (v)
-			sprom[SPROM_BOARDREV + 1] |= (1 << 7);
 		break;
 	case VALUE_ANTGA:
 		sprom[SPROM_ANTENNA_GAIN + 0] = (v & 0xFF);
@@ -306,7 +347,10 @@ static int modify_value(uint8_t *sprom,
 		sprom[SPROM_IDL_TSSI_TGT + 1] = (v & 0xFF);
 		break;
 	case VALUE_SVER:
-		sprom[SPROM_VERSION + 0] = (v & 0xFF);
+		if (sprom_rev != 4)
+			sprom[SPROM_VERSION + 0] = (v & 0xFF);
+		else
+			sprom[SPROM4_VERSION + 0] = (v & 0xFF);
 		break;
 	default:
 		prerror("vparm->type internal error (0)\n");
@@ -333,7 +377,7 @@ static int modify_sprom(uint8_t *sprom)
 	if (modified) {
 		/* Recalculate the CRC. */
 		crc = sprom_crc(sprom);
-		sprom[SPROM_VERSION + 1] = crc;
+		sprom[sprom_size - 1] = crc;
 	}
 
 	return modified;
@@ -343,7 +387,7 @@ static void display_value(const uint8_t *sprom,
 			  struct cmdline_vparm *vparm)
 {
 	const char *desc;
-	uint8_t offset;
+	uint16_t offset;
 	uint16_t value;
 	uint16_t tmp;
 
@@ -355,9 +399,12 @@ static void display_value(const uint8_t *sprom,
 		break;
 	case VALUE_SUBP:
 		desc = "Subsytem product ID";
-		offset = SPROM_SUBP;
-		value = sprom[SPROM_SUBP + 0];
-		value |= sprom[SPROM_SUBP + 1] << 8;
+		if (sprom_rev == 4)
+			offset = SPROM4_SUBP;
+		else
+			offset = SPROM_SUBP;
+		value = sprom[offset + 0];
+		value |= sprom[offset + 1] << 8;
 		break;
 	case VALUE_SUBV:
 		desc = "Subsystem vendor ID";
@@ -367,35 +414,59 @@ static void display_value(const uint8_t *sprom,
 		break;
 	case VALUE_PPID:
 		desc = "PCI Product ID";
-		offset = SPROM_PPID;
-		value = sprom[SPROM_PPID + 0];
-		value |= sprom[SPROM_PPID + 1] << 8;
+		if (sprom_rev == 4)
+			offset = SPROM4_PPID;
+		else
+			offset = SPROM_PPID;
+		value = sprom[offset + 0];
+		value |= sprom[offset + 1] << 8;
 		break;
 	case VALUE_BFLHI:
 		desc = "High 16 bits of Boardflags";
-		offset = SPROM_BFLHI;
-		value = sprom[SPROM_BFLHI + 0];
-		value |= sprom[SPROM_BFLHI + 1] << 8;
+		if (sprom_rev == 4)
+			offset = SPROM4_BOARDFLAGS + 2;
+		else
+			offset = SPROM_BFLHI;
+		value = sprom[offset + 0];
+		value |= sprom[offset + 1] << 8;
 		break;
 	case VALUE_BFL:
 		desc = "Low 16 bits of Boardflags";
-		offset = SPROM_BOARDFLAGS;
-		value = sprom[SPROM_BOARDFLAGS + 0];
-		value |= sprom[SPROM_BOARDFLAGS + 1] << 8;
+		if (sprom_rev == 4)
+			offset = SPROM4_BOARDFLAGS;
+		else
+			offset = SPROM_BOARDFLAGS;
+		value = sprom[offset + 0];
+		value |= sprom[offset + 1] << 8;
 		break;
 	case VALUE_BGMAC:
 		desc = "MAC address for 802.11b/g";
-		offset = SPROM_IL0MACADDR;
+		if (sprom_rev == 3)
+			offset = SPROM3_IL0MACADDR;
+		else if (sprom_rev == 4)
+			offset = SPROM4_IL0MACADDR;
+		else
+			offset = SPROM_IL0MACADDR;
 		value = 0;
 		break;
 	case VALUE_ETMAC:
 		desc = "MAC address for ethernet";
-		offset = SPROM_ET0MACADDR;
+		if (sprom_rev == 3)
+			offset = SPROM3_ET0MACADDR;
+		else if (sprom_rev == 4)
+			offset = SPROM4_ET0MACADDR;
+		else
+			offset = SPROM_ET0MACADDR;
 		value = 0;
 		break;
 	case VALUE_AMAC:
 		desc = "MAC address for 802.11a";
-		offset = SPROM_ET1MACADDR;
+		if (sprom_rev == 3)
+			offset = SPROM3_ET1MACADDR;
+		else if (sprom_rev == 4)
+			offset = SPROM4_ET1MACADDR;
+		else
+			offset = SPROM_ET1MACADDR;
 		value = 0;
 		break;
 	case VALUE_ET0PHY:
@@ -428,51 +499,97 @@ static void display_value(const uint8_t *sprom,
 		break;
 	case VALUE_BREV:
 		desc = "Board revision";
-		offset = SPROM_BOARDREV;
-		value = sprom[SPROM_BOARDREV + 0];
+		if (sprom_rev == 4)
+			offset = SPROM4_BOARDREV;
+		else
+			offset = SPROM_BOARDREV;
+		value = sprom[offset + 0];
 		break;
 	case VALUE_LOC:
 		desc = "Locale / Country Code";
-		offset = SPROM_BOARDREV + 1;
-		value = (sprom[SPROM_BOARDREV + 1] & 0x0F);
+		if (sprom_rev == 4) {
+			offset = SPROM4_COUNTRY;
+			value = sprom[offset] | (sprom[offset + 1] << 8);
+		} else {
+			offset = SPROM_BOARDREV;
+			value = (sprom[offset + 1] & 0x0F);
+		}
 		break;
 	case VALUE_ANTA0:
 		desc = "A PHY antenna 0 available";
-		offset = SPROM_BOARDREV + 1;
 		value = 0;
-		if (sprom[SPROM_BOARDREV + 1] & (1 << 4))
-			value = 1;
+		if (sprom_rev == 4) {
+			offset = SPROM4_ANTAVAIL;
+			if (sprom[offset + 1] & 1)
+				value = 1;
+		} else {
+			offset = SPROM_BOARDREV;
+			value = 0;
+			if (sprom[offset + 2] & (1 << 6))
+				value = 1;
+		}
 		break;
 	case VALUE_ANTA1:
 		desc = "A PHY antenna 1 available";
-		offset = SPROM_BOARDREV + 1;
 		value = 0;
-		if (sprom[SPROM_BOARDREV + 1] & (1 << 5))
-			value = 1;
+		if (sprom_rev == 4) {
+			offset = SPROM4_ANTAVAIL;
+			if (sprom[offset + 1] & 2)
+				value = 1;
+		} else {
+			offset = SPROM_BOARDREV;
+			value = 0;
+			if (sprom[offset + 2] & (1 << 7))
+				value = 1;
+		}
 		break;
 	case VALUE_ANTBG0:
 		desc = "B/G PHY antenna 0 available";
-		offset = SPROM_BOARDREV + 1;
 		value = 0;
-		if (sprom[SPROM_BOARDREV + 1] & (1 << 6))
-			value = 1;
+		if (sprom_rev == 4) {
+			offset = SPROM4_ANTAVAIL;
+			if (sprom[offset] & 1)
+				value = 1;
+		} else {
+			offset = SPROM_BOARDREV;
+			value = 0;
+			if (sprom[offset + 2] & (1 << 4))
+				value = 1;
+		}
 		break;
 	case VALUE_ANTBG1:
 		desc = "B/G PHY antenna 1 available";
-		offset = SPROM_BOARDREV + 1;
 		value = 0;
-		if (sprom[SPROM_BOARDREV + 1] & (1 << 7))
-			value = 1;
+		if (sprom_rev == 4) {
+			offset = SPROM4_ANTAVAIL;
+			if (sprom[offset] & 2)
+				value = 1;
+		} else {
+			offset = SPROM_BOARDREV;
+			value = 0;
+			if (sprom[offset + 2] & (1 << 5))
+				value = 1;
+		}
 		break;
 	case VALUE_ANTGA:
-		desc = "A PHY antenna gain";
-		offset = SPROM_ANTENNA_GAIN;
-		value = sprom[SPROM_ANTENNA_GAIN];
+		if (sprom_rev != 4) {
+			desc = "A PHY antenna gain";
+			offset = SPROM_ANTENNA_GAIN + 1;
+		} else {
+			desc = "Antenna 1 Gain";
+			offset = SPROM4_ANTENNA_GAIN;
+		}
+		value = sprom[offset + 1];
 		break;
 	case VALUE_ANTGBG:
-		desc = "B/G PHY antenna gain";
-		offset = SPROM_ANTENNA_GAIN + 1;
-		value = sprom[SPROM_ANTENNA_GAIN + 1];
+		if (sprom_rev != 4) {
+			desc = "B/G PHY antenna gain";
+			offset = SPROM_ANTENNA_GAIN;
+		} else {
+			desc = "Antenna 0 Gain";
+			offset = SPROM4_ANTENNA_GAIN;
+		}
+		value = sprom[offset];
 		break;
 	case VALUE_PA0B0:
 		desc = "pa0b0";
@@ -512,47 +629,74 @@ static void display_value(const uint8_t *sprom,
 		break;
 	case VALUE_WL0GPIO0:
 		desc = "LED 0 behaviour";
-		offset = SPROM_WL0GPIO0 + 0;
+		if (sprom_rev != 4)
+			offset = SPROM_WL0GPIO0 + 0;
+		else
+			offset = SPROM4_WL0GPIO0 + 0;
 		value = sprom[offset];
 		break;
 	case VALUE_WL0GPIO1:
 		desc = "LED 1 behaviour";
-		offset = SPROM_WL0GPIO0 + 1;
+		if (sprom_rev != 4)
+			offset = SPROM_WL0GPIO0 + 1;
+		else
+			offset = SPROM4_WL0GPIO0 + 1;
 		value = sprom[offset];
 		break;
 	case VALUE_WL0GPIO2:
 		desc = "LED 2 behaviour";
-		offset = SPROM_WL0GPIO2 + 0;
+		if (sprom_rev != 4)
+			offset = SPROM_WL0GPIO2 + 0;
+		else
+			offset = SPROM4_WL0GPIO2 + 0;
 		value = sprom[offset];
 		break;
 	case VALUE_WL0GPIO3:
 		desc = "LED 3 behaviour";
-		offset = SPROM_WL0GPIO2 + 1;
+		if (sprom_rev != 4)
+			offset = SPROM_WL0GPIO2 + 1;
+		else
+			offset = SPROM4_WL0GPIO2 + 1;
 		value = sprom[offset];
 		break;
 	case VALUE_MAXPA:
 		desc = "A PHY max powerout";
-		offset = SPROM_MAXPWR + 0;
+		if (sprom_rev != 4)
+			offset = SPROM_MAXPWR + 1;
+		else
+			offset = SPROM4_MAXPWR + 1;
 		value = sprom[offset];
 		break;
 	case VALUE_MAXPBG:
 		desc = "B/G PHY max powerout";
-		offset = SPROM_MAXPWR + 1;
+		if (sprom_rev != 4)
+			offset = SPROM_MAXPWR + 0;
+		else
+			offset = SPROM4_MAXPWR + 0;
 		value = sprom[offset];
 		break;
 	case VALUE_ITSSIA:
 		desc = "A PHY idle TSSI target";
-		offset = SPROM_IDL_TSSI_TGT + 0;
+		if (sprom_rev != 4)
+			offset = SPROM_IDL_TSSI_TGT + 1;
+		else
+			offset = SPROM4_IDL_TSSI_TGT + 1;
 		value = sprom[offset];
 		break;
 	case VALUE_ITSSIBG:
 		desc = "B/G PHY idle TSSI target";
-		offset = SPROM_IDL_TSSI_TGT + 1;
+		if (sprom_rev != 4)
+			offset = SPROM_IDL_TSSI_TGT + 0;
+		else
+			offset = SPROM4_IDL_TSSI_TGT + 0;
 		value = sprom[offset];
 		break;
 	case VALUE_SVER:
 		desc = "SPROM version";
-		offset = SPROM_VERSION;
+		if (sprom_rev != 4)
+			offset = SPROM_VERSION;
+		else
+			offset = SPROM4_VERSION;
 		value = sprom[offset];
 		break;
 	default:
@@ -613,7 +757,8 @@ static int validate_input(const uint8_t *sprom)
 	uint8_t crc, expected_crc;
 
 	crc = sprom_crc(sprom);
-	expected_crc = sprom[SPROM_VERSION + 1];
+	expected_crc = sprom[sprom_size - 1];
+
 	if (crc != expected_crc) {
 		prerror("Corrupt input data (crc: 0x%02X, expected: 0x%02X)\n",
 			crc, expected_crc);
@@ -630,14 +775,14 @@ static int parse_input(uint8_t *sprom, char *buffer, size_t bsize)
 	size_t inlen;
 	size_t cnt;
 	unsigned long parsed;
-	char tmp[SPROM_SIZE * 2 + 10] = { 0 };
+	char tmp[SPROM4_SIZE * 2 + 10] = { 0 };
 
 	if (cmdargs.bin_mode) {
 		/* The input buffer already contains
 		 * the binary sprom data.
 		 */
-		internal_error_on(bsize != SPROM_SIZE);
-		memcpy(sprom, buffer, SPROM_SIZE);
+		internal_error_on(bsize != SPROM_SIZE && bsize != SPROM4_SIZE);
+		memcpy(sprom, buffer, bsize);
 		return 0;
 	}
 
@@ -653,10 +798,18 @@ static int parse_input(uint8_t *sprom, char *buffer, size_t bsize)
 		prerror("Input data too short\n");
 		return -1;
 	}
-	for (cnt = 0; cnt < SPROM_SIZE; cnt++) {
+	for (cnt = 0; cnt < inlen / 2; cnt++) {
 		memcpy(tmp, input + cnt * 2, 2);
 		parsed = strtoul(tmp, NULL, 16);
 		sprom[cnt] = parsed & 0xFF;
+	}
+	/* check for "magic" data for V4 SPROM */
+	if (sprom[0x40] == 0x72 && sprom[0x41] == 0x53) {
+		sprom_rev = sprom[SPROM4_VERSION];
+		sprom_size = SPROM4_SIZE;
+	} else {
+		sprom_rev = sprom[SPROM_VERSION];
+		sprom_size = SPROM_SIZE;
 	}
 
 	if (cmdargs.verbose) {
@@ -683,11 +836,13 @@ static int read_infile(int fd, char **buffer, size_t *bsize)
 		return -1;
 	}
 	if (cmdargs.bin_mode) {
-		if (s.st_size != SPROM_SIZE) {
+		if (s.st_size != SPROM_SIZE && s.st_size != SPROM4_SIZE) {
 			prerror("The input data is no SPROM Binary data. "
-				"The size must be exactly %d bytes, "
+				"The size must be exactly %d (V1-3) "
+				"or %d (V4) bytes, "
 				"but it is %u bytes\n",
-				SPROM_SIZE, (unsigned int)(s.st_size));
+				SPROM_SIZE, SPROM4_SIZE,
+				(unsigned int)(s.st_size));
 			return -1;
 		}
 	} else {
@@ -938,12 +1093,21 @@ static int parse_value(const char *str,
 	if (strncmp(str, "0x", 2) != 0)
 		goto error;
 	str += 2;
+	/* The following logic presents a problem because the offsets
+	 * for V4 SPROMs can be greater than 0xFF; however, the arguments
+	 * are parsed before the SPROM revision is known. To fix this
+	 * problem, if an input is expecting 0xFF-type input, then input
+	 * of 0xFFF will be permitted */
 	for (i = 0; i < vparm->bits / 4; i++) {
 		if (str[i] == '\0')
 			goto error;
 	}
-	if (str[i] != '\0')
-		goto error;
+	if (str[i] != '\0') {
+		if (i == 2)
+			i++;		/* add an extra character */
+		if (str[i] != '\0')
+			goto error;
+	}
 	errno = 0;
 	v = strtoul(str, NULL, 16);
 	if (errno)
@@ -1009,7 +1173,7 @@ static int parse_rawset(const char *str,
 {
 	char *delim;
 	uint8_t value;
-	uint8_t offset;
+	uint16_t offset;
 	int err;
 
 	vparm->type = VALUE_RAW;
@@ -1022,9 +1186,9 @@ static int parse_rawset(const char *str,
 	if (err != 1)
 		goto error;
 	offset = vparm->u.value;
-	if (offset >= SPROM_SIZE) {
+	if (offset >= SPROM4_SIZE) {
 		prerror("--rawset offset too big (>= 0x%02X)\n",
-			SPROM_SIZE);
+			SPROM4_SIZE);
 		return -1;
 	}
 	err = parse_value(delim + 1, vparm, NULL);
@@ -1047,7 +1211,7 @@ static int parse_rawget(const char *str,
 			struct cmdline_vparm *vparm)
 {
 	int err;
-	uint8_t offset;
+	uint16_t offset;
 
 	vparm->type = VALUE_RAW;
 
@@ -1055,9 +1219,9 @@ static int parse_rawget(const char *str,
 	if (err != 1)
 		return -1;
 	offset = vparm->u.value;
-	if (offset >= SPROM_SIZE) {
+	if (offset >= SPROM4_SIZE) {
 		prerror("--rawget offset too big (>= 0x%02X)\n",
-			SPROM_SIZE);
+			SPROM4_SIZE);
 		return -1;
 	}
 
@@ -1370,7 +1534,7 @@ int main(int argc, char **argv)
 {
 	int err;
 	int fd;
-	uint8_t sprom[SPROM_SIZE];
+	uint8_t sprom[SPROM4_SIZE + 10];
 	char *buffer = NULL;
 	size_t buffer_size = 0;
 

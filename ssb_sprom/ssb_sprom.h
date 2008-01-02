@@ -29,30 +29,49 @@
 #define VERSION			ssb_stringify(VERSION_)
 
 #define SPROM_SIZE		128 /* bytes */
+#define SPROM4_SIZE		440
 
 /* byte offsets */
 #define SPROM_SUBP		(0x02 * 2)
+#define SPROM4_SUBP		(0x00 * 2)
 #define SPROM_SUBV		(0x03 * 2)
 #define SPROM_PPID		(0x04 * 2)
+#define SPROM4_PPID		(0x02 * 2)
 #define SPROM_BFLHI		(0x1C * 2)
 #define SPROM_IL0MACADDR	(0x24 * 2)
 #define SPROM_ET0MACADDR	(0x27 * 2)
 #define SPROM_ET1MACADDR	(0x2a * 2)
+#define SPROM3_IL0MACADDR	(0x25 * 2)
+#define SPROM3_ET0MACADDR	(0x28 * 2)
+#define SPROM3_ET1MACADDR	(0x28 * 2)
+#define SPROM4_IL0MACADDR	(0x26 * 2)
+#define SPROM4_ET0MACADDR	(0x18 * 2)
+#define SPROM4_ET1MACADDR	(0x26 * 2)
 #define SPROM_ETHPHY		(0x2d * 2)
 #define SPROM_BOARDREV		(0x2e * 2)
+#define SPROM4_BOARDREV		(0x21 * 2)
+#define SPROM4_ANTAVAIL		(0x2e * 2)
+#define SPROM4_COUNTRY		(0x29 * 2)
 #define SPROM_PA0B0		(0x2f * 2)
 #define SPROM_PA0B1		(0x30 * 2)
 #define SPROM_PA0B2		(0x31 * 2)
 #define SPROM_WL0GPIO0		(0x32 * 2)
 #define SPROM_WL0GPIO2		(0x33 * 2)
+#define SPROM4_WL0GPIO0		(0x2b * 2)
+#define SPROM4_WL0GPIO2		(0x2c * 2)
 #define SPROM_MAXPWR		(0x34 * 2)
+#define SPROM4_MAXPWR		(0x45 * 2)
 #define SPROM_PA1B0		(0x35 * 2)
 #define SPROM_PA1B1		(0x36 * 2)
 #define SPROM_PA1B2		(0x37 * 2)
 #define SPROM_IDL_TSSI_TGT	(0x38 * 2)
+#define SPROM4_IDL_TSSI_TGT	(0x40 * 2)
 #define SPROM_BOARDFLAGS	(0x39 * 2)
+#define SPROM4_BOARDFLAGS	(0x22 * 2)
 #define SPROM_ANTENNA_GAIN	(0x3a * 2)
+#define SPROM4_ANTENNA_GAIN	(0x2f * 2)
 #define SPROM_VERSION		(0x3f * 2)
+#define SPROM4_VERSION		(0xdb * 2)
 
 enum valuetype {
 	VALUE_RAW,
@@ -72,12 +91,12 @@ enum valuetype {
 	VALUE_ET1MDC,
 	VALUE_BREV,
 	VALUE_LOC,
-	VALUE_ANTA0,
-	VALUE_ANTA1,
 	VALUE_ANTBG0,
 	VALUE_ANTBG1,
-	VALUE_ANTGA,
+	VALUE_ANTA0,
+	VALUE_ANTA1,
 	VALUE_ANTGBG,
+	VALUE_ANTGA,
 	VALUE_PA0B0,
 	VALUE_PA0B1,
 	VALUE_PA0B2,
@@ -88,10 +107,10 @@ enum valuetype {
 	VALUE_WL0GPIO1,
 	VALUE_WL0GPIO2,
 	VALUE_WL0GPIO3,
-	VALUE_MAXPA,
 	VALUE_MAXPBG,
-	VALUE_ITSSIA,
+	VALUE_MAXPA,
 	VALUE_ITSSIBG,
+	VALUE_ITSSIA,
 	VALUE_SVER,
  VALUE_LAST = VALUE_SVER,
 };
@@ -104,8 +123,8 @@ struct cmdline_vparm {
 		uint16_t value;
 		uint8_t mac[6];
 		struct {
-			uint8_t value;
-			uint8_t offset;
+			uint16_t value;
+			uint16_t offset;
 		} raw;
 	} u;
 };
