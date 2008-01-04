@@ -24,10 +24,9 @@
 #include <memory.h>		 /* for memcpy() */
 #include "md5.h"
 
+/* This function does the Right Thing (tm) on LittleEndian and BigEndian. */
 static void byteReverse(unsigned char *buf, unsigned longs)
 {
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-/* we need the value in big-endian */
     uint32_t t;
 
     do {
@@ -36,7 +35,6 @@ static void byteReverse(unsigned char *buf, unsigned longs)
 	*(uint32_t *) buf = t;
 	buf += 4;
     } while (--longs);
-#endif
 }
 
 /* The four core functions - F1 is optimized somewhat */
