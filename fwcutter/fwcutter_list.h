@@ -172,18 +172,20 @@ static const struct file files[] =
 	},
 	{
 		/* http://downloads.openwrt.org/sources/broadcom-wl-4.80.53.0.tar.bz2 */
+		/* This firmware has the old TX header. */
 		.name		= "wl_apsta.o",
 		.ucode_version	= "351.126",
 		.md5		= "9207bc565c2fc9fa1591f6c7911d3fc0",
-		.flags		= FW_FLAG_LE | FW_FLAG_V4,
+		.flags		= FW_FLAG_LE | FW_FLAG_V4 | FW_FLAG_UNSUPPORTED,
 		.extract	= _9207bc565c2fc9fa1591f6c7911d3fc0,
 	},
 	{
 		/* http://downloads.openwrt.org/sources/broadcom-wl-4.80.53.0.tar.bz2 */
+		/* This firmware has the old TX header. */
 		.name		= "wl_apsta_mimo.o",
 		.ucode_version	= "351.126",
 		.md5		= "722e2e0d8cc04b8f118bb5afe6829ff9",
-		.flags		= FW_FLAG_LE | FW_FLAG_V4,
+		.flags		= FW_FLAG_LE | FW_FLAG_V4 | FW_FLAG_UNSUPPORTED,
 		.extract	= _722e2e0d8cc04b8f118bb5afe6829ff9,
 	},
 	{
@@ -199,7 +201,7 @@ static const struct file files[] =
 		.name		= "wl_apsta_mimo.o",
 		.ucode_version	= "410.2160",
 		.md5		= "cb8d70972b885b1f8883b943c0261a3c",
-		.flags		= FW_FLAG_LE | FW_FLAG_V4 | FW_FLAG_UNSUPPORTED,
+		.flags		= FW_FLAG_LE | FW_FLAG_V4,
 		.extract	= _cb8d70972b885b1f8883b943c0261a3c,
 	},
 };
