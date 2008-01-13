@@ -113,6 +113,50 @@ static struct extract _1e4763b4cb8cfbaae43e5c6d3d6b2ae7[] =
 };
 
 
+static struct extract _cb8d70972b885b1f8883b943c0261a3c[] =
+{
+	{ .name = "pcm5", .offset = 0x8e554, .type = EXT_PCM, .length = 0x520 },
+	{ .name = "pcm4", .offset = 0x8ea78, .type = EXT_PCM, .length = 0x520 },
+	{ .name = "ucode15", .offset = 0x8ef9c, .type = EXT_UCODE_3, .length = 0x7710 },
+	{ .name = "ucode14", .offset = 0x966b0, .type = EXT_UCODE_2, .length = 0x7a90 },
+	{ .name = "ucode13", .offset = 0x9e144, .type = EXT_UCODE_2, .length = 0x7de0 },
+	{ .name = "ucode11", .offset = 0xa5f28, .type = EXT_UCODE_2, .length = 0x74a0 },
+	{ .name = "ucode9", .offset = 0xad3cc, .type = EXT_UCODE_2, .length = 0x6240 },
+	{ .name = "ucode5", .offset = 0xb3610, .type = EXT_UCODE_2, .length = 0x5768 },
+	{ .name = "ucode4", .offset = 0xb8d7c, .type = EXT_UCODE_1, .length = 0x4ec8 },
+	{ .name = "lp0bsinitvals15", .offset = 0xbdc44, .type = EXT_IV, .length = 0xf8 },
+	{ .name = "lp0initvals15", .offset = 0xbdd44, .type = EXT_IV, .length = 0xb30 },
+	{ .name = "lp0bsinitvals14", .offset = 0xbe87c, .type = EXT_IV, .length = 0xf8 },
+	{ .name = "lp0initvals14", .offset = 0xbe97c, .type = EXT_IV, .length = 0xb40 },
+	{ .name = "a0g1bsinitvals13", .offset = 0xbf4c4, .type = EXT_IV, .length = 0xf8 },
+	{ .name = "a0g1initvals13", .offset = 0xbf5c4, .type = EXT_IV, .length = 0xb58 },
+	{ .name = "b0g0bsinitvals13", .offset = 0xc0124, .type = EXT_IV, .length = 0xf8 },
+	{ .name = "b0g0initvals13", .offset = 0xc0224, .type = EXT_IV, .length = 0xb58 },
+	{ .name = "lp0bsinitvals13", .offset = 0xc0d84, .type = EXT_IV, .length = 0xf8 },
+	{ .name = "lp0initvals13", .offset = 0xc0e84, .type = EXT_IV, .length = 0x1358 },
+	{ .name = "n0absinitvals11", .offset = 0xc21e4, .type = EXT_IV, .length = 0xf8 },
+	{ .name = "n0bsinitvals11", .offset = 0xc22e4, .type = EXT_IV, .length = 0xf8 },
+	{ .name = "n0initvals11", .offset = 0xc23e4, .type = EXT_IV, .length = 0xb70 },
+	{ .name = "a0g1bsinitvals9", .offset = 0xc2f5c, .type = EXT_IV, .length = 0xf8 },
+	{ .name = "a0g0bsinitvals9", .offset = 0xc305c, .type = EXT_IV, .length = 0xf8 },
+	{ .name = "a0g1initvals9", .offset = 0xc315c, .type = EXT_IV, .length = 0xae0 },
+	{ .name = "a0g0initvals9", .offset = 0xc3c44, .type = EXT_IV, .length = 0xae0 },
+	{ .name = "b0g0bsinitvals9", .offset = 0xc472c, .type = EXT_IV, .length = 0xf8 },
+	{ .name = "b0g0initvals9", .offset = 0xc482c, .type = EXT_IV, .length = 0xae0 },
+	{ .name = "a0g1bsinitvals5", .offset = 0xc5314, .type = EXT_IV, .length = 0xf8 },
+	{ .name = "a0g0bsinitvals5", .offset = 0xc5414, .type = EXT_IV, .length = 0xf8 },
+	{ .name = "a0g1initvals5", .offset = 0xc5514, .type = EXT_IV, .length = 0xa08 },
+	{ .name = "a0g0initvals5", .offset = 0xc5f24, .type = EXT_IV, .length = 0xa08 },
+	{ .name = "b0g0bsinitvals5", .offset = 0xc6934, .type = EXT_IV, .length = 0xf8 },
+	{ .name = "b0g0initvals5", .offset = 0xc6a34, .type = EXT_IV, .length = 0xa08 },
+	{ .name = "a0g0bsinitvals4", .offset = 0xc7444, .type = EXT_IV, .length = 0x10 },
+	{ .name = "a0g0initvals4", .offset = 0xc745c, .type = EXT_IV, .length = 0xe88 },
+	{ .name = "b0g0bsinitvals4", .offset = 0xc82ec, .type = EXT_IV, .length = 0x10 },
+	{ .name = "b0g0initvals4", .offset = 0xc8304, .type = EXT_IV, .length = 0xe8c },
+	EXTRACT_LIST_END
+};
+
+
 /*
  * Links change, so let's not put them into the README.
  * I still put them here so we know where the file was obtained.
@@ -149,6 +193,14 @@ static const struct file files[] =
 		.md5		= "1e4763b4cb8cfbaae43e5c6d3d6b2ae7",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4 | FW_FLAG_UNSUPPORTED,
 		.extract	= _1e4763b4cb8cfbaae43e5c6d3d6b2ae7,
+	},
+	{
+		/* http://mirror2.openwrt.org/sources/broadcom-wl-4.150.10.5.tar.bz2 */
+		.name		= "wl_apsta_mimo.o",
+		.ucode_version	= "410.2160",
+		.md5		= "cb8d70972b885b1f8883b943c0261a3c",
+		.flags		= FW_FLAG_LE | FW_FLAG_V4 | FW_FLAG_UNSUPPORTED,
+		.extract	= _cb8d70972b885b1f8883b943c0261a3c,
 	},
 };
 
