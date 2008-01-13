@@ -1,0 +1,26 @@
+.*
+*.o
+*.o.*
+*.a
+*.s
+*.so
+*.so.dbg
+*.i
+*.lst
+.gitignore
+
+*.ucode
+*.initval
+
+# stgit generated dirs
+patches-*
+
+# quilt's files
+patches
+series
+
+# cscope files
+cscope.*
+
+*.orig
+*.rej
