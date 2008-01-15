@@ -1,4 +1,4 @@
-VERSION = 009
+VERSION = 010
 
 CC ?= cc
 PREFIX ?= /usr/local
