@@ -469,7 +469,7 @@ static unsigned int merge_external_jmp_into_opcode(struct assembler_context *ctx
 
 	ol = insn->operands;
 	opcode = opbase;
-	cond = ol->oper[0]->u.raw;
+	cond = ol->oper[0]->u.imm->imm;
 	if (cond & ~0xFF)
 		asm_error(ctx, "External jump condition value too big (> 0xFF)");
 	opcode |= cond;

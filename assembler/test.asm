@@ -26,7 +26,7 @@
 
 #define	PSM_BRC		spr848
 
-#define ECOND_MAC_ON	0x24
+#define ECOND_MAC_ON	(0x20 | 4)
 
 
 .text

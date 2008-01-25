@@ -997,11 +997,11 @@ extended_operlist : decnum COMMA decnum COMMA operand COMMA operand COMMA operan
 		  }
 		;
 
-external_jump_operands : hexnum COMMA operand COMMA operand COMMA labelref {
+external_jump_operands : imm COMMA operand COMMA operand COMMA labelref {
 			struct operlist *ol = xmalloc(sizeof(struct operlist));
 			struct operand *cond = xmalloc(sizeof(struct operand));
-			cond->type = OPER_RAW;
-			cond->u.raw = (unsigned long)$1;
+			cond->type = OPER_IMM;
+			cond->u.imm = $1;
 			ol->oper[0] = cond;
 			ol->oper[1] = $3;
 			ol->oper[2] = $5;
