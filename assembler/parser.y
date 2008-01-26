@@ -50,17 +50,19 @@ extern struct initvals_sect *cur_initvals_sect;
 
 %%
 
-line	: /* empty */
-	| line statement {
+line	: line_terminator {
+		/* empty */
+	  }
+	| line statement line_terminator {
 		struct statement *s = $2;
 		if (section != SECTION_TEXT)
 			yyerror("Microcode text instruction in non .text section");
 		memcpy(&s->info, &cur_lineinfo, sizeof(struct lineinfo));
 		list_add_tail(&s->list, &infile.sl);
 	  }
-	| line section_switch {
+	| line section_switch line_terminator {
 	  }
-	| line ivals_write {
+	| line ivals_write line_terminator {
 		struct initval_op *io = $2;
 		if (section != SECTION_IVALS)
 			yyerror("InitVals write in non .initvals section");
@@ -69,6 +71,10 @@ line	: /* empty */
 		list_add_tail(&io->list, &cur_initvals_sect->ops);
 	  }
 	;
+
+/* Allow terminating lines with the "|" char */
+line_terminator : /* Nothing */
+		| BITW_OR line_terminator
 
 section_switch	: SECTION_TEXT {
 			section = SECTION_TEXT;

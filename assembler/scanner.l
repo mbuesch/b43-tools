@@ -53,8 +53,8 @@ NEWLINE		((\r)|(\n)|(\r\n))
 ^{WS}*"%"{WS}*arch	{ update_lineinfo(); return ASM_ARCH; }
 ^{WS}*"%"{WS}*start	{ update_lineinfo(); return ASM_START; }
 
-^{WS}*\.text{WS}*$				{ update_lineinfo(); return SECTION_TEXT; }
-^{WS}*\.initvals/\({IDENTIFIER}\){WS}*{NEWLINE}	{ update_lineinfo(); return SECTION_IVALS; }
+^{WS}*\.text{WS}*$			{ update_lineinfo(); return SECTION_TEXT; }
+^{WS}*\.initvals/\({IDENTIFIER}\)	{ update_lineinfo(); return SECTION_IVALS; }
 
 spr[0-9a-fA-F]{3,3}	{ update_lineinfo(); return SPR; }
 r/([0-9]|([1-5][0-9])|(6[0-3]))	{ update_lineinfo(); return GPR; }

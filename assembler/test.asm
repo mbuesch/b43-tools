@@ -163,6 +163,7 @@ function_b:
 	or	spr06c,0,spr06c		; Can have one spr input and one spr output
 	or	[0],0,[0]		; Can have one mem input and one mem output
 	mov	testlabel, r0		; Can use label as immediate value
+	mov r0,r1|mov r2, r3		; | does also seperate instructions
 
 
 ; The .initvals section generates an "Initial Values" file
