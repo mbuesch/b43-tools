@@ -643,7 +643,7 @@ static void emit_asm(struct disassembler_context *ctx)
 			first = 1;
 			for (i = 0; i < ARRAY_SIZE(stmt->u.insn.operands); i++) {
 				if (stmt->u.insn.is_labelref == i) {
-					fprintf(outfile, ",%s",
+					fprintf(outfile, ", %s",
 						stmt->u.insn.labelref->u.label.name);
 				}
 				if (!stmt->u.insn.operands[i])
@@ -651,7 +651,7 @@ static void emit_asm(struct disassembler_context *ctx)
 				if (first)
 					fprintf(outfile, "\t");
 				if (!first)
-					fprintf(outfile, ",");
+					fprintf(outfile, ", ");
 				first = 0;
 				fprintf(outfile, "%s",
 					stmt->u.insn.operands[i]);
