@@ -164,6 +164,7 @@ function_b:
 	or	[0],0,[0]		; Can have one mem input and one mem output
 	mov	testlabel, r0		; Can use label as immediate value
 	mov r0,r1|mov r2, r3		; | does also seperate instructions
+	mov	[(1+1)],[(2+2),off0]	; Can use complex immediates as memory offsets
 
 
 ; The .initvals section generates an "Initial Values" file

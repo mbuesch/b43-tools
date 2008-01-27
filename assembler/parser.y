@@ -75,6 +75,7 @@ line	: line_terminator {
 /* Allow terminating lines with the "|" char */
 line_terminator : /* Nothing */
 		| BITW_OR line_terminator
+		;
 
 section_switch	: SECTION_TEXT {
 			section = SECTION_TEXT;
@@ -1083,27 +1084,26 @@ reg		: GPR regnr {
 		  }
 		;
 
-mem		: BRACK_OPEN hexnum_decnum BRACK_CLOSE {
+mem		: BRACK_OPEN imm BRACK_CLOSE {
 			struct memory *mem = xmalloc(sizeof(struct memory));
+			struct immediate *offset_imm = $2;
 			mem->type = MEM_DIRECT;
-			mem->offset = (unsigned long)$2;
+			mem->offset = offset_imm->imm;
+			free(offset_imm);
 			$$ = mem;
 		  }
-		| BRACK_OPEN hexnum_decnum COMMA OFFR regnr BRACK_CLOSE {
+		| BRACK_OPEN imm COMMA OFFR regnr BRACK_CLOSE {
 			struct memory *mem = xmalloc(sizeof(struct memory));
+			struct immediate *offset_imm = $2;
 			mem->type = MEM_INDIRECT;
-			mem->offset = (unsigned long)$2;
+			mem->offset = offset_imm->imm;
+			free(offset_imm);
 			mem->offr_nr = (unsigned long)$5;
 			$$ = mem;
 		  }
 		;
 
-imm		: hexnum {
-			struct immediate *imm = xmalloc(sizeof(struct immediate));
-			imm->imm = (unsigned long)$1;
-			$$ = imm;
-		  }
-		| decnum {
+imm		: hexnum_decnum {
 			struct immediate *imm = xmalloc(sizeof(struct immediate));
 			imm->imm = (unsigned long)$1;
 			$$ = imm;
