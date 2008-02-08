@@ -165,7 +165,7 @@ static const struct file files[] =
 {
 	{
 		.name		= "wl_apsta.o",
-		.id		= "FW0",
+		.id		= "FW10",
 		.ucode_version	= "295.14",
 		.md5		= "e08665c5c5b66beb9c3b2dd54aa80cb3",
 		.flags		= FW_FLAG_LE,
@@ -175,7 +175,7 @@ static const struct file files[] =
 		/* http://downloads.openwrt.org/sources/broadcom-wl-4.80.53.0.tar.bz2 */
 		/* This firmware has the old TX header. */
 		.name		= "wl_apsta.o",
-		.id		= "FW1",
+		.id		= "FW11",
 		.ucode_version	= "351.126",
 		.md5		= "9207bc565c2fc9fa1591f6c7911d3fc0",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4 | FW_FLAG_UNSUPPORTED,
@@ -185,7 +185,7 @@ static const struct file files[] =
 		/* http://downloads.openwrt.org/sources/broadcom-wl-4.80.53.0.tar.bz2 */
 		/* This firmware has the old TX header. */
 		.name		= "wl_apsta_mimo.o",
-		.id		= "FW1",
+		.id		= "FW11",
 		.ucode_version	= "351.126",
 		.md5		= "722e2e0d8cc04b8f118bb5afe6829ff9",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4 | FW_FLAG_UNSUPPORTED,
@@ -194,7 +194,7 @@ static const struct file files[] =
 	{
 		/* ftp://ftp.linksys.com/opensourcecode/wrt150nv11/1.51.3/ */
 		.name		= "wl_ap.o",
-		.id		= "FW2",
+		.id		= "FW12",
 		.ucode_version	= "410.2160",
 		.md5		= "1e4763b4cb8cfbaae43e5c6d3d6b2ae7",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4 | FW_FLAG_UNSUPPORTED,
@@ -203,7 +203,7 @@ static const struct file files[] =
 	{
 		/* http://mirror2.openwrt.org/sources/broadcom-wl-4.150.10.5.tar.bz2 */
 		.name		= "wl_apsta_mimo.o",
-		.id		= "FW3",
+		.id		= "FW13",
 		.ucode_version	= "410.2160",
 		.md5		= "cb8d70972b885b1f8883b943c0261a3c",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4,
