@@ -178,7 +178,7 @@ static const struct file files[] =
 		.id		= "FW11",
 		.ucode_version	= "351.126",
 		.md5		= "9207bc565c2fc9fa1591f6c7911d3fc0",
-		.flags		= FW_FLAG_LE | FW_FLAG_V4 | FW_FLAG_UNSUPPORTED,
+		.flags		= FW_FLAG_LE | FW_FLAG_V4,
 		.extract	= _9207bc565c2fc9fa1591f6c7911d3fc0,
 	},
 	{
@@ -188,7 +188,7 @@ static const struct file files[] =
 		.id		= "FW11",
 		.ucode_version	= "351.126",
 		.md5		= "722e2e0d8cc04b8f118bb5afe6829ff9",
-		.flags		= FW_FLAG_LE | FW_FLAG_V4 | FW_FLAG_UNSUPPORTED,
+		.flags		= FW_FLAG_LE | FW_FLAG_V4,
 		.extract	= _722e2e0d8cc04b8f118bb5afe6829ff9,
 	},
 	{
