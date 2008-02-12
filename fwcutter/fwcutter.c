@@ -512,7 +512,9 @@ static const struct file *find_file(FILE *fd)
 static void print_usage(int argc, char *argv[])
 {
 	print_banner();
-	printf("\nUsage: %s [OPTION] [driver.sys]\n", argv[0]);
+	printf("\nA tool to extract firmware for a Broadcom 43xx device\n");
+	printf("from a proprietary Broadcom 43xx device driver file.\n");
+	printf("\nUsage: %s [OPTION] [proprietary-driver-file]\n", argv[0]);
 	printf("  --unsupported         "
 	       "Allow working on extractable but unsupported drivers\n");
 	printf("  -l|--list             "
@@ -525,8 +527,9 @@ static void print_usage(int argc, char *argv[])
 	       "Print b43-fwcutter version\n");
 	printf("  -h|--help             "
 	       "Print this help\n");
-	printf("\nExample: %s bcmwl5.sys\n"
-	       "         to extract the firmware blobs from bcmwl5.sys\n", 
+	printf("\nExample: %s -w /lib/firmware wl_apsta.o\n"
+	       "         to extract the firmware blobs from wl_apsta.o and store\n"
+	       "         the resulting firmware in /lib/firmware\n",
 	       argv[0]);
 }
 
