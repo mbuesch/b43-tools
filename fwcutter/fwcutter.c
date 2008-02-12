@@ -495,6 +495,7 @@ static const struct file *find_file(FILE *fd)
 		if (file_ok(&files[i]) &&
 		    strcasecmp(md5sig, files[i].md5) == 0) {
 			printf("This file is recognised as:\n");
+			printf("  ID         :  %s\n", files[i].id);
 			printf("  filename   :  %s\n", files[i].name);
 			printf("  version    :  %s\n", files[i].ucode_version);
 			printf("  MD5        :  %s\n", files[i].md5);
