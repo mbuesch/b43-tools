@@ -38,7 +38,7 @@ extern struct initvals_sect *cur_initvals_sect;
 
 %token SECTION_TEXT SECTION_IVALS
 
-%token ASM_ARCH ASM_START SPR GPR OFFR LR COMMA BRACK_OPEN BRACK_CLOSE PAREN_OPEN PAREN_CLOSE HEXNUM DECNUM ARCH_NEWWORLD ARCH_OLDWORLD LABEL IDENT LABELREF
+%token ASM_ARCH ASM_START SPR GPR OFFR LR COMMA SEMICOLON BRACK_OPEN BRACK_CLOSE PAREN_OPEN PAREN_CLOSE HEXNUM DECNUM ARCH_NEWWORLD ARCH_OLDWORLD LABEL IDENT LABELREF
 
 %token PLUS MINUS MULTIPLY DIVIDE BITW_OR BITW_AND BITW_XOR BITW_NOT LEFTSHIFT RIGHTSHIFT
 
@@ -72,9 +72,9 @@ line	: line_terminator {
 	  }
 	;
 
-/* Allow terminating lines with the "|" char */
+/* Allow terminating lines with the ";" char */
 line_terminator : /* Nothing */
-		| BITW_OR line_terminator
+		| SEMICOLON line_terminator
 		;
 
 section_switch	: SECTION_TEXT {

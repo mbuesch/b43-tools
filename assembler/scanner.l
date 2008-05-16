@@ -48,7 +48,6 @@ NEWLINE		((\r)|(\n)|(\r\n))
 
 {WS}+			{ update_lineinfo(); /* whitespace */ }
 {NEWLINE}		{ cur_lineinfo.lineno++; update_lineinfo(); }
-;.*$			{ update_lineinfo(); /* comment */ }
 
 ^{WS}*"%"{WS}*arch	{ update_lineinfo(); return ASM_ARCH; }
 ^{WS}*"%"{WS}*start	{ update_lineinfo(); return ASM_START; }
@@ -62,6 +61,7 @@ off/[0-6]		{ update_lineinfo(); return OFFR; }
 lr/[0-3]		{ update_lineinfo(); return LR; }
 
 ,			{ update_lineinfo(); return COMMA; }
+;			{ update_lineinfo(); return SEMICOLON; }
 \[			{ update_lineinfo(); return BRACK_OPEN; }
 \]			{ update_lineinfo(); return BRACK_CLOSE; }
 \(			{ update_lineinfo(); return PAREN_OPEN; }
