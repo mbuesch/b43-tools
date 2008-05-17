@@ -49,6 +49,11 @@ struct code_output {
 		OUT_LABEL,
 	} type;
 
+	/* Set to true, if this is a jump instruction.
+	 * This is only used when assembling RET to check
+	 * whether the previous instruction was a jump or not. */
+	bool is_jump_insn;
+
 	unsigned int opcode;
 	struct out_operand operands[3];
 
@@ -379,9 +384,9 @@ static void generate_operand(struct assembler_context *ctx,
 	}
 }
 
-static void do_assemble_insn(struct assembler_context *ctx,
-			     struct instruction *insn,
-			     unsigned int opcode)
+static struct code_output * do_assemble_insn(struct assembler_context *ctx,
+					     struct instruction *insn,
+					     unsigned int opcode)
 {
 	int i;
 	struct operlist *ol;
@@ -432,6 +437,8 @@ static void do_assemble_insn(struct assembler_context *ctx,
 			       "lowlevel do_assemble_insn");
 
 	list_add_tail(&out->list, &ctx->output);
+
+	return out;
 }
 
 static unsigned int merge_ext_into_opcode(struct assembler_context *ctx,
@@ -569,6 +576,7 @@ static void emulate_jand_insn(struct assembler_context *ctx,
 			      struct instruction *insn,
 			      int inverted)
 {
+	struct code_output *out;
 	struct instruction em_insn;
 	struct operlist em_ol;
 	struct operand em_op_shift;
@@ -638,14 +646,16 @@ static void emulate_jand_insn(struct assembler_context *ctx,
 
 	/* Do a normal JAND/JNAND instruction */
 	if (inverted)
-		do_assemble_insn(ctx, insn, 0x040 | 0x1);
+		out = do_assemble_insn(ctx, insn, 0x040 | 0x1);
 	else
-		do_assemble_insn(ctx, insn, 0x040);
+		out = do_assemble_insn(ctx, insn, 0x040);
+	out->is_jump_insn = 1;
 }
 
 static void assemble_instruction(struct assembler_context *ctx,
 				 struct instruction *insn)
 {
+	struct code_output *out;
 	unsigned int opcode;
 
 	switch (insn->op) {
@@ -721,61 +731,85 @@ static void assemble_instruction(struct assembler_context *ctx,
 		emulate_jand_insn(ctx, insn, 1);
 		return;
 	case OP_JS:
-		do_assemble_insn(ctx, insn, 0x050);
+		out = do_assemble_insn(ctx, insn, 0x050);
+		out->is_jump_insn = 1;
 		break;
 	case OP_JNS:
-		do_assemble_insn(ctx, insn, 0x050 | 0x1);
+		out = do_assemble_insn(ctx, insn, 0x050 | 0x1);
+		out->is_jump_insn = 1;
 		break;
 	case OP_JE:
-		do_assemble_insn(ctx, insn, 0x0D0);
+		out = do_assemble_insn(ctx, insn, 0x0D0);
+		out->is_jump_insn = 1;
 		break;
 	case OP_JNE:
-		do_assemble_insn(ctx, insn, 0x0D0 | 0x1);
+		out = do_assemble_insn(ctx, insn, 0x0D0 | 0x1);
+		out->is_jump_insn = 1;
 		break;
 	case OP_JLS:
-		do_assemble_insn(ctx, insn, 0x0D2);
+		out = do_assemble_insn(ctx, insn, 0x0D2);
+		out->is_jump_insn = 1;
 		break;
 	case OP_JGES:
-		do_assemble_insn(ctx, insn, 0x0D2 | 0x1);
+		out = do_assemble_insn(ctx, insn, 0x0D2 | 0x1);
+		out->is_jump_insn = 1;
 		break;
 	case OP_JGS:
-		do_assemble_insn(ctx, insn, 0x0D4);
+		out = do_assemble_insn(ctx, insn, 0x0D4);
+		out->is_jump_insn = 1;
 		break;
 	case OP_JLES:
-		do_assemble_insn(ctx, insn, 0x0D4 | 0x1);
+		out = do_assemble_insn(ctx, insn, 0x0D4 | 0x1);
+		out->is_jump_insn = 1;
 		break;
 	case OP_JL:
-		do_assemble_insn(ctx, insn, 0x0DA);
+		out = do_assemble_insn(ctx, insn, 0x0DA);
+		out->is_jump_insn = 1;
 		break;
 	case OP_JGE:
-		do_assemble_insn(ctx, insn, 0x0DA | 0x1);
+		out = do_assemble_insn(ctx, insn, 0x0DA | 0x1);
+		out->is_jump_insn = 1;
 		break;
 	case OP_JG:
-		do_assemble_insn(ctx, insn, 0x0DC);
+		out = do_assemble_insn(ctx, insn, 0x0DC);
 		break;
 	case OP_JLE:
-		do_assemble_insn(ctx, insn, 0x0DC | 0x1);
+		out = do_assemble_insn(ctx, insn, 0x0DC | 0x1);
+		out->is_jump_insn = 1;
 		break;
 	case OP_JZX:
 		opcode = merge_ext_into_opcode(ctx, 0x400, insn);
-		do_assemble_insn(ctx, insn, opcode);
+		out = do_assemble_insn(ctx, insn, opcode);
+		out->is_jump_insn = 1;
 		break;
 	case OP_JNZX:
 		opcode = merge_ext_into_opcode(ctx, 0x500, insn);
-		do_assemble_insn(ctx, insn, opcode);
+		out = do_assemble_insn(ctx, insn, opcode);
+		out->is_jump_insn = 1;
 		break;
 	case OP_JEXT:
 		opcode = merge_external_jmp_into_opcode(ctx, 0x700, insn);
-		do_assemble_insn(ctx, insn, opcode);
+		out = do_assemble_insn(ctx, insn, opcode);
+		out->is_jump_insn = 1;
 		break;
 	case OP_JNEXT:
 		opcode = merge_external_jmp_into_opcode(ctx, 0x600, insn);
-		do_assemble_insn(ctx, insn, opcode);
+		out = do_assemble_insn(ctx, insn, opcode);
+		out->is_jump_insn = 1;
 		break;
 	case OP_CALL:
 		do_assemble_insn(ctx, insn, 0x002);
 		break;
 	case OP_RET:
+		if (!list_empty(&ctx->output)) {
+			/* Get the previous instruction and check whether it
+			 * is a jump instruction. */
+			out = list_entry(ctx->output.prev, struct code_output, list);
+			if (out->is_jump_insn) {
+				asm_error(ctx, "RET instruction directly after "
+					  "jump instruction. The hardware won't like this.");
+			}
+		}
 		do_assemble_insn(ctx, insn, 0x003);
 		break;
 	case OP_TKIPH:

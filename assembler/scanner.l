@@ -149,6 +149,7 @@ shm32			{ update_lineinfo(); return IVAL_SHM32; }
 %%
 
 struct lineinfo cur_lineinfo;
+//FIXME The linenumber sometimes is wrong.
 
 static void interpret_cppinfo(const char *str)
 {
@@ -175,7 +176,7 @@ static void interpret_cppinfo(const char *str)
 	memset(tmp, 0, sizeof(tmp));
 	memcpy(tmp, str, min(sizeof(tmp) - 1,
 			     (int)(found - str)));
-	cur_lineinfo.lineno = strtoul(tmp, NULL, 10);
+	cur_lineinfo.lineno = strtoul(tmp, NULL, 10) - 1;
 	str = found;
 	str++;
 
