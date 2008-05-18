@@ -571,19 +571,20 @@ static void emulate_jmp_insn(struct assembler_context *ctx,
 {
 	struct instruction em_insn;
 	struct operlist em_ol;
-	struct operand em_op;
-	struct immediate em_imm;
+	struct immediate em_condition;
+	struct operand em_cond_op;
 
-	/* This is a pseudo-OP. We emulate it by JE */
+	/* This is a pseudo-OP. We emulate it with
+	 * JEXT 0x7F, target */
 
-	em_insn.op = OP_JE;
-	em_imm.imm = 1;
-	em_op.type = OPER_IMM;
-	em_op.u.imm = &em_imm;
-	em_ol.oper[0] = &em_op;
-	em_ol.oper[1] = &em_op;
-	em_ol.oper[2] = insn->operands->oper[0];
+	em_insn.op = OP_JEXT;
+	em_condition.imm = 0x7F; /* Ext cond: Always true */
+	em_cond_op.type = OPER_IMM;
+	em_cond_op.u.imm = &em_condition;
+	em_ol.oper[0] = &em_cond_op;
+	em_ol.oper[1] = insn->operands->oper[0]; /* Target */
 	em_insn.operands = &em_ol;
+
 	assemble_instruction(ctx, &em_insn); /* recurse */
 }
 
