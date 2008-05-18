@@ -539,9 +539,13 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 			snprintf(str, 5, "0x%02X", (bin->opcode & 0x0FF));
 			stmt->u.insn.operands[0] = str;
 
-			disasm_std_operand(stmt, 0, 1, 0);
-			disasm_std_operand(stmt, 1, 2, 0);
-			stmt->u.insn.is_labelref = 3;
+			/* We don't disassemble the first and second operand, as
+			 * that always is a dummy r0 operand.
+			 * disasm_std_operand(stmt, 0, 1, 0);
+			 * disasm_std_operand(stmt, 1, 2, 0);
+			 * stmt->u.insn.is_labelref = 3;
+			 */
+			stmt->u.insn.is_labelref = 1;
 			stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 			break;
 		case 0x700:
@@ -551,9 +555,13 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 			snprintf(str, 5, "0x%02X", (bin->opcode & 0x0FF));
 			stmt->u.insn.operands[0] = str;
 
-			disasm_std_operand(stmt, 0, 1, 0);
-			disasm_std_operand(stmt, 1, 2, 0);
-			stmt->u.insn.is_labelref = 3;
+			/* We don't disassemble the first and second operand, as
+			 * that always is a dummy r0 operand.
+			 * disasm_std_operand(stmt, 0, 1, 0);
+			 * disasm_std_operand(stmt, 1, 2, 0);
+			 * stmt->u.insn.is_labelref = 3;
+			 */
+			stmt->u.insn.is_labelref = 1;
 			stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 			break;
 		default:

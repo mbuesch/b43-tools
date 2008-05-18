@@ -470,6 +470,9 @@ static unsigned int merge_external_jmp_into_opcode(struct assembler_context *ctx
 						   unsigned int opbase,
 						   struct instruction *insn)
 {
+	struct operand *fake;
+	struct registr *fake_reg;
+	struct operand *target;
 	struct operlist *ol;
 	unsigned int cond;
 	unsigned int opcode;
@@ -480,9 +483,21 @@ static unsigned int merge_external_jmp_into_opcode(struct assembler_context *ctx
 	if (cond & ~0xFF)
 		asm_error(ctx, "External jump condition value too big (> 0xFF)");
 	opcode |= cond;
-	ol->oper[0] = ol->oper[1];
-	ol->oper[1] = ol->oper[2];
-	ol->oper[2] = ol->oper[3];
+	target = ol->oper[1];
+	memset(ol->oper, 0, sizeof(ol->oper));
+
+	/* This instruction has two fake r0 operands
+	 * at position 0 and 1. */
+	fake = xmalloc(sizeof(struct operand));
+	fake_reg = xmalloc(sizeof(struct operand));
+	fake->type = OPER_REG;
+	fake->u.reg = fake_reg;
+	fake_reg->type = GPR;
+	fake_reg->nr = 0;
+
+	ol->oper[0] = fake;
+	ol->oper[1] = fake;
+	ol->oper[2] = target;
 
 	return opcode;
 }

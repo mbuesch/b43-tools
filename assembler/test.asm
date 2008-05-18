@@ -38,7 +38,6 @@ label:
 	addc	r0,r1,r2	/* add with carry */
 	addc.	r0,r1,r2	/* add with carry, set carry */
 
-or 0x1000, r0, r0
 testlabel:
 	/* SUB instructions */
 	sub	r0,r1,r2	/* sub */
@@ -88,8 +87,8 @@ testlabel:
 	jnzx	7,8,r0,r1,label	/* Jump if nonzero after shift and mask */
 
 	/* jump on external conditions */
-	jext	ECOND_MAC_ON,r0,r0,label  /* jump if external condition is TRUE */
-	jnext	ECOND_MAC_ON,r0,r0,label  /* jump if external condition is FALSE */
+	jext	ECOND_MAC_ON,label  /* jump if external condition is TRUE */
+	jnext	ECOND_MAC_ON,label  /* jump if external condition is FALSE */
 
 	/* Subroutines */
 	call	lr0,label	/* store PC in lr0, call func at label */
