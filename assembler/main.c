@@ -816,13 +816,16 @@ static void assemble_instruction(struct assembler_context *ctx,
 		do_assemble_insn(ctx, insn, 0x002);
 		break;
 	case OP_RET:
-		if (!list_empty(&ctx->output)) {
-			/* Get the previous instruction and check whether it
-			 * is a jump instruction. */
-			out = list_entry(ctx->output.prev, struct code_output, list);
-			if (out->is_jump_insn) {
-				asm_error(ctx, "RET instruction directly after "
-					  "jump instruction. The hardware won't like this.");
+		/* Get the previous instruction and check whether it
+		 * is a jump instruction. */
+		list_for_each_entry_reverse(out, &ctx->output, list) {
+			/* Search the last insn. */
+			if (out->type == OUT_INSN) {
+				if (out->is_jump_insn) {
+					asm_error(ctx, "RET instruction directly after "
+						  "jump instruction. The hardware won't like this.");
+				}
+				break;
 			}
 		}
 		do_assemble_insn(ctx, insn, 0x003);

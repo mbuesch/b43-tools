@@ -122,6 +122,7 @@ function_a:
 	nap
 	jmp loop-
  out:
+	mov r0, r0
 	ret lr0, lr1
 
 function_b:
@@ -130,6 +131,7 @@ function_b:
 	nap
 	jmp loop-
  out:
+	mov r0, r0
 	ret lr0, lr1
 
 
