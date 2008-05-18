@@ -488,8 +488,8 @@ static unsigned int merge_external_jmp_into_opcode(struct assembler_context *ctx
 
 	/* This instruction has two fake r0 operands
 	 * at position 0 and 1. */
-	fake = xmalloc(sizeof(struct operand));
-	fake_reg = xmalloc(sizeof(struct operand));
+	fake = xmalloc(sizeof(*fake));
+	fake_reg = xmalloc(sizeof(*fake_reg));
 	fake->type = OPER_REG;
 	fake->u.reg = fake_reg;
 	fake_reg->type = GPR;
