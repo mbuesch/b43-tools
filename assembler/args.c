@@ -23,6 +23,7 @@
 
 
 int _debug;
+bool arg_print_sizes;
 
 #define ARG_MATCH		0
 #define ARG_NOMATCH		1
@@ -96,6 +97,7 @@ static void usage(int argc, char **argv)
 	fprintf(stderr, "  -h|--help           Print this help\n");
 	fprintf(stderr, "  -d|--debug          Print verbose debugging info\n");
 	fprintf(stderr, "                      Repeat for more verbose debugging\n");
+	fprintf(stderr, "  -s|--psize          Print the size of the code after assembling\n");
 }
 
 int parse_args(int argc, char **argv)
@@ -114,6 +116,8 @@ int parse_args(int argc, char **argv)
 			return 1;
 		} else if ((res = cmp_arg(argv, &i, "--debug", "-d", 0)) == ARG_MATCH) {
 			_debug++;
+		} else if ((res = cmp_arg(argv, &i, "--psize", "-s", 0)) == ARG_MATCH) {
+			arg_print_sizes = 1;
 		} else {
 			fprintf(stderr, "Unrecognized argument: %s\n", argv[i]);
 			goto out_usage;

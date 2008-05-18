@@ -276,6 +276,7 @@ static void emit_ival_section(struct ivals_context *ctx)
 	struct initval_raw raw;
 	struct fw_header hdr;
 	unsigned int size;
+	unsigned int filesize = 0;
 
 	memset(&hdr, 0, sizeof(hdr));
 	hdr.type = FW_TYPE_IV;
@@ -284,7 +285,7 @@ static void emit_ival_section(struct ivals_context *ctx)
 
 	fn_len = strlen(outfile_name) + 512;
 	fn = xmalloc(fn_len);
-	snprintf(fn, fn_len, "%s.%s.initval", outfile_name, ctx->sect->name);
+	snprintf(fn, fn_len, "%s.%s.initvals", outfile_name, ctx->sect->name);
 	fd = fopen(fn, "w+");
 	if (!fd) {
 		fprintf(stderr, "Could not open initval output file \"%s\"\n", fn);
@@ -311,7 +312,14 @@ static void emit_ival_section(struct ivals_context *ctx)
 			fprintf(stderr, "Could not write initvals outfile\n");
 			exit(1);
 		}
+		filesize += size;
 	}
+
+	if (arg_print_sizes) {
+		printf("%s:  %d values (%u bytes)\n",
+		       fn, ctx->ivals_count, filesize);
+	}
+
 	fclose(fd);
 	free(fn);
 }
