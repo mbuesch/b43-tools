@@ -102,35 +102,35 @@ section_switch	: SECTION_TEXT {
 		  }
 		;
 
-ivals_write	: IVAL_MMIO16 hexnum_decnum COMMA hexnum_decnum {
+ivals_write	: IVAL_MMIO16 imm_value COMMA imm_value {
 			struct initval_op *iop = xmalloc(sizeof(struct initval_op));
 			iop->type = IVAL_W_MMIO16;
 			iop->args[0] = (unsigned int)(unsigned long)$2;
 			iop->args[1] = (unsigned int)(unsigned long)$4;
 			$$ = iop;
 		  }
-		| IVAL_MMIO32 hexnum_decnum COMMA hexnum_decnum {
+		| IVAL_MMIO32 imm_value COMMA imm_value {
 			struct initval_op *iop = xmalloc(sizeof(struct initval_op));
 			iop->type = IVAL_W_MMIO32;
 			iop->args[0] = (unsigned int)(unsigned long)$2;
 			iop->args[1] = (unsigned int)(unsigned long)$4;
 			$$ = iop;
 		  }
-		| IVAL_PHY hexnum_decnum COMMA hexnum_decnum {
+		| IVAL_PHY imm_value COMMA imm_value {
 			struct initval_op *iop = xmalloc(sizeof(struct initval_op));
 			iop->type = IVAL_W_PHY;
 			iop->args[0] = (unsigned int)(unsigned long)$2;
 			iop->args[1] = (unsigned int)(unsigned long)$4;
 			$$ = iop;
 		  }
-		| IVAL_RADIO hexnum_decnum COMMA hexnum_decnum {
+		| IVAL_RADIO imm_value COMMA imm_value {
 			struct initval_op *iop = xmalloc(sizeof(struct initval_op));
 			iop->type = IVAL_W_RADIO;
 			iop->args[0] = (unsigned int)(unsigned long)$2;
 			iop->args[1] = (unsigned int)(unsigned long)$4;
 			$$ = iop;
 		  }
-		| IVAL_SHM16 hexnum_decnum COMMA hexnum_decnum COMMA hexnum_decnum {
+		| IVAL_SHM16 imm_value COMMA imm_value COMMA imm_value {
 			struct initval_op *iop = xmalloc(sizeof(struct initval_op));
 			iop->type = IVAL_W_SHM16;
 			iop->args[0] = (unsigned int)(unsigned long)$2;
@@ -138,7 +138,7 @@ ivals_write	: IVAL_MMIO16 hexnum_decnum COMMA hexnum_decnum {
 			iop->args[2] = (unsigned int)(unsigned long)$6;
 			$$ = iop;
 		  }
-		| IVAL_SHM32 hexnum_decnum COMMA hexnum_decnum COMMA hexnum_decnum {
+		| IVAL_SHM32 imm_value COMMA imm_value COMMA imm_value {
 			struct initval_op *iop = xmalloc(sizeof(struct initval_op));
 			iop->type = IVAL_W_SHM32;
 			iop->args[0] = (unsigned int)(unsigned long)$2;
@@ -1101,15 +1101,18 @@ mem		: BRACK_OPEN imm BRACK_CLOSE {
 		  }
 		;
 
-imm		: hexnum_decnum {
+imm		: imm_value {
 			struct immediate *imm = xmalloc(sizeof(struct immediate));
 			imm->imm = (unsigned long)$1;
 			$$ = imm;
 		  }
+		;
+
+imm_value	: hexnum_decnum {
+			$$ = $1;
+		  }
 		| complex_imm {
-			struct immediate *imm = xmalloc(sizeof(struct immediate));
-			imm->imm = (unsigned long)$1;
-			$$ = imm;
+			$$ = $1;
 		  }
 		;
 
