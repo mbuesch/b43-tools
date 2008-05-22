@@ -1026,21 +1026,17 @@ does_not_exist:
 static void emit_code(struct assembler_context *ctx)
 {
 	FILE *fd;
-	char *fn;
-	size_t fn_len;
+	const char *fn;
 	struct code_output *c;
 	uint64_t code;
 	unsigned char outbuf[8];
 	unsigned int insn_count = 0;
 	struct fw_header hdr;
 
-	fn_len = strlen(outfile_name) + 20;
-	fn = xmalloc(fn_len);
-	snprintf(fn, fn_len, "%s.ucode", outfile_name);
+	fn = outfile_name;
 	fd = fopen(fn, "w+");
 	if (!fd) {
 		fprintf(stderr, "Could not open microcode output file \"%s\"\n", fn);
-		free(fn);
 		exit(1);
 	}
 	if (IS_VERBOSE_DEBUG)
@@ -1132,7 +1128,6 @@ static void emit_code(struct assembler_context *ctx)
 	}
 
 	fclose(fd);
-	free(fn);
 }
 
 static void assemble(void)

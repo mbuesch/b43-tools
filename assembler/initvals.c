@@ -283,9 +283,9 @@ static void emit_ival_section(struct ivals_context *ctx)
 	hdr.ver = FW_HDR_VER;
 	hdr.size = cpu_to_be32(ctx->ivals_count);
 
-	fn_len = strlen(outfile_name) + 512;
+	fn_len = strlen(ctx->sect->name) + strlen(initvals_fn_extension ? : "") + 1;
 	fn = xmalloc(fn_len);
-	snprintf(fn, fn_len, "%s.%s.initvals", outfile_name, ctx->sect->name);
+	snprintf(fn, fn_len, "%s%s", ctx->sect->name, initvals_fn_extension ? : "");
 	fd = fopen(fn, "w+");
 	if (!fd) {
 		fprintf(stderr, "Could not open initval output file \"%s\"\n", fn);

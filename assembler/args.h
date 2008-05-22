@@ -10,6 +10,7 @@ void close_input_file(void);
 
 extern int _debug;
 extern bool arg_print_sizes;
+extern const char *initvals_fn_extension;
 
 #define IS_DEBUG		(_debug > 0)
 #define IS_VERBOSE_DEBUG	(_debug > 1)

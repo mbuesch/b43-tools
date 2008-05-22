@@ -48,4 +48,4 @@ if [ "$infile" != "-" ]; then
 	fi
 fi
 
-$CPP -x c++ -traditional-cpp "$infile" | $B43_ASM "-" "$outfile" $@
+$CPP -x c++ -traditional-cpp "$infile" | $B43_ASM "-" "$outfile" --__real_infile "$infile" $@

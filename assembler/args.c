@@ -24,6 +24,9 @@
 
 int _debug;
 bool arg_print_sizes;
+const char *initvals_fn_extension = ".initvals";
+const char *real_infile_name;
+
 
 #define ARG_MATCH		0
 #define ARG_NOMATCH		1
@@ -32,7 +35,7 @@ bool arg_print_sizes;
 static int do_cmp_arg(char **argv, int *pos,
 		      const char *template,
 		      int allow_merged,
-		      char **param)
+		      const char **param)
 {
 	char *arg;
 	char *next_arg;
@@ -76,7 +79,7 @@ static int do_cmp_arg(char **argv, int *pos,
 static int cmp_arg(char **argv, int *pos,
 		   const char *long_template,
 		   const char *short_template,
-		   char **param)
+		   const char **param)
 {
 	int err;
 
@@ -93,11 +96,12 @@ static int cmp_arg(char **argv, int *pos,
 
 static void usage(int argc, char **argv)
 {
-	fprintf(stderr, "Usage: %s INPUT_FILE OUTPUT_FILE [OPTIONS]\n", argv[0]);
-	fprintf(stderr, "  -h|--help           Print this help\n");
-	fprintf(stderr, "  -d|--debug          Print verbose debugging info\n");
-	fprintf(stderr, "                      Repeat for more verbose debugging\n");
-	fprintf(stderr, "  -s|--psize          Print the size of the code after assembling\n");
+	printf("Usage: %s INPUT_FILE OUTPUT_FILE [OPTIONS]\n", argv[0]);
+	printf("  -h|--help           Print this help\n");
+	printf("  -d|--debug          Print verbose debugging info\n");
+	printf("                      Repeat for more verbose debugging\n");
+	printf("  -s|--psize          Print the size of the code after assembling\n");
+	printf("  -e|--ivalext EXT    Filename extension for the initvals\n");
 }
 
 int parse_args(int argc, char **argv)
@@ -118,11 +122,22 @@ int parse_args(int argc, char **argv)
 			_debug++;
 		} else if ((res = cmp_arg(argv, &i, "--psize", "-s", 0)) == ARG_MATCH) {
 			arg_print_sizes = 1;
+		} else if ((res = cmp_arg(argv, &i, "--ivalext", "-e", &initvals_fn_extension)) == ARG_MATCH) {
+			/* initvals_fn_extension is set to the extension. */
+		} else if ((res = cmp_arg(argv, &i, "--__real_infile", 0, &real_infile_name)) == ARG_MATCH) {
+			/* real_infile_name is set. */
 		} else {
 			fprintf(stderr, "Unrecognized argument: %s\n", argv[i]);
 			goto out_usage;
 		}
 	}
+	if (!real_infile_name)
+		real_infile_name = infile_name;
+	if (strcmp(real_infile_name, outfile_name) == 0) {
+		fprintf(stderr, "Error: INPUT and OUTPUT filename must not be the same\n");
+		goto out_usage;
+	}
+
 	return 0;
 out_usage:
 	usage(argc, argv);
