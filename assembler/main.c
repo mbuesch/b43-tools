@@ -823,8 +823,8 @@ static void assemble_instruction(struct assembler_context *ctx,
 			/* Search the last insn. */
 			if (out->type == OUT_INSN) {
 				if (out->is_jump_insn) {
-					asm_error(ctx, "RET instruction directly after "
-						  "jump instruction. The hardware won't like this.");
+					asm_warn(ctx, "RET instruction directly after "
+						 "jump instruction. The hardware won't like this.");
 				}
 				break;
 			}

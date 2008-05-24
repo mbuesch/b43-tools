@@ -72,6 +72,6 @@ if [ "$orig_sum" != "$out_sum" ]; then
 	echo "FAILURE: Checksums don't match!"
 	exit 1
 fi
-echo "Everything is OK"
+echo "Checksums match"
 
 exit 0
