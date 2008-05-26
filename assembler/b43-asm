@@ -10,7 +10,7 @@
 # The b43-asm backend binary
 B43_ASM="b43-asm.bin"
 # The C preprocessor binary
-CPP="cpp"
+CPP="gcc -E"
 
 
 # This variable is changed by the installer scripts.
