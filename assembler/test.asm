@@ -169,6 +169,7 @@ function_b:
 	mov	testlabel, r0		/* Can use label as immediate value */
 	mov r0,r1;mov r2, r3		/* ; does split instructions */
 	mov	[(1+1)],[(2+2),off0]	/* Can use complex immediates as memory offsets */
+	orx	(0 + 1), (1 * 2), 0, 0, r0 /* Allow complex immediates as M or S */
 
 
 /* The .initvals section generates an "Initial Values" file

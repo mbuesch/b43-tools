@@ -987,7 +987,7 @@ raw_code	: RAW_CODE {
 		  }
 		;
 
-extended_operlist : decnum COMMA decnum COMMA operand COMMA operand COMMA operand {
+extended_operlist : imm_value COMMA imm_value COMMA operand COMMA operand COMMA operand {
 			struct operlist *ol = xmalloc(sizeof(struct operlist));
 			struct operand *mask_oper = xmalloc(sizeof(struct operand));
 			struct operand *shift_oper = xmalloc(sizeof(struct operand));
