@@ -1,14 +1,13 @@
 /* This is a bcm43xx microcode assembly example.
  *
- * In this example file, r0 and r1 are always input
- * registers and r2 is output.
- * For input we can always have constant values or (one) memory
- * operand instead of the input registers shown here.
- *
  * Registers:
- *	GPRs:			r0 - r63
+ *	GPRs:			r0 - r63	(General Purpose Register)
  *	Offset Registers:	off0 - off5
- *	SPRs:			spr000
+ *	SPRs:			spr000		(Special Purpose Register)
+ *
+ * SPRs map to the driver-side IHR registers.
+ * An SPR offset is converted to an IHR offset by the following
+ * calculation:  IHR = (SPR + 0x400) * 2
  *
  * To access memory, two methods can be used. Examples follow.
  * Direct linear:
