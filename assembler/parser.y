@@ -516,7 +516,12 @@ asmdir		: ASM_ARCH hexnum_decnum {
 			ad->u.start = label;
 			$$ = ad;
 		  }
-		| ASM_ASSERT assertion {
+		| asm_assert {
+			$$ = NULL;
+		  }
+		;
+
+asm_assert	: ASM_ASSERT assertion {
 			unsigned int ok = (unsigned int)(unsigned long)$2;
 			if (!ok)
 				assembler_assertion_failed();
@@ -1200,6 +1205,10 @@ complex_imm	: PAREN_OPEN complex_imm_arg complex_imm_oper complex_imm_arg PAREN_
 		  }
 		| PAREN_OPEN complex_imm PAREN_CLOSE {
 			$$ = $2;
+		  }
+		| PAREN_OPEN asm_assert PAREN_CLOSE {
+			/* Inline assertion. Always return zero */
+			$$ = (void *)(unsigned long)(unsigned int)0;
 		  }
 		| PAREN_OPEN BITW_NOT complex_imm PAREN_CLOSE {
 			unsigned long n = (unsigned long)$3;

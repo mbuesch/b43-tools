@@ -51,7 +51,7 @@ NEWLINE		((\r)|(\n)|(\r\n))
 
 ^{WS}*"%"{WS}*arch	{ update_lineinfo(); return ASM_ARCH; }
 ^{WS}*"%"{WS}*start	{ update_lineinfo(); return ASM_START; }
-^{WS}*"%"{WS}*assert	{ update_lineinfo(); return ASM_ASSERT; }
+"%"{WS}*assert		{ update_lineinfo(); return ASM_ASSERT; }
 
 ^{WS}*\.text{WS}*$			{ update_lineinfo(); return SECTION_TEXT; }
 ^{WS}*\.initvals/\({IDENTIFIER}\)	{ update_lineinfo(); return SECTION_IVALS; }

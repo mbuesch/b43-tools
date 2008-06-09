@@ -35,6 +35,10 @@
 
 .text
 
+	/* Inline assertion inside of a complex immediate.
+	 * The %assert() expression will always return zero. */
+	mov	(1 + (%assert(1 == ((1 + 2) - 2)))), r0
+
 label:
 	/* ADD instructions */
 	add	r0,r1,r2	/* add */
