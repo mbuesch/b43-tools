@@ -51,6 +51,7 @@ NEWLINE		((\r)|(\n)|(\r\n))
 
 ^{WS}*"%"{WS}*arch	{ update_lineinfo(); return ASM_ARCH; }
 ^{WS}*"%"{WS}*start	{ update_lineinfo(); return ASM_START; }
+^{WS}*"%"{WS}*assert	{ update_lineinfo(); return ASM_ASSERT; }
 
 ^{WS}*\.text{WS}*$			{ update_lineinfo(); return SECTION_TEXT; }
 ^{WS}*\.initvals/\({IDENTIFIER}\)	{ update_lineinfo(); return SECTION_IVALS; }
@@ -67,6 +68,10 @@ lr/[0-3]		{ update_lineinfo(); return LR; }
 \(			{ update_lineinfo(); return PAREN_OPEN; }
 \)			{ update_lineinfo(); return PAREN_CLOSE; }
 
+==			{ update_lineinfo(); return EQUAL; }
+!=			{ update_lineinfo(); return NOT_EQUAL; }
+\|\|			{ update_lineinfo(); return LOGICAL_OR; }
+\&\&			{ update_lineinfo(); return LOGICAL_AND; }
 \+			{ update_lineinfo(); return PLUS; }
 \-			{ update_lineinfo(); return MINUS; }
 \*			{ update_lineinfo(); return MULTIPLY; }

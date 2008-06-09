@@ -28,6 +28,10 @@
 
 #define ECOND_MAC_ON	(0x20 | 4)
 
+%assert ((((1))) == ((((2 - 1) & 0xFF))))
+%assert ((1 == 2) || (1 == (0xFF & 1)))
+%assert (1 != (~1))
+%assert ((1 == (2 - 1)) && (2 == 2))
 
 .text
 
