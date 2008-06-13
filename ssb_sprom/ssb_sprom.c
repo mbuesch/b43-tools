@@ -16,7 +16,7 @@
 
   You should have received a copy of the GNU General Public License
   along with this program; see the file COPYING.  If not, write to
-  the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
+  the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
   Boston, MA 02110-1301, USA.
 
 */
@@ -398,7 +398,7 @@ static void display_value(const uint8_t *sprom,
 		value = sprom[offset];
 		break;
 	case VALUE_SUBP:
-		desc = "Subsytem product ID";
+		desc = "Subsystem product ID";
 		if (sprom_rev == 4)
 			offset = SPROM4_SUBP;
 		else
@@ -937,7 +937,7 @@ static void print_usage(int argc, char *argv[])
 	prdata("  -g|--rawget OFF       Get a value at a byte-OFFset\n");
 	prdata("\n");
 	prdata("Predefined values (for displaying (GET) or modification):\n");
-	prdata("  --subp [0xFFFF]       Subsytem product ID for PCI\n");
+	prdata("  --subp [0xFFFF]       Subsystem product ID for PCI\n");
 	prdata("  --subv [0xFFFF]       Subsystem vendor ID for PCI\n");
 	prdata("  --ppid [0xFFFF]       Product ID for PCI\n");
 	prdata("  --bflhi [0xFFFF]      High 16 bits of boardflags (only if spromversion > 1)\n");
