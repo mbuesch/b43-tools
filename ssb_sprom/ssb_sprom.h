@@ -16,7 +16,7 @@
 
   You should have received a copy of the GNU General Public License
   along with this program; see the file COPYING.  If not, write to
-  the Free Software Foundation, Inc., 51 Franklin Steet, Fifth Floor,
+  the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
   Boston, MA 02110-1301, USA.
 
 */
@@ -33,10 +33,10 @@
 
 /* byte offsets */
 #define SPROM_SUBP		(0x02 * 2)
-#define SPROM4_SUBP		(0x00 * 2)
+#define SPROM4_SUBP		(0x02 * 2)
 #define SPROM_SUBV		(0x03 * 2)
 #define SPROM_PPID		(0x04 * 2)
-#define SPROM4_PPID		(0x02 * 2)
+#define SPROM4_PPID		(0x04 * 2)
 #define SPROM_BFLHI		(0x1C * 2)
 #define SPROM_IL0MACADDR	(0x24 * 2)
 #define SPROM_ET0MACADDR	(0x27 * 2)
