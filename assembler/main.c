@@ -341,8 +341,14 @@ static unsigned int generate_mem_operand(struct assembler_context *ctx,
 			asm_warn(ctx, "INDIRECT memoffset 0x%X too long (> 6 bits)", off);
 			off &= 0x3F;
 		}
-		if (reg & ~0x7)
+		if (reg > 6) {
+			/* Assembler bug. The parser shouldn't pass this value. */
 			asm_error(ctx, "OFFR-nr too big");
+		}
+		if (reg == 6) {
+			asm_warn(ctx, "Using offset register 6. This register is broken "
+				 "on certain devices. Use off0 to off5 only.");
+		}
 		val |= off;
 		val |= (reg << 6);
 		break;
