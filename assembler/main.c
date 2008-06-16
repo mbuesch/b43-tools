@@ -1130,7 +1130,8 @@ static void emit_code(struct assembler_context *ctx)
 
 	if (arg_print_sizes) {
 		printf("%s:  text = %u instructions (%u bytes)\n",
-		       fn, insn_count, insn_count * sizeof(uint64_t));
+		       fn, insn_count,
+		       (unsigned int)(insn_count * sizeof(uint64_t)));
 	}
 
 	fclose(fd);
