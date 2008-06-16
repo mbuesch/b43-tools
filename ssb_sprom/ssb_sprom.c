@@ -1016,12 +1016,12 @@ static int do_cmp_arg(char **argv, int *pos,
 	}
 	if (strcmp(arg, template) == 0) {
 		if (param) {
-			/* Skip the parameter on the next iteration. */
-			(*pos)++;
 			if (*param == 0) {
 				prerror("%s needs a parameter\n", arg);
 				return ARG_ERROR;
 			}
+			/* Skip the parameter on the next iteration. */
+			(*pos)++;
 		}
 		return ARG_MATCH;
 	}
@@ -1511,7 +1511,8 @@ static int parse_args(int argc, char *argv[])
 			if (err)
 				goto error;
 		} else {
-			prerror("Unrecognized argument: %s\n", argv[i]);
+			if (!parse_err)
+				prerror("Unrecognized argument: %s\n", argv[i]);
 			goto out_usage;
 		}
 		if (parse_err)
