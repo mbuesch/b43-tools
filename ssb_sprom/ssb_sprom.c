@@ -574,7 +574,7 @@ static void display_value(const uint8_t *sprom,
 	case VALUE_ANTGA:
 		if (sprom_rev != 4) {
 			desc = "A PHY antenna gain";
-			offset = SPROM_ANTENNA_GAIN + 1;
+			offset = SPROM_ANTENNA_GAIN;
 		} else {
 			desc = "Antenna 1 Gain";
 			offset = SPROM4_ANTENNA_GAIN;
