@@ -189,6 +189,15 @@ static void assemble_write_shm(struct ivals_context *ctx,
 	}
 }
 
+/* Template RAM write */
+static void assemble_write_tram(struct ivals_context *ctx,
+				unsigned int offset,
+				unsigned int value)
+{
+	assemble_write_mmio(ctx, 0x130, SIZE_32BIT, offset);
+	assemble_write_mmio(ctx, 0x134, SIZE_32BIT, value);
+}
+
 static void assemble_ival_section(struct ivals_context *ctx,
 				  const struct initvals_sect *sect)
 {
@@ -230,6 +239,10 @@ static void assemble_ival_section(struct ivals_context *ctx,
 					   op->args[2],
 					   op->args[0],
 					   SIZE_32BIT);
+			break;
+		case IVAL_W_TRAM:
+			assemble_write_tram(ctx, op->args[1],
+					    op->args[0]);
 			break;
 		}
 	}

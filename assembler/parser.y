@@ -45,7 +45,7 @@ extern struct initvals_sect *cur_initvals_sect;
 
 %token OP_ADD OP_ADDSC OP_ADDC OP_ADDSCC OP_SUB OP_SUBSC OP_SUBC OP_SUBSCC OP_SRA OP_OR OP_AND OP_XOR OP_SR OP_SRX OP_SL OP_RL OP_RR OP_NAND OP_ORX OP_MOV OP_JMP OP_JAND OP_JNAND OP_JS OP_JNS OP_JE OP_JNE OP_JLS OP_JGES OP_JGS OP_JLES OP_JL OP_JGE OP_JG OP_JLE OP_JZX OP_JNZX OP_JEXT OP_JNEXT OP_CALL OP_RET OP_TKIPH OP_TKIPHS OP_TKIPL OP_TKIPLS OP_NAP RAW_CODE
 
-%token IVAL_MMIO16 IVAL_MMIO32 IVAL_PHY IVAL_RADIO IVAL_SHM16 IVAL_SHM32
+%token IVAL_MMIO16 IVAL_MMIO32 IVAL_PHY IVAL_RADIO IVAL_SHM16 IVAL_SHM32 IVAL_TRAM
 
 %start line
 
@@ -147,6 +147,13 @@ ivals_write	: IVAL_MMIO16 imm_value COMMA imm_value {
 			iop->args[0] = (unsigned int)(unsigned long)$2;
 			iop->args[1] = (unsigned int)(unsigned long)$4;
 			iop->args[2] = (unsigned int)(unsigned long)$6;
+			$$ = iop;
+		  }
+		| IVAL_TRAM imm_value COMMA imm_value {
+			struct initval_op *iop = xmalloc(sizeof(struct initval_op));
+			iop->type = IVAL_W_TRAM;
+			iop->args[0] = (unsigned int)(unsigned long)$2;
+			iop->args[1] = (unsigned int)(unsigned long)$4;
 			$$ = iop;
 		  }
 		;

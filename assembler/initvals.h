@@ -12,6 +12,7 @@ struct initval_op {
 		IVAL_W_RADIO,
 		IVAL_W_SHM16,
 		IVAL_W_SHM32,
+		IVAL_W_TRAM,
 	} type;
 	unsigned int args[3];
 

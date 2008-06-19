@@ -142,6 +142,7 @@ phy			{ update_lineinfo(); return IVAL_PHY; }
 radio			{ update_lineinfo(); return IVAL_RADIO; }
 shm16			{ update_lineinfo(); return IVAL_SHM16; }
 shm32			{ update_lineinfo(); return IVAL_SHM32; }
+tram			{ update_lineinfo(); return IVAL_TRAM; }
 
 @[0-9a-fA-F]{3,3}	{ update_lineinfo(); return RAW_CODE; }
 
