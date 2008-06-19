@@ -36,21 +36,24 @@ def usage():
 	print "-b|--binary BIN      The firmware binary. This is required for"
 	print "                     an instruction dump."
 	print "-d|--dasmopt OPT     Additional options to the disassembler."
+	print "-s|--shm             Also dump SHM."
 	return
 
 def parseArgs():
 	global phy
 	global binary
 	global dasmopt
+	global dumpShm
 
 	phy = None # Autodetect
 	binary = None # No instruction dump
 	dasmopt = ""
+	dumpShm = False
 
 	try:
 		(opts, args) = getopt.getopt(sys.argv[1:],
-			"hp:b:d:",
-			[ "help", "phy=", "binary=", "dasmopt=" ])
+			"hp:b:d:s",
+			[ "help", "phy=", "binary=", "dasmopt=", "shm" ])
 	except getopt.GetoptError:
 		usage()
 		sys.exit(1)
@@ -65,6 +68,8 @@ def parseArgs():
 			binary = v
 		if o in ("-d", "--dasmopt"):
 			dasmopt = v
+		if o in ("-s", "--shm"):
+			dumpShm = True
 	return
 
 
@@ -110,6 +115,11 @@ def makeShortDump(dasm, pc):
 		pos += 1
 	return ret
 
+def toAscii(char):
+	if char >= 32 and char <= 126:
+		return chr(char)
+	return "."
+
 def main():
 	parseArgs()
 
@@ -120,7 +130,8 @@ def main():
 	gpr = b43.getGprs()
 	lr = b43.getLinkRegs()
 	off = b43.getOffsetRegs()
-	shm = b43.shmSharedRead()
+	if dumpShm:
+		shm = b43.shmSharedRead()
 	dbg = b43.getPsmDebug()
 	psmcond = b43.getPsmConditions()
 	b43.ucodeStart()
@@ -145,6 +156,22 @@ def main():
 		print makeShortDump(dasm, dbg.getPc())
 	else:
 		print "<No binary supplied. See --binary option>"
+
+	if dumpShm:
+		print "Shared memory:"
+		ascii = ""
+		for i in range(0, len(shm)):
+			if i % 16 == 0 and i != 0:
+				stdout.write("  " + ascii + "\n")
+				ascii = ""
+			if i % 16 == 0:
+				stdout.write("0x%04X:  " % i)
+			c = ord(shm[i])
+			stdout.write("%02X" % c)
+			if (i % 2 != 0):
+				stdout.write(" ")
+			ascii += toAscii(c)
+		stdout.write("  " + ascii + "\n")
 	return
 
 
