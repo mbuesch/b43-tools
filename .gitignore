@@ -7,6 +7,7 @@
 *.so.dbg
 *.i
 *.lst
+*.pyc
 .gitignore
 
 *.ucode

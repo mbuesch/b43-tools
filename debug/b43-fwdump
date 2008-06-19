@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+#
+#  b43 firmware state dumper
+#
+#  Copyright (C) 2008 Michael Buesch <mb@bu3sch.de>
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License version 3
+#  as published by the Free Software Foundation.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+from libb43 import *
+
+
+try:
+	phy = sys.argv[1]
+except IndexError:
+	phy = None
+
+
+try:
+	b43 = B43(phy)
+
+	regs = b43.ucodeRegsRead()
+	shm = b43.shmSharedRead()
+	dbg = b43.getPsmDebug()
+
+	print "PC is at 0x%03X" % dbg.getPc()
+#TODO
+
+except B43Exception:
+	sys.exit(1)
