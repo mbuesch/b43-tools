@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#
+"""
 #  b43 firmware state dumper
 #
 #  Copyright (C) 2008 Michael Buesch <mb@bu3sch.de>
@@ -15,26 +15,140 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
+"""
 
+import getopt
 from libb43 import *
+from sys import stdout
+from tempfile import *
 
 
-try:
-	phy = sys.argv[1]
-except IndexError:
-	phy = None
+def usage():
+	print "b43 firmware state dumper"
+	print ""
+	print "Copyright (C) 2008 Michael Buesch <mb@bu3sch.de>"
+	print "Licensed under the GNU/GPL version 3"
+	print ""
+	print "Usage: b43-fwdump [OPTIONS]"
+	print ""
+	print "-h|--help            Print this help text"
+	print "-p|--phy PHY         The PHY to use. For example phy0"
+	print "-b|--binary BIN      The firmware binary. This is required for"
+	print "                     an instruction dump."
+	print "-d|--dasmopt OPT     Additional options to the disassembler."
+	return
+
+def parseArgs():
+	global phy
+	global binary
+	global dasmopt
+
+	phy = None # Autodetect
+	binary = None # No instruction dump
+	dasmopt = ""
+
+	try:
+		(opts, args) = getopt.getopt(sys.argv[1:],
+			"hp:b:d:",
+			[ "help", "phy=", "binary=", "dasmopt=" ])
+	except getopt.GetoptError:
+		usage()
+		sys.exit(1)
+
+	for (o, v) in opts:
+		if o in ("-h", "--help"):
+			usage()
+			sys.exit(0)
+		if o in ("-p", "--phy"):
+			phy = v
+		if o in ("-b", "--binary"):
+			binary = v
+		if o in ("-d", "--dasmopt"):
+			dasmopt = v
+	return
 
 
-try:
+def dump_regs(prefix, regs):
+	if len(regs) >= 10:
+		template = "%s%02u: %04X  "
+	else:
+		template = "%s%01u: %04X  "
+	for i in range(0, len(regs)):
+		if i != 0 and i % 4 == 0:
+			stdout.write("\n")
+		stdout.write(template % (prefix, i, regs[i]))
+	stdout.write("\n")
+	return
+
+def disassembleText(text):
+	input = NamedTemporaryFile()
+	output = NamedTemporaryFile()
+
+	input.write(text)
+	input.flush()
+	os.system("b43-dasm %s %s %s --paddr" % (input.name, dasmopt, output.name))
+
+	return output.read()
+
+def makeShortDump(dasm, pc):
+	dasm = dasm.splitlines()
+	i = 0
+	for line in dasm:
+		if "/* %03X */" % pc in line:
+			break
+		i += 1
+	if i >= len(dasm):
+		return "<Could not find PC in the binary>"
+	ret = ""
+	pos = max(i - 8, 0)
+	end = min(i + 8, len(dasm) - 1)
+	while pos != end:
+		ret += dasm[pos]
+		if "/* %03X */" % pc in dasm[pos]:
+			ret += "\t\t<<<<<<<<<<<"
+		ret += "\n"
+		pos += 1
+	return ret
+
+def main():
+	parseArgs()
+
 	b43 = B43(phy)
 
-	regs = b43.ucodeRegsRead()
+	# Fetch the hardware information
+	b43.ucodeStop()
+	gpr = b43.getGprs()
+	lr = b43.getLinkRegs()
+	off = b43.getOffsetRegs()
 	shm = b43.shmSharedRead()
 	dbg = b43.getPsmDebug()
+	psmcond = b43.getPsmConditions()
+	b43.ucodeStart()
 
-	print "PC is at 0x%03X" % dbg.getPc()
-#TODO
+	print "--- B43 microcode state dump ---"
+	print "PC: %03X  PSM-COND: %04X" % (dbg.getPc(), psmcond)
+	print "Link registers:"
+	dump_regs("lr", lr)
+	print "Offset registers:"
+	dump_regs("off", off)
+	print "General purpose registers:"
+	dump_regs("r", gpr)
 
+	print "Code:"
+	if binary:
+		try:
+			bintext = file(binary, "r").read()
+		except IOError, e:
+			print "Could not read binary file %s: %s" % (binary, e.strerror)
+			sys.exit(1)
+		dasm = disassembleText(bintext)
+		print makeShortDump(dasm, dbg.getPc())
+	else:
+		print "<No binary supplied. See --binary option>"
+	return
+
+
+try:
+	main()
 except B43Exception:
 	sys.exit(1)

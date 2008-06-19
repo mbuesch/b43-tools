@@ -1,4 +1,4 @@
-#
+"""
 #  b43 debugging library
 #
 #  Copyright (C) 2008 Michael Buesch <mb@bu3sch.de>
@@ -14,7 +14,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
+"""
 
 import sys
 import os
@@ -33,17 +33,28 @@ class B43Exception(Exception):
 	pass
 
 
-B43_MMIO_PSMDEBUG = 0x154
+B43_MMIO_MACCTL		= 0x120
+B43_MMIO_PSMDEBUG	= 0x154
+
+B43_MACCTL_PSM_MACEN	= 0x00000001
+B43_MACCTL_PSM_RUN	= 0x00000002
+B43_MACCTL_PSM_JMP0	= 0x00000004
+B43_MACCTL_PSM_DEBUG	= 0x00002000
+
 
 class B43PsmDebug:
 	"""Parse the contents of the PSM-debug register"""
 	def __init__(self, reg_content):
-		self.pc = reg_content & 0xFFF
+		self.raw = reg_content
 		return
+
+	def getRaw(self):
+		"""Get the raw PSM-debug register value"""
+		return self.raw
 
 	def getPc(self):
 		"""Get the microcode program counter"""
-		return self.pc
+		return self.raw & 0xFFF
 
 
 class B43:
@@ -80,6 +91,8 @@ class B43:
 		except IOError, e:
 			print "Could not open debugfs file %s: %s" % (e.filename, e.strerror)
 			raise B43Exception
+
+		self.b43_path = b43_path
 		return
 
 	# Get the debugfs mountpoint.
@@ -102,10 +115,11 @@ class B43:
 		try:
 			self.f_mmio16read.seek(0)
 			self.f_mmio16read.write("0x%X" % reg)
+			self.f_mmio16read.flush()
 			self.f_mmio16read.seek(0)
 			val = self.f_mmio16read.read()
 		except IOError, e:
-			print "Coult not access debugfs file %s: %s" % (e.filename, e.strerror)
+			print "Could not access debugfs file %s: %s" % (e.filename, e.strerror)
 			raise B43Exception
 		return int(val, 16)
 
@@ -114,31 +128,48 @@ class B43:
 		try:
 			self.f_mmio32read.seek(0)
 			self.f_mmio32read.write("0x%X" % reg)
+			self.f_mmio32read.flush()
 			self.f_mmio32read.seek(0)
 			val = self.f_mmio32read.read()
 		except IOError, e:
-			print "Coult not access debugfs file %s: %s" % (e.filename, e.strerror)
+			print "Could not access debugfs file %s: %s" % (e.filename, e.strerror)
 			raise B43Exception
 		return int(val, 16)
 
+	def maskSet16(self, reg, mask, set):
+		"""Do a 16bit MMIO mask-and-set operation"""
+		try:
+			mask &= 0xFFFF
+			set &= 0xFFFF
+			self.f_mmio16write.seek(0)
+			self.f_mmio16write.write("0x%X 0x%X 0x%X" % (reg, mask, set))
+			self.f_mmio16write.flush()
+		except IOError, e:
+			print "Could not access debugfs file %s: %s" % (e.filename, e.strerror)
+			raise B43Exception
+		return
+	
 	def write16(self, reg, value):
 		"""Do a 16bit MMIO write"""
+		self.maskSet16(reg, 0, value)
+		return
+
+	def maskSet32(self, reg, mask, set):
+		"""Do a 32bit MMIO mask-and-set operation"""
 		try:
-			self.f_mmio16write.seek(0)
-			self.f_mmio16write.write("0x%X = 0x%X" % (reg, value))
+			mask &= 0xFFFFFFFF
+			set &= 0xFFFFFFFF
+			self.f_mmio32write.seek(0)
+			self.f_mmio32write.write("0x%X 0x%X 0x%X" % (reg, mask, set))
+			self.f_mmio32write.flush()
 		except IOError, e:
-			print "Coult not access debugfs file %s: %s" % (e.filename, e.strerror)
+			print "Could not access debugfs file %s: %s" % (e.filename, e.strerror)
 			raise B43Exception
 		return
 
 	def write32(self, reg, value):
 		"""Do a 32bit MMIO write"""
-		try:
-			self.f_mmio32write.seek(0)
-			self.f_mmio32write.write("0x%X = 0x%X" % (reg, value))
-		except IOError, e:
-			print "Coult not access debugfs file %s: %s" % (e.filename, e.strerror)
-			raise B43Exception
+		self.maskSet32(reg, 0, value)
 		return
 
 	def shmRead16(self, routing, offset):
@@ -146,20 +177,24 @@ class B43:
 		try:
 			self.f_shm16read.seek(0)
 			self.f_shm16read.write("0x%X 0x%X" % (routing, offset))
+			self.f_shm16read.flush()
 			self.f_shm16read.seek(0)
 			val = self.f_shm16read.read()
 		except IOError, e:
-			print "Coult not access debugfs file %s: %s" % (e.filename, e.strerror)
+			print "Could not access debugfs file %s: %s" % (e.filename, e.strerror)
 			raise B43Exception
 		return int(val, 16)
 
 	def shmMaskSet16(self, routing, offset, mask, set):
 		"""Do a 16bit SHM mask-and-set operation"""
 		try:
+			mask &= 0xFFFF
+			set &= 0xFFFF
 			self.f_shm16write.seek(0)
 			self.f_shm16write.write("0x%X 0x%X 0x%X 0x%X" % (routing, offset, mask, set))
+			self.f_shm16write.flush()
 		except IOError, e:
-			print "Coult not access debugfs file %s: %s" % (e.filename, e.strerror)
+			print "Could not access debugfs file %s: %s" % (e.filename, e.strerror)
 			raise B43Exception
 		return
 
@@ -173,20 +208,24 @@ class B43:
 		try:
 			self.f_shm32read.seek(0)
 			self.f_shm32read.write("0x%X 0x%X" % (routing, offset))
+			self.f_shm32read.flush()
 			self.f_shm32read.seek(0)
 			val = self.f_shm32read.read()
 		except IOError, e:
-			print "Coult not access debugfs file %s: %s" % (e.filename, e.strerror)
+			print "Could not access debugfs file %s: %s" % (e.filename, e.strerror)
 			raise B43Exception
 		return int(val, 16)
 
 	def shmMaskSet32(self, routing, offset, mask, set):
 		"""Do a 32bit SHM mask-and-set operation"""
 		try:
+			mask &= 0xFFFFFFFF
+			set &= 0xFFFFFFFF
 			self.f_shm32write.seek(0)
 			self.f_shm32write.write("0x%X 0x%X 0x%X 0x%X" % (routing, offset, mask, set))
+			self.f_shm32write.flush()
 		except IOError, e:
-			print "Coult not access debugfs file %s: %s" % (e.filename, e.strerror)
+			print "Could not access debugfs file %s: %s" % (e.filename, e.strerror)
 			raise B43Exception
 		return
 
@@ -195,26 +234,59 @@ class B43:
 		self.shmMaskSet32(routing, offset, 0, value)
 		return
 
-	def ucodeRegsRead(self):
-		"""Returns an array of 64 ints. One for each ucode register."""
+	def getGprs(self):
+		"""Returns an array of 64 ints. One for each General Purpose register."""
 		ret = []
 		for i in range(0, 64):
 			val = self.shmRead16(B43_SHM_REGS, i)
 			ret.append(val)
 		return ret
 
-	def shmSharedRead(self):
-		"""Returns an array of ints containing the bytewise SHM contents."""
+	def getLinkRegs(self):
+		"""Returns an array of 4 ints. One for each Link Register."""
 		ret = []
+		for i in range(0, 4):
+			val = self.read16(0x4D0 + (i * 2))
+			ret.append(val)
+		return ret
+
+	def getOffsetRegs(self):
+		"""Returns an array of 7 ints. One for each Offset Register."""
+		ret = []
+		for i in range(0, 7):
+			val = self.read16(0x4C0 + (i * 2))
+			ret.append(val)
+		return ret
+
+	def shmSharedRead(self):
+		"""Returns a string containing the SHM contents."""
+		ret = ""
 		for i in range(0, 4096, 4):
 			val = self.shmRead32(B43_SHM_SHARED, i)
-			ret.append(val & 0xFF)
-			ret.append((val >> 8) & 0xFF)
-			ret.append((val >> 16) & 0xFF)
-			ret.append((val >> 24) & 0xFF)
+			ret += "%c%c%c%c" %	(val & 0xFF,
+						 (val >> 8) & 0xFF,
+						 (val >> 16) & 0xFF,
+						 (val >> 24) & 0xFF)
 		return ret
 
 	def getPsmDebug(self):
 		"""Read the PSM-debug register and return an instance of B43PsmDebug."""
 		val = self.read32(B43_MMIO_PSMDEBUG)
 		return B43PsmDebug(val)
+
+	def getPsmConditions(self):
+		"""This returns the contents of the programmable-PSM-conditions register."""
+		return self.read16(0x4D8)
+
+	def ucodeStop(self):
+		"""Unconditionally stop the microcode PSM. """
+		self.maskSet32(B43_MMIO_MACCTL, ~B43_MACCTL_PSM_RUN, 0)
+		return
+
+	def ucodeStart(self):
+		"""Unconditionally start the microcode PSM. This will restart the
+		microcode on the current PC. It will not jump to 0. Warning: This will
+		unconditionally restart the PSM and ignore any driver-state!"""
+		self.maskSet32(B43_MMIO_MACCTL, ~0, B43_MACCTL_PSM_RUN)
+		return
+
