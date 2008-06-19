@@ -37,6 +37,7 @@ def usage():
 	print "                     an instruction dump."
 	print "-d|--dasmopt OPT     Additional options to the disassembler."
 	print "-s|--shm             Also dump SHM."
+	print "-S|--shmbin          Do a binary SHM dump, only."
 	return
 
 def parseArgs():
@@ -44,16 +45,18 @@ def parseArgs():
 	global binary
 	global dasmopt
 	global dumpShm
+	global dumpShmBin
 
 	phy = None # Autodetect
 	binary = None # No instruction dump
 	dasmopt = ""
 	dumpShm = False
+	dumpShmBin = False
 
 	try:
 		(opts, args) = getopt.getopt(sys.argv[1:],
-			"hp:b:d:s",
-			[ "help", "phy=", "binary=", "dasmopt=", "shm" ])
+			"hp:b:d:sS",
+			[ "help", "phy=", "binary=", "dasmopt=", "shm", "shmbin" ])
 	except getopt.GetoptError:
 		usage()
 		sys.exit(1)
@@ -70,6 +73,8 @@ def parseArgs():
 			dasmopt = v
 		if o in ("-s", "--shm"):
 			dumpShm = True
+		if o in ("-S", "--shmbin"):
+			dumpShmBin = True
 	return
 
 
@@ -130,11 +135,16 @@ def main():
 	gpr = b43.getGprs()
 	lr = b43.getLinkRegs()
 	off = b43.getOffsetRegs()
-	if dumpShm:
+	if dumpShm or dumpShmBin:
 		shm = b43.shmSharedRead()
 	dbg = b43.getPsmDebug()
 	psmcond = b43.getPsmConditions()
 	b43.ucodeStart()
+
+	if dumpShmBin:
+		# Only do a binary SHM dump
+		stdout.write(shm)
+		sys.exit(0)
 
 	print "--- B43 microcode state dump ---"
 	print "PC: %03X  PSM-COND: %04X" % (dbg.getPc(), psmcond)
