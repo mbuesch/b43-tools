@@ -638,6 +638,7 @@ static void emit_asm(struct disassembler_context *ctx)
 	struct statement *stmt;
 	int first, i;
 	int err;
+	unsigned int addr = 0;
 
 	err = open_output_file();
 	if (err)
@@ -647,6 +648,8 @@ static void emit_asm(struct disassembler_context *ctx)
 	list_for_each_entry(stmt, &ctx->stmt_list, list) {
 		switch (stmt->type) {
 		case STMT_INSN:
+			if (cmdargs.print_addresses)
+				fprintf(outfile, "/* %03X */", addr);
 			fprintf(outfile, "\t%s", stmt->u.insn.name);
 			first = 1;
 			for (i = 0; i < ARRAY_SIZE(stmt->u.insn.operands); i++) {
@@ -665,6 +668,7 @@ static void emit_asm(struct disassembler_context *ctx)
 					stmt->u.insn.operands[i]);
 			}
 			fprintf(outfile, "\n");
+			addr++;
 			break;
 		case STMT_LABEL:
 			fprintf(outfile, "%s:\n", stmt->u.label.name);
@@ -689,18 +693,20 @@ static int read_input(struct disassembler_context *ctx)
 	if (err)
 		goto error;
 
-	ret = fread(&hdr, 1, sizeof(hdr), infile);
-	if (ret != sizeof(hdr)) {
-		fprintf(stderr, "Corrupt input file (not fwcutter output)\n");
-		goto err_close;
-	}
-	if (hdr.type != FW_TYPE_UCODE) {
-		fprintf(stderr, "Corrupt input file. Not a microcode image.\n");
-		goto err_close;
-	}
-	if (hdr.ver != FW_HDR_VER) {
-		fprintf(stderr, "Invalid input file header version.\n");
-		goto err_close;
+	if (!cmdargs.no_header) {
+		ret = fread(&hdr, 1, sizeof(hdr), infile);
+		if (ret != sizeof(hdr)) {
+			fprintf(stderr, "Corrupt input file (not fwcutter output)\n");
+			goto err_close;
+		}
+		if (hdr.type != FW_TYPE_UCODE) {
+			fprintf(stderr, "Corrupt input file. Not a microcode image.\n");
+			goto err_close;
+		}
+		if (hdr.ver != FW_HDR_VER) {
+			fprintf(stderr, "Invalid input file header version.\n");
+			goto err_close;
+		}
 	}
 
 	while (1) {

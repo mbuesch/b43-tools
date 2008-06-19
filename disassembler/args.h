@@ -3,6 +3,8 @@
 
 struct cmdline_args {
 	unsigned int arch;
+	int no_header;
+	int print_addresses;
 };
 
 int parse_args(int argc, char **argv);

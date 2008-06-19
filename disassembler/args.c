@@ -25,7 +25,9 @@
 int _debug;
 
 struct cmdline_args cmdargs = {
-	.arch = 5,	/* Default to v5 architecture. */
+	.arch = 5,		/* Default to v5 architecture. */
+	.no_header = 0,		/* Input file does not have a header. */
+	.print_addresses = 0,	/* Print the code addresses in the output. */
 };
 
 #define ARG_MATCH		0
@@ -99,6 +101,8 @@ static void usage(int argc, char **argv)
 	fprintf(stderr, "Usage: %s INPUT_FILE OUTPUT_FILE [OPTIONS]\n", argv[0]);
 	fprintf(stderr, "  -a|--arch ARCH      The architecture type of the input file\n");
 	fprintf(stderr, "  -h|--help           Print this help\n");
+	fprintf(stderr, "  --nohdr             The input file does not have a header\n");
+	fprintf(stderr, "  --paddr             Print the code addresses\n");
 	fprintf(stderr, "  -d|--debug          Print verbose debugging info\n");
 	fprintf(stderr, "                      Repeat for more verbose debugging\n");
 }
@@ -116,6 +120,10 @@ int parse_args(int argc, char **argv)
 		if ((res = cmp_arg(argv, &i, "--help", "-h", 0)) == ARG_MATCH) {
 			usage(argc, argv);
 			return 1;
+		} else if ((res = cmp_arg(argv, &i, "--nohdr", 0, 0)) == ARG_MATCH) {
+			cmdargs.no_header = 1;
+		} else if ((res = cmp_arg(argv, &i, "--paddr", 0, 0)) == ARG_MATCH) {
+			cmdargs.print_addresses = 1;
 		} else if ((res = cmp_arg(argv, &i, "--debug", "-d", 0)) == ARG_MATCH) {
 			_debug++;
 		} else if ((res = cmp_arg(argv, &i, "--arch", "-a", &param)) == ARG_MATCH) {
