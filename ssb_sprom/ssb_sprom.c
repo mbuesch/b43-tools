@@ -293,10 +293,16 @@ static int modify_value(uint8_t *sprom,
 			sprom[SPROM_BOARDREV + 1] |= (1 << 5);
 		break;
 	case VALUE_ANTGA:
-		sprom[SPROM_ANTENNA_GAIN + 0] = (v & 0xFF);
+		if (sprom_rev != 4)
+			sprom[SPROM_ANTENNA_GAIN + 1] = (v & 0xFF);
+		else
+			sprom[SPROM4_ANTENNA_GAIN + 1] = (v & 0xFF);
 		break;
 	case VALUE_ANTGBG:
-		sprom[SPROM_ANTENNA_GAIN + 1] = (v & 0xFF);
+		if (sprom_rev != 4)
+			sprom[SPROM_ANTENNA_GAIN] = (v & 0xFF);
+		else
+			sprom[SPROM4_ANTENNA_GAIN] = (v & 0xFF);
 		break;
 	case VALUE_PA0B0:
 		sprom[SPROM_PA0B0 + 0] = (v & 0x00FF);
