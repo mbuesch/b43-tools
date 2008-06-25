@@ -2,7 +2,7 @@
 
   Broadcom Sonics Silicon Backplane bus SPROM data modification tool
 
-  Copyright (c) 2006-2007 Michael Buesch <mb@bu3sch.de>
+  Copyright (c) 2006-2008 Michael Buesch <mb@bu3sch.de>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -918,7 +918,12 @@ static int open_outfile(int *fd)
 
 static void print_banner(int forceprint)
 {
-	const char *str = "Broadcom-SSB SPROM data modification tool version " VERSION "\n";
+	const char *str = "Broadcom-SSB SPROM data modification tool.\n"
+			  "\n"
+			  "Copyright (C) Michael Buesch\n"
+			  "Licensed under the GNU/GPL version 2 or later\n"
+			  "\n"
+			  "DO NOT USE THIS TOOL. YOU WILL BRICK YOUR DEVICE.\n";
 	if (forceprint)
 		prdata(str);
 	else

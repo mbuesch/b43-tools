@@ -1,5 +1,3 @@
-VERSION = 001
-
 CC = cc
 PREFIX = /usr/local
 CFLAGS = -std=c99 -O2 -fomit-frame-pointer -Wall -D_BSD_SOURCE
@@ -7,8 +5,6 @@ LDFLAGS =
 
 
 OBJECTS = ssb_sprom.o utils.o
-
-CFLAGS += -DVERSION_=$(VERSION)
 
 all: ssb_sprom
 

@@ -26,7 +26,6 @@
 
 #include "utils.h"
 
-#define VERSION			ssb_stringify(VERSION_)
 
 #define SPROM_SIZE		128 /* bytes */
 #define SPROM4_SIZE		440
