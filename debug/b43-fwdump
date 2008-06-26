@@ -90,16 +90,6 @@ def dump_regs(prefix, regs):
 	stdout.write("\n")
 	return
 
-def disassembleText(text):
-	input = NamedTemporaryFile()
-	output = NamedTemporaryFile()
-
-	input.write(text)
-	input.flush()
-	os.system("b43-dasm %s %s %s --paddr" % (input.name, dasmopt, output.name))
-
-	return output.read()
-
 def makeShortDump(dasm, pc):
 	dasm = dasm.splitlines()
 	i = 0
@@ -162,7 +152,7 @@ def main():
 		except IOError, e:
 			print "Could not read binary file %s: %s" % (binary, e.strerror)
 			sys.exit(1)
-		dasm = disassembleText(bintext)
+		dasm = Disassembler(bintext, dasmopt + "--paddr").getAsm()
 		print makeShortDump(dasm, dbg.getPc())
 	else:
 		print "<No binary supplied. See --binary option>"

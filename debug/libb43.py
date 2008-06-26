@@ -19,6 +19,8 @@
 import sys
 import os
 import re
+import md5
+from tempfile import *
 
 
 # SHM routing values
@@ -289,4 +291,100 @@ class B43:
 		unconditionally restart the PSM and ignore any driver-state!"""
 		self.maskSet32(B43_MMIO_MACCTL, ~0, B43_MACCTL_PSM_RUN)
 		return
+
+class Disassembler:
+	"""Disassembler for b43 firmware."""
+	def __init__(self, binaryText, b43DasmOpts):
+		input = NamedTemporaryFile()
+		output = NamedTemporaryFile()
+
+		input.write(binaryText)
+		input.flush()
+		#FIXME check b43-dasm errors
+		os.system("b43-dasm %s %s %s" % (input.name, output.name, b43DasmOpts))
+
+		self.asmText = output.read()
+
+	def getAsm(self):
+		"""Returns the assembly code."""
+		return self.asmText
+
+class Assembler:
+	"""Assembler for b43 firmware."""
+	def __init__(self, assemblyText, b43AsmOpts):
+		input = NamedTemporaryFile()
+		output = NamedTemporaryFile()
+
+		input.write(assemblyText)
+		input.flush()
+		#FIXME check b43-asm errors
+		os.system("b43-asm %s %s %s" % (input.name, output.name, b43AsmOpts))
+
+		self.binaryText = output.read()
+
+	def getBinary(self):
+		"""Returns the binary code."""
+		return self.binaryText
+
+class TextPatcher:
+	"""A textfile patcher that does not include any target context.
+	This can be used to patch b43 firmware files."""
+
+	class TextLine:
+		def __init__(self, index, line):
+			self.index = index
+			self.line = line
+			self.deleted = False
+
+	def __init__(self, text, expected_md5sum):
+		sum = md5.md5(text).hexdigest()
+		if sum != expected_md5sum:
+			print "Patcher: The text does not match the expected MD5 sum"
+			print "Expected:   " + expected_md5sum
+			print "Calculated: " + sum
+			raise B43Exception
+		text = text.splitlines()
+		self.lines = []
+		i = 0
+		for line in text:
+			self.lines.append(TextPatcher.TextLine(i, line))
+			i += 1
+		# Add an after-last dummy. Needed for the add-before logic
+		lastDummy = TextPatcher.TextLine(i, "")
+		lastDummy.deleted = True
+		self.lines.append(lastDummy)
+
+	def getText(self):
+		"""This returns the current text."""
+		textLines = []
+		for l in self.lines:
+			if not l.deleted:
+				textLines.append(l.line)
+		return "\n".join(textLines)
+
+	def delLine(self, linenumber):
+		"""Delete a line of text. The linenumber corresponds to the
+		original unmodified text."""
+		for l in self.lines:
+			if l.index == linenumber:
+				l.deleted = True
+				return
+		print "Patcher deleteLine: Did not find the line!"
+		raise B43Exception
+
+	def addText(self, beforeLineNumber, text):
+		"""Add a text before the specified linenumber. The linenumber
+		corresponds to the original unmodified text."""
+		text = text.splitlines()
+		index = 0
+		for l in self.lines:
+			if l.index == beforeLineNumber:
+				break
+			index += 1
+		if index >= len(self.lines):
+			print "Patcher addText: Did not find the line!"
+			raise B43Exception
+		for l in text:
+			self.lines.insert(index, TextPatcher.TextLine(-1, l))
+			index += 1
 
