@@ -60,6 +60,8 @@ class B43PsmDebug:
 
 
 class B43:
+	"""Hardware access layer. This accesses the hardware through the debugfs interface."""
+
 	def __init__(self, phy):
 		debugfs_path = self.__debugfs_find()
 
@@ -388,3 +390,271 @@ class TextPatcher:
 			self.lines.insert(index, TextPatcher.TextLine(-1, l))
 			index += 1
 
+class B43SymbolicSpr:
+	"""This class converts numeric SPR names into symbolic SPR names."""
+
+	def __init__(self, header_file):
+		"""The passed header_file parameter is a file path to the
+		assembly file containing the symbolic SPR definitions."""
+		try:
+			defs = file(header_file).readlines()
+		except IOError, e:
+			print "B43SymbolicSpr: Could not read %s: %s" % (e.filename, e.strerror)
+			B43Exception
+		# Parse the definitions
+		self.spr_names = { }
+		r = re.compile(r"#define\s+(\w+)\s+(spr[a-fA-F0-9]+)")
+		for line in defs:
+			m = r.match(line)
+			if not m:
+				continue # unknown line
+			name = m.group(1)
+			offset = m.group(2)
+			self.spr_names[offset.lower()] = name
+
+	def get(self, spr):
+		"""Get the symbolic name for an SPR. The spr parameter
+		must be a string like "sprXXX", where XXX is a hex number."""
+		try:
+			spr = self.spr_names[spr.lower()]
+		except KeyError:
+			pass # Symbol not found. Return numeric name.
+		return spr
+
+	def getRaw(self, spr_hexnumber):
+		"""Get the symbolic name for an SPR. The spr_hexnumber
+		parameter is the hexadecimal number for the SPR."""
+		return self.get("spr%03X" % spr_hexnumber)
+
+class B43SymbolicShm:
+	"""This class converts numeric SHM offsets into symbolic SHM names."""
+
+	def __init__(self, header_file):
+		"""The passed header_file parameter is a file path to the
+		assembly file containing the symbolic SHM definitions."""
+		try:
+			defs = file(header_file).readlines()
+		except IOError, e:
+			print "B43SymbolicShm: Could not read %s: %s" % (e.filename, e.strerror)
+			raise B43Exception
+		# Parse the definitions
+		self.shm_names = { }
+		in_abi_section = False
+		r = re.compile(r"#define\s+(\w+)\s+SHM\((\w+)\).*")
+		for line in defs:
+			if line.startswith("/* BEGIN ABI"):
+				in_abi_section = True
+			if line.startswith("/* END ABI"):
+				in_abi_section = False
+			if not in_abi_section:
+				continue # Only parse ABI definitions
+			m = r.match(line)
+			if not m:
+				continue # unknown line
+			name = m.group(1)
+			offset = int(m.group(2), 16)
+			offset /= 2
+			self.shm_names[offset] = name
+
+	def get(self, shm_wordoffset):
+		"""Get the symbolic name for an SHM offset."""
+		try:
+			sym = self.shm_names[shm_wordoffset]
+		except KeyError:
+			# Symbol not found. Return numeric name.
+			sym = "0x%03X" % shm_wordoffset
+		return sym
+
+class B43SymbolicCondition:
+	"""This class converts numeric External Conditions into symbolic names."""
+
+	def __init__(self, header_file):
+		"""The passed header_file parameter is a file path to the
+		assembly file containing the symbolic condition definitions."""
+		try:
+			defs = file(header_file).readlines()
+		except IOError, e:
+			print "B43SymbolicCondition: Could not read %s: %s" % (e.filename, e.strerror)
+			raise B43Exception
+		# Parse the definitions
+		self.cond_names = { }
+		r = re.compile(r"#define\s+(\w+)\s+EXTCOND\(\s*(\w+),\s*(\d+)\s*\).*")
+		for line in defs:
+			m = r.match(line)
+			if not m:
+				continue # unknown line
+			name = m.group(1)
+			register = m.group(2)
+			bit = int(m.group(3))
+			if register == "CONDREG_RX":
+				register = 0
+			elif register == "CONDREG_TX":
+				register = 2
+			elif register == "CONDREG_PHY":
+				register = 3
+			elif register == "CONDREG_4":
+				register = 4
+			elif register == "CONDREG_PSM":
+				continue # No lookup table for this one
+			elif register == "CONDREG_RCM":
+				register = 6
+			elif register == "CONDREG_7":
+				register = 7
+			else:
+				continue # unknown register
+			cond_number = bit | (register << 4)
+			self.cond_names[cond_number] = name
+
+	def get(self, cond_number):
+		"""Get the symbolic name for an External Condition."""
+		register = (cond_number >> 4) & 0x7
+		bit = cond_number & 0xF
+		eoi = ((cond_number & 0x80) != 0)
+		cond_number &= ~0x80
+		if register == 5: # PSM register
+			return "COND_PSM(%d)" % bit
+		try:
+			sym = self.cond_names[cond_number]
+		except KeyError:
+			# Symbol not found. Return numeric name.
+			sym = "0x%02X" % cond_number
+		if eoi:
+			sym = "EOI(%s)" % sym
+		return sym
+
+class B43AsmLine:
+	def __init__(self, text):
+		self.text = text
+
+	def getLine(self):
+		return self.text
+
+	def isInstruction(self):
+		return False
+
+class B43AsmInstruction(B43AsmLine):
+	def __init__(self, opcode):
+		self.opcode = opcode
+		self.operands = []
+
+	def getOpcode(self):
+		return self.opcode
+
+	def addOperand(self, operand):
+		self.operands.append(operand)
+
+	def getOperands(self):
+		return self.operands
+
+	def getLine(self):
+		ret = "\t" + self.opcode
+		if self.operands:
+			ret += "\t"
+		for op in self.operands:
+			ret += op + ", "
+		if self.operands:
+			ret = ret[:-2]
+		return ret
+
+	def isInstruction(self):
+		return True
+
+class B43AsmParser:
+	"""A simple B43 assembly code parser."""
+
+	def __init__(self, asm_code):
+		self.__parse_code(asm_code)
+
+	def __parse_code(self, asm_code):
+		self.codelines = []
+		label = re.compile(r"^\s*\w+:\s*$")
+		insn_0 = re.compile(r"^\s*([@\.\w]+)\s*$")
+		insn_2 = re.compile(r"^\s*([@\.\w]+)\s+([@\[\],\w]+),\s*([@\[\],\w]+)\s*$")
+		insn_3 = re.compile(r"^\s*([@\.\w]+)\s+([@\[\],\w]+),\s*([@\[\],\w]+),\s*([@\[\],\w]+)\s*$")
+		insn_5 = re.compile(r"^\s*([@\.\w]+)\s+([@\[\],\w]+),\s*([@\[\],\w]+),\s*([@\[\],\w]+),\s*([@\[\],\w]+),\s*([@\[\],\w]+)\s*$")
+		for line in asm_code.splitlines():
+			m = label.match(line)
+			if m: # Label:
+				l = B43AsmLine(line)
+				self.codelines.append(l)
+				continue
+			m = insn_0.match(line)
+			if m: # No operands
+				insn = B43AsmInstruction(m.group(1))
+				self.codelines.append(insn)
+				continue
+			m = insn_2.match(line)
+			if m: # Two operands
+				insn = B43AsmInstruction(m.group(1))
+				insn.addOperand(m.group(2))
+				insn.addOperand(m.group(3))
+				self.codelines.append(insn)
+				continue
+			m = insn_3.match(line)
+			if m: # Three operands
+				insn = B43AsmInstruction(m.group(1))
+				insn.addOperand(m.group(2))
+				insn.addOperand(m.group(3))
+				insn.addOperand(m.group(4))
+				self.codelines.append(insn)
+				continue
+			m = insn_5.match(line)
+			if m: # Three operands
+				insn = B43AsmInstruction(m.group(1))
+				insn.addOperand(m.group(2))
+				insn.addOperand(m.group(3))
+				insn.addOperand(m.group(4))
+				insn.addOperand(m.group(5))
+				insn.addOperand(m.group(6))
+				self.codelines.append(insn)
+				continue
+			# Unknown line
+			l = B43AsmLine(line)
+			self.codelines.append(l)
+
+class B43Beautifier(B43AsmParser):
+	"""A B43 assembly code beautifier."""
+
+	def __init__(self, asm_code, headers_dir):
+		"""asm_code is the assembly code. headers_dir is a full
+		path to the directory containing the symbolic SPR,SHM,etc... definitions"""
+		B43AsmParser.__init__(self, asm_code)
+		self.symSpr = B43SymbolicSpr(headers_dir + "/spr.inc")
+		self.symShm = B43SymbolicShm(headers_dir + "/shm.inc")
+		self.symCond = B43SymbolicCondition(headers_dir + "/cond.inc")
+		self.preamble = "#include <%s/spr.inc>\n" % headers_dir
+		self.preamble += "#include <%s/shm.inc>\n" % headers_dir
+		self.preamble += "#include <%s/cond.inc>\n" % headers_dir
+		self.preamble += "\n"
+		self.__process_code()
+
+	def __process_code(self):
+		spr_re = re.compile(r"^spr\w\w\w$")
+		shm_re = re.compile(r"^\[(0x\w+)\]$")
+		code = self.codelines
+		for line in code:
+			if not line.isInstruction():
+				continue
+			opcode = line.getOpcode()
+			operands = line.getOperands()
+			if opcode == "jext" or opcode == "jnext":
+				operands[0] = self.symCond.get(int(operands[0], 16))
+				continue
+			for i in range(0, len(operands)):
+				o = operands[i]
+				m = spr_re.match(o)
+				if m:
+					operands[i] = self.symSpr.get(o)
+					continue
+				m = shm_re.match(o)
+				if m:
+					offset = int(m.group(1), 16)
+					operands[i] = "[" + self.symShm.get(offset) + "]"
+					continue
+
+	def getAsm(self):
+		"""Returns the beautified asm code."""
+		ret = self.preamble
+		for line in self.codelines:
+			ret += line.getLine() + "\n"
+		return ret

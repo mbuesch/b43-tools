@@ -12,5 +12,5 @@ if len(sys.argv) == 1:
 setup(
 	name="B43-debug-tools",
 	py_modules=["libb43"],
-	scripts=["b43-fwdump"]
+	scripts=["b43-fwdump", "b43-beautifier"]
      )
