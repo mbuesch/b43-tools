@@ -35,7 +35,9 @@ def usage():
 	print "-b|--binfile [FILE]  Binary code source file"
 	print "-d|--defs [DIR]      Directory containing the defs files"
 	print ""
-	print "The options  -d AND (-a XOR -b)  are essential"
+	print "The options  -d AND (-a XOR -b)  are essential."
+	print "The --defs directory is the \"common\" subdirectory in the"
+	print "b43-ucode assembly source tree."
 
 def parseArgs():
 	global opt_asmfile
