@@ -71,7 +71,11 @@ class B43:
 			b43_path += phy
 		else:
 			# Get the PHY.
-			phys = os.listdir(b43_path)
+			try:
+				phys = os.listdir(b43_path)
+			except OSError:
+				print "Could not find B43's debugfs directory: %s" % b43_path
+				raise B43Exception
 			if not phys:
 				print "Could not find any b43 device"
 				raise B43Exception
