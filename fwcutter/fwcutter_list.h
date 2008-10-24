@@ -156,6 +156,62 @@ static struct extract _cb8d70972b885b1f8883b943c0261a3c[] =
 	EXTRACT_LIST_END
 };
 
+static struct extract _10f8cfb2893a11fe5b1cf003ee8d061f[] =
+{
+	{ .name = "lp0initvals14", .offset = 0x982B0, .type = EXT_IV, .length = 0xB80 },
+	{ .name = "lp0bsinitvals14", .offset = 0x98E38, .type = EXT_IV, .length = 0x118 },
+	{ .name = "b0g0initvals9", .offset = 0x92218, .type = EXT_IV, .length = 0xAF0 },
+	{ .name = "a0g1bsinitvals9", .offset = 0x94540, .type = EXT_IV, .length = 0x118 },
+	{ .name = "b0g0bsinitvals13", .offset = 0x974D0, .type = EXT_IV, .length = 0x118 },
+	{ .name = "b0g0bsinitvals5", .offset = 0x90A78, .type = EXT_IV, .length = 0x118 },
+	{ .name = "ucode4", .offset = 0x9B868, .type = EXT_UCODE_1, .length = 0x4EA0 },
+	{ .name = "b0g0initvals4", .offset = 0x8E2D8, .type = EXT_IV, .length = 0xE80 },
+	{ .name = "b0g0initvals13", .offset = 0x96930, .type = EXT_IV, .length = 0xB98 },
+	{ .name = "ucode14", .offset = 0xBBB1C, .type = EXT_UCODE_2, .length = 0x7910 },
+	{ .name = "a0g0initvals5", .offset = 0x90B98, .type = EXT_IV, .length = 0xA18 },
+	{ .name = "lp0bsinitvals16", .offset = 0x9B748, .type = EXT_IV, .length = 0x118 },
+	{ .name = "pcm4", .offset = 0xD4A40, .type = EXT_PCM, .length = 0x520 },
+	{ .name = "a0g1bsinitvals5", .offset = 0x920F8, .type = EXT_IV, .length = 0x118 },
+	{ .name = "n0bsinitvals11", .offset = 0x95230, .type = EXT_IV, .length = 0x118 },
+	{ .name = "n0absinitvals11", .offset = 0x95350, .type = EXT_IV, .length = 0x118 },
+	/* ERROR: Could not guess data type for: ucode_bomminor */
+	{ .name = "a0g1bsinitvals13", .offset = 0x98190, .type = EXT_IV, .length = 0x118 },
+	{ .name = "pcm5", .offset = 0xD4F64, .type = EXT_PCM, .length = 0x520 },
+	/* ERROR: Could not guess data type for: ucode_2w_bomminor */
+	{ .name = "ucode9", .offset = 0xA5E00, .type = EXT_UCODE_2, .length = 0x6248 },
+	{ .name = "a0g0bsinitvals9", .offset = 0x94420, .type = EXT_IV, .length = 0x118 },
+	{ .name = "a0g0bsinitvals4", .offset = 0x90020, .type = EXT_IV, .length = 0x30 },
+	{ .name = "a0g1initvals5", .offset = 0x915B8, .type = EXT_IV, .length = 0xA18 },
+	{ .name = "n0bsinitvals16", .offset = 0x9A980, .type = EXT_IV, .length = 0x118 },
+	{ .name = "ucode16", .offset = 0xCBB9C, .type = EXT_UCODE_3, .length = 0x8EA0 },
+	{ .name = "b0g0bsinitvals4", .offset = 0x8F160, .type = EXT_IV, .length = 0x30 },
+	{ .name = "lp0initvals15", .offset = 0x98F58, .type = EXT_IV, .length = 0xC68 },
+	{ .name = "b0g0initvals5", .offset = 0x90058, .type = EXT_IV, .length = 0xA18 },
+	{ .name = "a0g0initvals4", .offset = 0x8F198, .type = EXT_IV, .length = 0xE80 },
+	{ .name = "sslpn0initvals16", .offset = 0x9AAA0, .type = EXT_IV, .length = 0x0 },
+	{ .name = "a0g1initvals13", .offset = 0x975F0, .type = EXT_IV, .length = 0xB98 },
+	/* ERROR: Could not guess data type for: ucode_2w11 */
+	/* ERROR: Could not guess data type for: ucode_bommajor */
+	{ .name = "a0g1initvals9", .offset = 0x93928, .type = EXT_IV, .length = 0xAF0 },
+	{ .name = "ucode5", .offset = 0xA070C, .type = EXT_UCODE_2, .length = 0x56F0 },
+	{ .name = "lp0bsinitvals13", .offset = 0x96810, .type = EXT_IV, .length = 0x118 },
+	{ .name = "n0initvals16", .offset = 0x99CE8, .type = EXT_IV, .length = 0xC90 },
+	/* ERROR: Could not guess data type for: ucode_2w_bommajor */
+	{ .name = "b0g0bsinitvals9", .offset = 0x92D10, .type = EXT_IV, .length = 0x118 },
+	{ .name = "ucode11", .offset = 0xAC04C, .type = EXT_UCODE_2, .length = 0x8000 },
+	{ .name = "lp0initvals16", .offset = 0x9AAB0, .type = EXT_IV, .length = 0xC90 },
+	/* ERROR: Could not guess data type for: ucode_2w15 */
+	{ .name = "a0g0initvals9", .offset = 0x92E30, .type = EXT_IV, .length = 0xAF0 },
+	{ .name = "lp0initvals13", .offset = 0x95470, .type = EXT_IV, .length = 0x1398 },
+	{ .name = "a0g0bsinitvals5", .offset = 0x91FD8, .type = EXT_IV, .length = 0x118 },
+	{ .name = "ucode13", .offset = 0xB4050, .type = EXT_UCODE_2, .length = 0x7AC8 },
+	/* ERROR: Could not guess data type for: ucode_2w13 */
+	{ .name = "ucode15", .offset = 0xC3430, .type = EXT_UCODE_3, .length = 0x8768 },
+	{ .name = "lp0bsinitvals15", .offset = 0x99BC8, .type = EXT_IV, .length = 0x118 },
+	{ .name = "n0initvals11", .offset = 0x94660, .type = EXT_IV, .length = 0xBC8 },
+	{ .name = "sslpn0bsinitvals16", .offset = 0x9AAA8, .type = EXT_IV, .length = 0x0 },
+	EXTRACT_LIST_END
+};
 
 /*
  * Links change, so let's not put them into the README.
@@ -208,6 +264,15 @@ static const struct file files[] =
 		.md5		= "cb8d70972b885b1f8883b943c0261a3c",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4,
 		.extract	= _cb8d70972b885b1f8883b943c0261a3c,
+	},
+	{
+		/* ftp://ftp.linksys.com/downloads/NA/firmware/ */
+		.name		= "wl.o",
+		.id		= "FW14",
+		.ucode_version	= "478.104",
+		.md5		= "10f8cfb2893a11fe5b1cf003ee8d061f",
+		.flags		= FW_FLAG_LE | FW_FLAG_V4 | FW_FLAG_UNSUPPORTED,
+		.extract	= _10f8cfb2893a11fe5b1cf003ee8d061f,
 	},
 };
 
