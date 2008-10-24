@@ -156,7 +156,7 @@ static struct extract _cb8d70972b885b1f8883b943c0261a3c[] =
 	EXTRACT_LIST_END
 };
 
-static struct extract _10f8cfb2893a11fe5b1cf003ee8d061f[] =
+static struct extract _2dd738b8feb8b3559fd9d8fbaf3bfffc[] =
 {
 	{ .name = "lp0initvals14", .offset = 0x982B0, .type = EXT_IV, .length = 0xB80 },
 	{ .name = "lp0bsinitvals14", .offset = 0x98E38, .type = EXT_IV, .length = 0x118 },
@@ -266,14 +266,15 @@ static const struct file files[] =
 		.extract	= _cb8d70972b885b1f8883b943c0261a3c,
 	},
 	{
-		/* ftp://ftp.linksys.com/downloads/NA/firmware/ */
+		/* ftp://ftp.linksys.com/opensourcecode/wrt610n/1.00.00.018/wrt610n_v1.00.00.018_us.tgz */
 		.name		= "wl.o",
 		.id		= "FW14",
 		.ucode_version	= "478.104",
-		.md5		= "10f8cfb2893a11fe5b1cf003ee8d061f",
+		.md5		= "2dd738b8feb8b3559fd9d8fbaf3bfffc",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4 | FW_FLAG_UNSUPPORTED,
-		.extract	= _10f8cfb2893a11fe5b1cf003ee8d061f,
+		.extract	= _2dd738b8feb8b3559fd9d8fbaf3bfffc,
 	},
 };
 
 #define FILES (sizeof(files) / sizeof(files[0]))
+
