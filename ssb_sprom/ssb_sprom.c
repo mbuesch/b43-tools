@@ -675,7 +675,8 @@ static void print_banner(int forceprint)
 			  "Copyright (C) Michael Buesch\n"
 			  "Licensed under the GNU/GPL version 2 or later\n"
 			  "\n"
-			  "DO NOT USE THIS TOOL. YOU WILL BRICK YOUR DEVICE.\n";
+			  "Be exceedingly careful with this tool. Improper"
+			  " usage WILL BRICK YOUR DEVICE.\n";
 	if (forceprint)
 		prdata(str);
 	else
@@ -684,7 +685,6 @@ static void print_banner(int forceprint)
 
 static void print_usage(int argc, char *argv[])
 {
-	int tmp;
 	enum valuetype loop;
 	char desc[100];
 	char label[200];
@@ -697,33 +697,29 @@ static void print_usage(int argc, char *argv[])
 
 	print_banner(1);
 	prdata("\nUsage: %s [OPTION]\n", argv[0]);
-	prdata("  -i|--input FILE       Input file\n");
-	prdata("  -o|--output FILE      Output file\n");
-	prdata("  -b|--binmode          The Input data is plain binary data and Output will be binary\n");
-	prdata("  -V|--verbose          Be verbose\n");
-	prdata("  -f|--force            Override error checks\n");
-	prdata("  -v|--version          Print version\n");
-	prdata("  -h|--help             Print this help\n");
-	if (sprom_rev == 0) {
-		prdata("\nThe rest of this help depends on what SPROM version you are using\n\n");
-		prdata("Please enter it now: ");
-
-		fgets(label, 50, stdin);
-		sscanf(label, "%d", &tmp);
-		sprom_rev = tmp;
-	}
-	if (check_rev(sprom_rev))
-		exit(1);
-
-	rev_bit = BIT(sprom_rev);
+	prdata("  -i|--input FILE           Input file\n");
+	prdata("  -o|--output FILE          Output file\n");
+	prdata("  -b|--binmode              The Input data is plain binary data and Output will be binary\n");
+	prdata("  -V|--verbose              Be verbose\n");
+	prdata("  -f|--force                Override error checks\n");
+	prdata("  -v|--version              Print version\n");
+	prdata("  -h|--help                 Print this help\n");
 	prdata("\nValue Parameters:\n");
 	prdata("\n");
-	prdata("  -s|--rawset OFF,VAL   Set a VALue at a byte-OFFset\n");
-	prdata("  -g|--rawget OFF       Get a value at a byte-OFFset\n");
+	prdata("  -s|--rawset OFF,VAL       Set a VALue at a byte-OFFset\n");
+	prdata("  -g|--rawget OFF           Get a value at a byte-OFFset\n");
 	prdata("\n");
-	prdata("Predefined values (for displaying (GET) or modification):\n");
 
-	for (loop = 0; loop <= VAL_LAST; loop++) {
+	for (sprom_rev = 1; sprom_rev < 9; sprom_rev++) {
+	    if (sprom_rev == 6 || sprom_rev == 7)
+		sprom_rev = 8;
+
+	    rev_bit = BIT(sprom_rev);
+	    prdata("\n================================================================\n"
+	           "Rev. %d: Predefined values (for displaying (GET) or modification)\n"
+	           "================================================================\n", sprom_rev);
+
+	    for (loop = 0; loop <= VAL_LAST; loop++) {
 		if (locate_item_rev(rev_bit, loop, &length, &offset, &mask,
 			    &shift, desc, label))
 			continue;
@@ -759,16 +755,19 @@ static void print_usage(int argc, char *argv[])
 		}
 		buffer[28] = '\0';
 		prdata("%s%s\n", buffer, label);
+	    }
 	}
 
 	prdata("\n");
-	prdata("  -P|--print-all        Display all values\n");
+	prdata("  -P|--print-all            Display all values\n");
 	prdata("\n");
 	prdata(" BOOL      is a boolean value. Either 0 or 1\n");
 	prdata(" 0xF..     is a hexadecimal value\n");
 	prdata(" MAC-ADDR  is a MAC address in the format 00:00:00:00:00:00\n");
 	prdata(" If the value parameter is \"GET\", the value will be printed;\n");
 	prdata(" otherwise it is modified.\n");
+	prdata("\nBe exceedingly careful with this tool. Improper"
+	       " usage WILL BRICK YOUR DEVICE.\n");
 }
 
 #define ARG_MATCH		0
