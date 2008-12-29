@@ -3,6 +3,7 @@
   Broadcom Sonics Silicon Backplane bus SPROM data modification tool
 
   Copyright (c) 2006-2008 Michael Buesch <mb@bu3sch.de>
+  Copyright (c) 2008 Larry Finger <Larry.Finger@lwfinger.net>
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,45 +36,237 @@ struct cmdline_args cmdargs;
 uint8_t sprom_rev;
 uint16_t sprom_size;
 
-static int value_length_map[] = { /* value to number of bits */
-	[VALUE_RAW] = 8,
-	[VALUE_SUBP] = 16,
-	[VALUE_SUBV] = 16,
-	[VALUE_PPID] = 16,
-	[VALUE_BFLHI] = 16,
-	[VALUE_BFL] = 16,
-	[VALUE_BGMAC] = -1,
-	[VALUE_ETMAC] = -1,
-	[VALUE_AMAC] = -1,
-	[VALUE_ET0PHY] = 8,
-	[VALUE_ET1PHY] = 8,
-	[VALUE_ET0MDC] = 1,
-	[VALUE_ET1MDC] = 1,
-	[VALUE_BREV] = 8,
-	[VALUE_LOC] = 4,
-	[VALUE_ANTA0] = 1,
-	[VALUE_ANTA1] = 1,
-	[VALUE_ANTBG0] = 1,
-	[VALUE_ANTBG1] = 1,
-	[VALUE_ANTGA] = 8,
-	[VALUE_ANTGBG] = 8,
-	[VALUE_PA0B0] = 16,
-	[VALUE_PA0B1] = 16,
-	[VALUE_PA0B2] = 16,
-	[VALUE_PA1B0] = 16,
-	[VALUE_PA1B1] = 16,
-	[VALUE_PA1B2] = 16,
-	[VALUE_WL0GPIO0] = 8,
-	[VALUE_WL0GPIO1] = 8,
-	[VALUE_WL0GPIO2] = 8,
-	[VALUE_WL0GPIO3] = 8,
-	[VALUE_MAXPA] = 8,
-	[VALUE_MAXPBG] = 8,
-	[VALUE_ITSSIA] = 8,
-	[VALUE_ITSSIBG] = 8,
-	[VALUE_SVER] = 8,
+/* SPROM layouts are described by the following table. The entries are as follows:
+ *
+ * uint16_t rev_mask	A bit mask of the sprom revisions that contain this data
+ * enum valuetype type	The type of datum represented by this table entry
+ * uint16_t length	The length of this datum in bits. A value of 34 means a MAC address.
+ *			A value of 33 means a 2 character country code.
+ * uint16_t offset	The offset (in bytes) from the start of the sprom.
+ * uint16_t mask	The mask needed to extract this datum from the 16-bit word.
+ * uint16_t shift	The shift needed to right align this datum.
+ * char *desc		The short character string used to describe this datum.
+ * char *label		The long character string that tells the function of this datum.
+ *
+ * The table is ended with a rev_mask of zero.
+ */
+
+static const struct var_entry sprom_table[] = {
+	{ MASK_1_8, VAL_SUBP,   16, 0x04, 0xFFFF, 0x00, "subp",    "Subsystem Product ID" },
+	{ MASK_1_8, VAL_SUBV,   16, 0x06, 0xFFFF, 0x00, "subv",    "Subsystem Vendor ID " },
+	{ MASK_1_8, VAL_PPID,   16, 0x08, 0xFFFF, 0x00, "ppid",    "PCI Product ID      " },
+	{ MASK_2_3, VAL_BFLHI,  16, 0x38, 0xFFFF, 0x00, "bflhi",   "High 16 bits of boardflags" },
+	{ MASK_4,   VAL_BFLHI,  16, 0x46, 0xFFFF, 0x00, "bflhi",   "High 16 bits of boardflags" },
+	{ MASK_5,   VAL_BFLHI,  16, 0x4C, 0xFFFF, 0x00, "bflhi",   "High 16 bits of boardflags" },
+	{ MASK_8,   VAL_BFLHI,  16, 0x86, 0xFFFF, 0x00, "bflhi",   "High 16 bits of boardflags" },
+	{ MASK_1_3, VAL_BFL,    16, 0x72, 0xFFFF, 0x00, "bfl",     "Low 16 bits of boardflags " },
+	{ MASK_4,   VAL_BFL,    16, 0x44, 0xFFFF, 0x00, "bfl",     "Low 16 bits of boardflags " },
+	{ MASK_5,   VAL_BFL,    16, 0x4A, 0xFFFF, 0x00, "bfl",     "Low 16 bits of boardflags " },
+	{ MASK_8,   VAL_BFL,    16, 0x84, 0xFFFF, 0x00, "bfl",     "Low 16 bits of boardflags " },
+	{ MASK_1_2, VAL_BGMAC,  34, 0x48, 0xFFFF, 0x00, "bgmac",   "MAC Address for 802.11b/g" },
+	{ MASK_3,   VAL_BGMAC,  34, 0x4A, 0xFFFF, 0x00, "bgmac",   "MAC Address for 802.11b/g" },
+	{ MASK_4,   VAL_BGMAC,  34, 0x4C, 0xFFFF, 0x00, "macadr",  "MAC Address" },
+	{ MASK_5,   VAL_BGMAC,  34, 0x52, 0xFFFF, 0x00, "macadr",  "MAC Address" },
+	{ MASK_8,   VAL_BGMAC,  34, 0x8C, 0xFFFF, 0x00, "macadr",  "MAC Address" },
+	{ MASK_1_2, VAL_ETMAC,  34, 0x4E, 0xFFFF, 0x00, "etmac",   "MAC Address for ethernet " },
+	{ MASK_1_2, VAL_AMAC,   34, 0x54, 0xFFFF, 0x00, "amac",    "MAC Address for 802.11a  " },
+	{ MASK_1_3, VAL_ET0PHY,  5, 0x5A, 0x001F, 0x00, "et0phy",  "Ethernet phy settings(0)" },
+	{ MASK_1_3, VAL_ET1PHY,  5, 0x5A, 0x03E0, 0x05, "et1phy",  "Ethernet phy settings(1)" },
+	{ MASK_1_3, VAL_ET0MDC,  1, 0x5A, 0x4000, 0x0E, "et0mdc",  "MDIO for ethernet 0" },
+	{ MASK_1_3, VAL_ET1MDC,  1, 0x5A, 0x8000, 0x0F, "et1mdc",  "MDIO for ethernet 1" },
+	{ MASK_1_3, VAL_BREV,    8, 0x5C, 0x00FF, 0x00, "brev",    "Board revision" },
+	{ MASK_4_5, VAL_BREV,    8, 0x42, 0x00FF, 0x00, "brev",    "Board revision" },
+	{ MASK_8,   VAL_BREV,    8, 0x82, 0x00FF, 0x00, "brev",    "Board revision" },
+	{ MASK_1_3, VAL_LOC,     4, 0x5C, 0x0300, 0x08, "loc",     "Locale / Country Code" },
+	{ MASK_4,   VAL_LOC,    33, 0x52, 0xFFFF, 0x00, "ccode",   "Country Code" },
+	{ MASK_5,   VAL_LOC,    33, 0x44, 0xFFFF, 0x00, "ccode",   "Country Code" },
+	{ MASK_8,   VAL_LOC,    33, 0x92, 0xFFFF, 0x00, "ccode",   "Country Code" },
+	{ MASK_4_5, VAL_REGREV, 16, 0x54, 0xFFFF, 0x00, "regrev",  "Regulatory revision" },
+	{ MASK_8,   VAL_REGREV, 16, 0x94, 0xFFFF, 0x00, "regrev",  "Regulatory revision" },
+	{ MASK_1_3, VAL_ANTBG0,  1, 0x5C, 0x1000, 0x0C, "antbg0",  "Antenna 0 available for B/G PHY" },
+	{ MASK_1_3, VAL_ANTBG1,  1, 0x5C, 0x2000, 0x0D, "antbg1",  "Antenna 1 available for B/G PHY" },
+	{ MASK_1_3, VAL_ANTA0,   1, 0x5C, 0x4000, 0x0E, "anta0",   "Antenna 0 available for A PHY" },
+	{ MASK_1_3, VAL_ANTA1,   1, 0x5C, 0x8000, 0x0F, "anta1",   "Antenna 1 available for A PHY" },
+	{ MASK_4_5, VAL_ANTBG0,  8, 0x5C, 0x00FF, 0x00, "antbg0",  "Available antenna bitmask for 2 GHz" },
+	{ MASK_8,   VAL_ANTBG0,  8, 0x9C, 0x00FF, 0x00, "antbg0",  "Available antenna bitmask for 2 GHz" },
+	{ MASK_4_5, VAL_ANTA0,   8, 0x5C, 0xFF00, 0x08, "anta0",   "Available antenna bitmask for 5 GHz" },
+	{ MASK_8,   VAL_ANTA0,   8, 0x9C, 0xFF00, 0x08, "anta0",   "Available antenna bitmask for 5 GHz" },
+	{ MASK_1_3, VAL_ANTGA,   8, 0x74, 0xFF00, 0x08, "antga" ,  "Antenna gain (5 GHz)" },
+	{ MASK_1_3, VAL_ANTGBG,  8, 0x74, 0x00FF, 0x00, "antgbg",  "Antenna gain (2 GHz)" },
+	{ MASK_4_5, VAL_ANTG0,   8, 0x5E, 0x00FF, 0x00, "antg0",   "Antenna 0 gain" },
+	{ MASK_4_5, VAL_ANTG1,   8, 0x5E, 0xFF00, 0x08, "antg1",   "Antenna 1 gain" },
+	{ MASK_4_5, VAL_ANTG2,   8, 0x60, 0x00FF, 0x00, "antg2",   "Antenna 2 gain" },
+	{ MASK_4_5, VAL_ANTG3,   8, 0x60, 0xFF00, 0x08, "antg3",   "Antenna 3 gain" },
+	{ MASK_8,   VAL_ANTG0,   8, 0x9E, 0x00FF, 0x00, "antg0",   "Antenna 0 gain" },
+	{ MASK_8,   VAL_ANTG1,   8, 0x9E, 0xFF00, 0x08, "antg1",   "Antenna 1 gain" },
+	{ MASK_8,   VAL_ANTG2,   8, 0xA0, 0x00FF, 0x00, "antg2",   "Antenna 2 gain" },
+	{ MASK_8,   VAL_ANTG3,   8, 0xA0, 0xFF00, 0x08, "antg3",   "Antenna 3 gain" },
+	{ MASK_1_3, VAL_PA0B0,  16, 0x5E, 0xFFFF, 0x00, "pa0b0",   "Power Amplifier W0 PAB0" },
+	{ MASK_1_3, VAL_PA0B1,  16, 0x60, 0xFFFF, 0x00, "pa0b1",   "Power Amplifier W0 PAB1" },
+	{ MASK_1_3, VAL_PA0B2,  16, 0x62, 0xFFFF, 0x00, "pa0b2",   "Power Amplifier W0 PAB2" },
+	{ MASK_1_3, VAL_PA1B0,  16, 0x6A, 0xFFFF, 0x00, "pa1b0",   "Power Amplifier W1 PAB0" },
+	{ MASK_1_3, VAL_PA1B1,  16, 0x6C, 0xFFFF, 0x00, "pa1b1",   "Power Amplifier W1 PAB1" },
+	{ MASK_1_3, VAL_PA1B2,  16, 0x6E, 0xFFFF, 0x00, "pa1b2",   "Power Amplifier W1 PAB2" },
+	{ MASK_1_3, VAL_LED0,    8, 0x64, 0x00FF, 0x00, "led0",    "LED 0 behavior" },
+	{ MASK_1_3, VAL_LED1,    8, 0x64, 0xFF00, 0x08, "led1",    "LED 1 behavior" },
+	{ MASK_1_3, VAL_LED2,    8, 0x66, 0x00FF, 0x00, "led2",    "LED 2 behavior" },
+	{ MASK_1_3, VAL_LED3,    8, 0x66, 0xFF00, 0x08, "led3",    "LED 3 behavior" },
+	{ MASK_4,   VAL_LED0,    8, 0x56, 0x00FF, 0x00, "led0",    "LED 0 behavior" },
+	{ MASK_4,   VAL_LED1,    8, 0x56, 0xFF00, 0x08, "led1",    "LED 1 behavior" },
+	{ MASK_4,   VAL_LED2,    8, 0x58, 0x00FF, 0x00, "led2",    "LED 2 behavior" },
+	{ MASK_4,   VAL_LED3,    8, 0x58, 0xFF00, 0x08, "led3",    "LED 3 behavior" },
+	{ MASK_5,   VAL_LED0,    8, 0x76, 0x00FF, 0x00, "led0",    "LED 0 behavior" },
+	{ MASK_5,   VAL_LED1,    8, 0x76, 0xFF00, 0x08, "led1",    "LED 1 behavior" },
+	{ MASK_5,   VAL_LED2,    8, 0x78, 0x00FF, 0x00, "led2",    "LED 2 behavior" },
+	{ MASK_5,   VAL_LED3,    8, 0x78, 0xFF00, 0x08, "led3",    "LED 3 behavior" },
+	{ MASK_1_3, VAL_MAXPBG,  8, 0x68, 0x00FF, 0x00, "maxpbg",  "B/G PHY max power out" },
+	{ MASK_4_5, VAL_MAXPBG,  8, 0x80, 0x00FF, 0x00, "maxpbg",  "Max power 2GHz - Path 1" },
+	{ MASK_8,   VAL_MAXPBG,  8, 0xC0, 0x00FF, 0x00, "maxpbg",  "Max power 2GHz - Path 1" },
+	{ MASK_1_3, VAL_MAXPA,   8, 0x68, 0xFF00, 0x08, "maxpa",   "A PHY max power out  " },
+	{ MASK_4_5, VAL_MAXPA,   8, 0x8A, 0x00FF, 0x00, "maxpa",   "Max power 5GHz - Path 1" },
+	{ MASK_8,   VAL_MAXPA,   8, 0xCA, 0xFF00, 0x08, "maxpa",   "Max power 5GHz - Path 1" },
+	{ MASK_1_3, VAL_ITSSIBG, 8, 0x70, 0x00FF, 0x00, "itssibg", "Idle TSSI target 2 GHz" },
+	{ MASK_1_3, VAL_ITSSIA,  8, 0x70, 0xFF00, 0x08, "itssia",  "Idle TSSI target 5 GHz" },
+	{ MASK_4_5, VAL_ITSSIBG, 8, 0x80, 0xFF00, 0x08, "itssibg", "Idle TSSI target 2 GHz - Path 1" },
+	{ MASK_4_5, VAL_ITSSIA,  8, 0x8A, 0xFF00, 0x08, "itssia",  "Idle TSSI target 5 GHz - Path 1" },
+	{ MASK_8,   VAL_ITSSIBG, 8, 0xC0, 0xFF00, 0x08, "itssibg", "Idle TSSI target 2 GHz - Path 1" },
+	{ MASK_8,   VAL_ITSSIA,  8, 0xCA, 0xFF00, 0x08, "itssia",  "Idle TSSI target 5 GHz - Path 1" },
+	{ MASK_8,   VAL_TPI2G0, 16, 0x62, 0xFFFF, 0x00, "tpi2g0",  "TX Power Index 2GHz" },
+	{ MASK_8,   VAL_TPI2G1, 16, 0x64, 0xFFFF, 0x00, "tpi2g1",  "TX Power Index 2GHz" },
+	{ MASK_8,   VAL_TPI5GM0,16, 0x66, 0xFFFF, 0x00, "tpi5gm0", "TX Power Index 5GHz middle subband" },
+	{ MASK_8,   VAL_TPI5GM1,16, 0x68, 0xFFFF, 0x00, "tpi5gm1", "TX Power Index 5GHz middle subband" },
+	{ MASK_8,   VAL_TPI5GL0,16, 0x6A, 0xFFFF, 0x00, "tpi5gl0", "TX Power Index 5GHz low subband   " },
+	{ MASK_8,   VAL_TPI5GL1,16, 0x6C, 0xFFFF, 0x00, "tpi5gl1", "TX Power Index 5GHz low subband   " },
+	{ MASK_8,   VAL_TPI5GH0,16, 0x6E, 0xFFFF, 0x00, "tpi5gh0", "TX Power Index 5GHz high subband  " },
+	{ MASK_8,   VAL_TPI5GH1,16, 0x70, 0xFFFF, 0x00, "tpi5gh1", "TX Power Index 5GHz high subband  " },
+	{ MASK_8,   VAL_2CCKPO, 16, 0x140,0xFFFF, 0x00, "cckpo2g", "2 GHz CCK power offset " },
+	{ MASK_8,   VAL_2OFDMPO,32, 0x142,0xFFFF, 0x00, "ofdm2g",  "2 GHz OFDM power offset" },
+	{ MASK_8,   VAL_5MPO,   32, 0x146,0xFFFF, 0x00, "ofdm5gm", "5 GHz OFDM middle subband power offset" },
+	{ MASK_8,   VAL_5LPO,   32, 0x14A,0xFFFF, 0x00, "ofdm5gl", "5 GHz OFDM low subband power offset   " },
+	{ MASK_8,   VAL_5HPO,   32, 0x14E,0xFFFF, 0x00, "ofdm5gh", "5 GHz OFDM high subband power offset  " },
+	{ MASK_8,   VAL_2MCSPO, 16, 0x152,0xFFFF, 0x00, "mcspo2",  "2 GHz MCS power offset" },
+	{ MASK_8,   VAL_5MMCSPO,16, 0x162,0xFFFF, 0x00, "mcspo5m", "5 GHz middle subband MCS power offset" },
+	{ MASK_8,   VAL_5LMCSPO,16, 0x172,0xFFFF, 0x00, "mcspo5l", "5 GHz low subband MCS power offset   " },
+	{ MASK_8,   VAL_5HMCSPO,16, 0x182,0xFFFF, 0x00, "mcspo5h", "5 GHz high subband MCS power offset  " },
+	{ MASK_8,   VAL_CCDPO,  16, 0x192,0xFFFF, 0x00, "ccdpo",   "CCD power offset  " },
+	{ MASK_8,   VAL_STBCPO, 16, 0x194,0xFFFF, 0x00, "stbcpo",  "STBC power offset " },
+	{ MASK_8,   VAL_BW40PO, 16, 0x196,0xFFFF, 0x00, "bw40po",  "BW40 power offset " },
+	{ MASK_8,   VAL_BWDUPPO,16, 0x198,0xFFFF, 0x00, "bwduppo", "BWDUP power offset" },
+	{ MASK_4_5, VAL_TPI2G0, 16, 0x62, 0xFFFF, 0x00, "tpi2g0",  "TX Power Index 2GHz" },
+	{ MASK_4_5, VAL_TPI2G1, 16, 0x64, 0xFFFF, 0x00, "tpi2g1",  "TX Power Index 2GHz" },
+	{ MASK_4_5, VAL_TPI5GM0,16, 0x66, 0xFFFF, 0x00, "tpi5gm0", "TX Power Index 5GHz middle subband" },
+	{ MASK_4_5, VAL_TPI5GM1,16, 0x68, 0xFFFF, 0x00, "tpi5gm1", "TX Power Index 5GHz middle subband" },
+	{ MASK_4_5, VAL_TPI5GL0,16, 0x6A, 0xFFFF, 0x00, "tpi5gl0", "TX Power Index 5GHz low subband   " },
+	{ MASK_4_5, VAL_TPI5GL1,16, 0x6C, 0xFFFF, 0x00, "tpi5gl1", "TX Power Index 5GHz low subband   " },
+	{ MASK_4_5, VAL_TPI5GH0,16, 0x6E, 0xFFFF, 0x00, "tpi5gh0", "TX Power Index 5GHz high subband  " },
+	{ MASK_4_5, VAL_TPI5GH1,16, 0x70, 0xFFFF, 0x00, "tpi5gh1", "TX Power Index 5GHz high subband  " },
+	{ MASK_4_5, VAL_2CCKPO, 16, 0x138,0xFFFF, 0x00, "cckpo2g", "2 GHz CCK power offset " },
+	{ MASK_4_5, VAL_2OFDMPO,32, 0x13A,0xFFFF, 0x00, "ofdm2g",  "2 GHz OFDM power offset" },
+	{ MASK_4_5, VAL_5MPO,   32, 0x13E,0xFFFF, 0x00, "ofdm5gm", "5 GHz OFDM middle subband power offset" },
+	{ MASK_4_5, VAL_5LPO,   32, 0x142,0xFFFF, 0x00, "ofdm5gl", "5 GHz OFDM low subband power offset   " },
+	{ MASK_4_5, VAL_5HPO,   32, 0x146,0xFFFF, 0x00, "ofdm5gh", "5 GHz OFDM high subband power offset  " },
+	{ MASK_4_5, VAL_2MCSPO, 16, 0x14A,0xFFFF, 0x00, "mcspo2",  "2 GHz MCS power offset" },
+	{ MASK_4_5, VAL_5MMCSPO,16, 0x15A,0xFFFF, 0x00, "mcspo5m", "5 GHz middle subband MCS power offset" },
+	{ MASK_4_5, VAL_5LMCSPO,16, 0x16A,0xFFFF, 0x00, "mcspo5l", "5 GHz low subband MCS power offset   " },
+	{ MASK_4_5, VAL_5HMCSPO,16, 0x17A,0xFFFF, 0x00, "mcspo5h", "5 GHz high subband MCS power offset  " },
+	{ MASK_4_5, VAL_CCDPO,  16, 0x18A,0xFFFF, 0x00, "ccdpo",   "CCD power offset  " },
+	{ MASK_4_5, VAL_STBCPO, 16, 0x18C,0xFFFF, 0x00, "stbcpo",  "STBC power offset " },
+	{ MASK_4_5, VAL_BW40PO, 16, 0x18E,0xFFFF, 0x00, "bw40po",  "BW40 power offset " },
+	{ MASK_4_5, VAL_BWDUPPO,16, 0x190,0xFFFF, 0x00, "bwduppo", "BWDUP power offset" },
+	/* per path variables are below here - only path 1 decoded for now */
+	{ MASK_4_5, VAL_PA0B0,  16, 0xC2, 0xFFFF, 0x00, "pa0b0",   "Path 1: Power Amplifier W0 PAB0" },
+	{ MASK_4_5, VAL_PA0B1,  16, 0xC4, 0xFFFF, 0x00, "pa0b1",   "Path 1: Power Amplifier W0 PAB1" },
+	{ MASK_4_5, VAL_PA0B2,  16, 0xC6, 0xFFFF, 0x00, "pa0b2",   "Path 1: Power Amplifier W0 PAB2" },
+	{ MASK_4_5, VAL_PA0B3,  16, 0xC8, 0xFFFF, 0x00, "pa0b3",   "Path 1: Power Amplifier W0 PAB3" },
+	{ MASK_4_5, VAL_PA1B0,   8, 0xCC, 0x00FF, 0x00, "pam5h",   "Path 1: 5 GHz high subband PAM " },
+	{ MASK_4_5, VAL_PA1B0,   8, 0xCC, 0xFF00, 0x08, "pam5l",   "Path 1: 5 GHz low subband PAM  " },
+	{ MASK_4_5, VAL_5MPA0,  16, 0xCE, 0xFFFF, 0x00, "pa5m0",   "Path 1: 5 GHz Power Amplifier middle 0" },
+	{ MASK_4_5, VAL_5MPA1,  16, 0xD0, 0xFFFF, 0x00, "pa5m1",   "Path 1: 5 GHz Power Amplifier middle 1" },
+	{ MASK_4_5, VAL_5MPA2,  16, 0xD2, 0xFFFF, 0x00, "pa5m2",   "Path 1: 5 GHz Power Amplifier middle 2" },
+	{ MASK_4_5, VAL_5MPA3,  16, 0xD4, 0xFFFF, 0x00, "pa5m3",   "Path 1: 5 GHz Power Amplifier middle 3" },
+	{ MASK_4_5, VAL_5LPA0,  16, 0xD6, 0xFFFF, 0x00, "pa5l0",   "Path 1: 5 GHz Power Amplifier low 0   " },
+	{ MASK_4_5, VAL_5LPA1,  16, 0xD8, 0xFFFF, 0x00, "pa5l1",   "Path 1: 5 GHz Power Amplifier low 1   " },
+	{ MASK_4_5, VAL_5LPA2,  16, 0xDA, 0xFFFF, 0x00, "pa5l2",   "Path 1: 5 GHz Power Amplifier low 2   " },
+	{ MASK_4_5, VAL_5LPA3,  16, 0xDC, 0xFFFF, 0x00, "pa5l3",   "Path 1: 5 GHz Power Amplifier low 3   " },
+	{ MASK_4_5, VAL_5HPA0,  16, 0xDE, 0xFFFF, 0x00, "pa5h0",   "Path 1: 5 GHz Power Amplifier high 0  " },
+	{ MASK_4_5, VAL_5HPA1,  16, 0xE0, 0xFFFF, 0x00, "pa5h1",   "Path 1: 5 GHz Power Amplifier high 1  " },
+	{ MASK_4_5, VAL_5HPA2,  16, 0xE2, 0xFFFF, 0x00, "pa5h2",   "Path 1: 5 GHz Power Amplifier high 2  " },
+	{ MASK_4_5, VAL_5HPA3,  16, 0xE4, 0xFFFF, 0x00, "pa5h3",   "Path 1: 5 GHz Power Amplifier high 3  " },
+	{ MASK_8,   VAL_PA0B0,  16, 0xC2, 0xFFFF, 0x00, "pa0b0",   "SISO (Path 1) Power Amplifier W0 PAB0" },
+	{ MASK_8,   VAL_PA0B1,  16, 0xC4, 0xFFFF, 0x00, "pa0b1",   "SISO (Path 1) Power Amplifier W0 PAB1" },
+	{ MASK_8,   VAL_PA0B2,  16, 0xC6, 0xFFFF, 0x00, "pa0b2",   "SISO (Path 1) Power Amplifier W0 PAB2" },
+	{ MASK_8,   VAL_PA1B0,  16, 0xCC, 0xFFFF, 0x00, "pa5m0",   "SISO (Path 1) 5 GHz Power Amplifier middle 0" },
+	{ MASK_8,   VAL_PA1B1,  16, 0xCE, 0xFFFF, 0x00, "pa5m1",   "SISO (Path 1) 5 GHz Power Amplifier middle 1" },
+	{ MASK_8,   VAL_PA1B2,  16, 0xD0, 0xFFFF, 0x00, "pa5m2",   "SISO (Path 1) 5 GHz Power Amplifier middle 2" },
+	{ MASK_8,   VAL_5MPA0,  16, 0xD2, 0xFFFF, 0x00, "pa5l0",   "SISO (Path 1) 5 GHz Power Amplifier low 0   " },
+	{ MASK_8,   VAL_5MPA1,  16, 0xD4, 0xFFFF, 0x00, "pa5l1",   "SISO (Path 1) 5 GHz Power Amplifier low 1   " },
+	{ MASK_8,   VAL_5MPA2,  16, 0xD6, 0xFFFF, 0x00, "pa5l2",   "SISO (Path 1) 5 GHz Power Amplifier low 2   " },
+	{ MASK_8,   VAL_5LPA0,  16, 0xD8, 0xFFFF, 0x00, "pa5h0",   "SISO (Path 1) 5 GHz Power Amplifier high 0  " },
+	{ MASK_8,   VAL_5LPA1,  16, 0xDA, 0xFFFF, 0x00, "pa5h1",   "SISO (Path 1) 5 GHz Power Amplifier high 1  " },
+	{ MASK_8,   VAL_5LPA2,  16, 0xDC, 0xFFFF, 0x00, "pa5h2",   "SISO (Path 1) 5 GHz Power Amplifier high 2  " },
+
+	{ 0, },
 };
 
+/* find an item in the table by sprom revision and short description
+ * returns length and type. The function value is -1 if the item is not
+ * found, otherwise 0.
+ */
+
+static int locate_item_by_desc(int rev, enum valuetype *type, uint16_t *length, char *desc)
+{
+	int i;
+
+	for (i = 0; ; i++) {
+		if (sprom_table[i].rev_mask == 0)
+			return -1;	/* end of table */
+		if ((sprom_table[i].rev_mask & rev) &&
+		     (!strcmp(sprom_table[i].desc, desc))) {
+		/* this is the record we want */
+			*length = sprom_table[i].length;
+			*type = sprom_table[i].type;
+			return 0;
+		}
+	}
+	return -1; /* flow cannot reach here, but this statement makes gcc happy */
+}
+
+/* find an item in the table by sprom revision and type
+ * return length, offset, mask, shift, desc, and label
+ * The function returns -1 if no item matches the request.
+ */
+
+static int locate_item_rev(int rev, enum valuetype type, uint16_t *length, uint16_t *offset,
+			   uint16_t *mask, uint16_t *shift, char *desc, char *label)
+{
+	int i;
+
+	for (i = 0; ; i++) {
+		if (sprom_table[i].rev_mask == 0)
+			return -1;	/* end of table */
+		if ((sprom_table[i].rev_mask & rev) &&
+		     (sprom_table[i].type == type)) {
+		/* this is the record we want */
+			*length = sprom_table[i].length;
+			*offset = sprom_table[i].offset;
+			*mask = sprom_table[i].mask;
+			*shift = sprom_table[i].shift;
+			strcpy(desc, sprom_table[i].desc);
+			strcpy(label, sprom_table[i].label);
+			return 0;
+		}
+	}
+	return -1; /* flow cannot reach here, but this statement makes gcc happy */
+}
+
+static int check_rev(uint16_t rev)
+{
+	if ((rev < 0) || (rev > 8) || (rev == 6) || (rev == 7)) {
+		prerror("\nIllegal value for sprom_rev\n");
+		return -1;
+	}
+	return 0;
+}
 
 static int hexdump_sprom(const uint8_t *sprom, char *buffer, size_t bsize)
 {
@@ -150,216 +343,56 @@ static int write_output(int fd, const uint8_t *sprom)
 static int modify_value(uint8_t *sprom,
 			struct cmdline_vparm *vparm)
 {
-	const uint16_t v = vparm->u.value;
+	const uint32_t v = vparm->u.value;
 	uint16_t tmp = 0;
 	uint16_t offset;
+	char desc[100];
+	char label[200];
+	uint16_t length;
+	uint16_t mask;
+	uint16_t shift;
+	uint16_t old_value;
+	uint32_t value = 0;
 
-	switch (vparm->type) {
-	case VALUE_RAW:
+	int rev_bit = BIT(sprom_rev);
+
+
+	if (vparm->type == VAL_RAW) {
 		sprom[vparm->u.raw.offset] = vparm->u.raw.value;
-		break;
-	case VALUE_SUBP:
-		if (sprom_rev == 4)
-			offset = SPROM4_SUBP;
-		else
-			offset = SPROM_SUBP;
-		sprom[offset + 0] = (v & 0x00FF);
-		sprom[offset + 1] = (v & 0xFF00) >> 8;
-		break;
-	case VALUE_SUBV:
-		sprom[SPROM_SUBV + 0] = (v & 0x00FF);
-		sprom[SPROM_SUBV + 1] = (v & 0xFF00) >> 8;
-		break;
-	case VALUE_PPID:
-		if (sprom_rev == 4)
-			offset = SPROM4_PPID;
-		else
-			offset = SPROM_PPID;
-		sprom[offset + 0] = (v & 0x00FF);
-		sprom[offset + 1] = (v & 0xFF00) >> 8;
-		break;
-	case VALUE_BFLHI:
-		sprom[SPROM_BFLHI + 0] = (v & 0x00FF);
-		sprom[SPROM_BFLHI + 1] = (v & 0xFF00) >> 8;
-		break;
-	case VALUE_BFL:
-		sprom[SPROM_BOARDFLAGS + 0] = (v & 0x00FF);
-		sprom[SPROM_BOARDFLAGS + 1] = (v & 0xFF00) >> 8;
-		break;
-	case VALUE_BGMAC:
-		if (sprom_rev == 3)
-			offset = SPROM3_IL0MACADDR;
-		else if (sprom_rev == 4)
-			offset = SPROM4_IL0MACADDR;
-		else
-			offset = SPROM_IL0MACADDR;
+		return 0;
+	}
+	if (locate_item_rev(rev_bit, vparm->type, &length, &offset, &mask,
+			    &shift, desc, label))
+		return -1;
+
+	if (length < 32) {
+		old_value = sprom[offset + 0];
+		old_value |= sprom[offset + 1] << 8;
+		if (length < 16) {
+			tmp = v << shift;
+			value = (old_value & ~mask) | tmp;
+		} else
+			value = v;
+		sprom[offset + 0] = (value & 0x00FF);
+		sprom[offset + 1] = (value & 0xFF00) >> 8;
+	} else if (length == 32) {
+		value = v;
+		sprom[offset + 0] = (value & 0x00FF);
+		sprom[offset + 1] = (value >> 8) & 0xFF;
+		sprom[offset + 2] = (value >> 16) & 0xFF;
+		sprom[offset + 3] = (value >> 24) & 0xFF;
+	} else if (length == 34) { /* MAC address */
 		sprom[offset + 1] = vparm->u.mac[0];
 		sprom[offset + 0] = vparm->u.mac[1];
 		sprom[offset + 3] = vparm->u.mac[2];
 		sprom[offset + 2] = vparm->u.mac[3];
 		sprom[offset + 5] = vparm->u.mac[4];
 		sprom[offset + 4] = vparm->u.mac[5];
-		break;
-	case VALUE_ETMAC:
-		if (sprom_rev == 3)
-			offset = SPROM3_ET0MACADDR;
-		else if (sprom_rev == 4)
-			offset = SPROM4_ET0MACADDR;
-		else
-			offset = SPROM_ET0MACADDR;
-		sprom[offset + 1] = vparm->u.mac[0];
-		sprom[offset + 0] = vparm->u.mac[1];
-		sprom[offset + 3] = vparm->u.mac[2];
-		sprom[offset + 2] = vparm->u.mac[3];
-		sprom[offset + 5] = vparm->u.mac[4];
-		sprom[offset + 4] = vparm->u.mac[5];
-		break;
-	case VALUE_AMAC:
-		if (sprom_rev == 3)
-			offset = SPROM3_ET1MACADDR;
-		else if (sprom_rev == 4)
-			offset = SPROM4_ET1MACADDR;
-		else
-			offset = SPROM_ET1MACADDR;
-		sprom[offset + 1] = vparm->u.mac[0];
-		sprom[offset + 0] = vparm->u.mac[1];
-		sprom[offset + 3] = vparm->u.mac[2];
-		sprom[offset + 2] = vparm->u.mac[3];
-		sprom[offset + 5] = vparm->u.mac[4];
-		sprom[offset + 4] = vparm->u.mac[5];
-		break;
-	case VALUE_ET0PHY:
-		tmp |= sprom[SPROM_ETHPHY + 0];
-		tmp |= sprom[SPROM_ETHPHY + 1] << 8;
-		tmp = ((tmp & 0x001F) | (v & 0x1F));
-		sprom[SPROM_ETHPHY + 0] = (tmp & 0x00FF);
-		sprom[SPROM_ETHPHY + 1] = (tmp & 0xFF00) >> 8;
-		break;
-	case VALUE_ET1PHY:
-		tmp |= sprom[SPROM_ETHPHY + 0];
-		tmp |= sprom[SPROM_ETHPHY + 1] << 8;
-		tmp = ((tmp & 0x03E0) | ((v & 0x1F) << 5));
-		sprom[SPROM_ETHPHY + 0] = (tmp & 0x00FF);
-		sprom[SPROM_ETHPHY + 1] = (tmp & 0xFF00) >> 8;
-		break;
-	case VALUE_ET0MDC:
-		sprom[SPROM_ETHPHY + 1] &= ~(1 << 6);
-		if (v)
-			sprom[SPROM_ETHPHY + 1] |= (1 << 6);
-		break;
-	case VALUE_ET1MDC:
-		sprom[SPROM_ETHPHY + 1] &= ~(1 << 7);
-		if (v)
-			sprom[SPROM_ETHPHY + 1] |= (1 << 7);
-		break;
-	case VALUE_BREV:
-		if (sprom_rev == 4)
-			sprom[SPROM4_BOARDREV + 0] = v;
-		else
-			sprom[SPROM_BOARDREV + 0] = v;
-		break;
-	case VALUE_LOC:
-		tmp = (sprom[SPROM_BOARDREV + 1] & 0xF0);
-		tmp |= (v & 0x0F);
-		sprom[SPROM_BOARDREV + 1] = (tmp & 0xFF);
-		break;
-	case VALUE_ANTA0:
-		if (sprom_rev == 4)
-			sprom[SPROM4_BOARDREV + 1] &= ~(1 << 6);
-		else
-			sprom[SPROM_BOARDREV + 1] &= ~(1 << 6);
-		if (v) {
-			if (sprom_rev == 4) {
-				if (sprom_rev == 4)
-					sprom[SPROM4_BOARDREV + 1] |= ~(1 << 6);
-				else
-					sprom[SPROM_BOARDREV + 1] |= (1 << 6);
-			}
-		}
-		break;
-	case VALUE_ANTA1:
-		sprom[SPROM_BOARDREV + 1] &= ~(1 << 7);
-		if (v)
-			sprom[SPROM_BOARDREV + 1] |= (1 << 7);
-		break;
-	case VALUE_ANTBG0:
-		sprom[SPROM_BOARDREV + 1] &= ~(1 << 4);
-		if (v)
-			sprom[SPROM_BOARDREV + 1] |= (1 << 4);
-		break;
-	case VALUE_ANTBG1:
-		sprom[SPROM_BOARDREV + 1] &= ~(1 << 5);
-		if (v)
-			sprom[SPROM_BOARDREV + 1] |= (1 << 5);
-		break;
-	case VALUE_ANTGA:
-		if (sprom_rev != 4)
-			sprom[SPROM_ANTENNA_GAIN + 1] = (v & 0xFF);
-		else
-			sprom[SPROM4_ANTENNA_GAIN + 1] = (v & 0xFF);
-		break;
-	case VALUE_ANTGBG:
-		if (sprom_rev != 4)
-			sprom[SPROM_ANTENNA_GAIN] = (v & 0xFF);
-		else
-			sprom[SPROM4_ANTENNA_GAIN] = (v & 0xFF);
-		break;
-	case VALUE_PA0B0:
-		sprom[SPROM_PA0B0 + 0] = (v & 0x00FF);
-		sprom[SPROM_PA0B0 + 1] = (v & 0xFF00) >> 8;
-		break;
-	case VALUE_PA0B1:
-		sprom[SPROM_PA0B1 + 0] = (v & 0x00FF);
-		sprom[SPROM_PA0B1 + 1] = (v & 0xFF00) >> 8;
-		break;
-	case VALUE_PA0B2:
-		sprom[SPROM_PA0B2 + 0] = (v & 0x00FF);
-		sprom[SPROM_PA0B2 + 1] = (v & 0xFF00) >> 8;
-		break;
-	case VALUE_PA1B0:
-		sprom[SPROM_PA1B0 + 0] = (v & 0x00FF);
-		sprom[SPROM_PA1B0 + 1] = (v & 0xFF00) >> 8;
-		break;
-	case VALUE_PA1B1:
-		sprom[SPROM_PA1B1 + 0] = (v & 0x00FF);
-		sprom[SPROM_PA1B1 + 1] = (v & 0xFF00) >> 8;
-		break;
-	case VALUE_PA1B2:
-		sprom[SPROM_PA1B2 + 0] = (v & 0x00FF);
-		sprom[SPROM_PA1B2 + 1] = (v & 0xFF00) >> 8;
-		break;
-	case VALUE_WL0GPIO0:
-		sprom[SPROM_WL0GPIO0 + 0] = (v & 0xFF);
-		break;
-	case VALUE_WL0GPIO1:
-		sprom[SPROM_WL0GPIO0 + 1] = (v & 0xFF);
-		break;
-	case VALUE_WL0GPIO2:
-		sprom[SPROM_WL0GPIO2 + 0] = (v & 0xFF);
-		break;
-	case VALUE_WL0GPIO3:
-		sprom[SPROM_WL0GPIO2 + 1] = (v & 0xFF);
-		break;
-	case VALUE_MAXPA:
-		sprom[SPROM_MAXPWR + 0] = (v & 0xFF);
-		break;
-	case VALUE_MAXPBG:
-		sprom[SPROM_MAXPWR + 1] = (v & 0xFF);
-		break;
-	case VALUE_ITSSIA:
-		sprom[SPROM_IDL_TSSI_TGT + 0] = (v & 0xFF);
-		break;
-	case VALUE_ITSSIBG:
-		sprom[SPROM_IDL_TSSI_TGT + 1] = (v & 0xFF);
-		break;
-	case VALUE_SVER:
-		if (sprom_rev != 4)
-			sprom[SPROM_VERSION + 0] = (v & 0xFF);
-		else
-			sprom[SPROM4_VERSION + 0] = (v & 0xFF);
-		break;
-	default:
-		prerror("vparm->type internal error (0)\n");
+	} else if (length == 33) { /* country code */
+		sprom[offset + 1] = vparm->u.ccode[0];
+		sprom[offset + 0] = vparm->u.ccode[1];
+	} else {
+		prerror("Incorrect value for length (%d)\n", length);
 		exit(1);
 	}
 
@@ -392,350 +425,68 @@ static int modify_sprom(uint8_t *sprom)
 static void display_value(const uint8_t *sprom,
 			  struct cmdline_vparm *vparm)
 {
-	const char *desc;
+	char desc[100];
+	char label[200];
+	char buffer[50];
+	char tbuf[2];
 	uint16_t offset;
-	uint16_t value;
-	uint16_t tmp;
+	uint16_t length;
+	uint16_t mask;
+	uint16_t shift;
+	uint32_t value = 0;
+	int rev_bit = BIT(sprom_rev);
+	const uint8_t *p;
+	int i;
 
-	switch (vparm->type) {
-	case VALUE_RAW:
-		desc = "RAW";
-		offset = vparm->u.raw.offset;
-		value = sprom[offset];
-		break;
-	case VALUE_SUBP:
-		desc = "Subsystem product ID";
-		if (sprom_rev == 4)
-			offset = SPROM4_SUBP;
-		else
-			offset = SPROM_SUBP;
+	if (locate_item_rev(rev_bit, vparm->type, &length, &offset, &mask,
+			    &shift, desc, label))
+		return;
+	if (length < 32) {
 		value = sprom[offset + 0];
 		value |= sprom[offset + 1] << 8;
-		break;
-	case VALUE_SUBV:
-		desc = "Subsystem vendor ID";
-		offset = SPROM_SUBV;
-		value = sprom[SPROM_SUBV + 0];
-		value |= sprom[SPROM_SUBV + 1] << 8;
-		break;
-	case VALUE_PPID:
-		desc = "PCI Product ID";
-		if (sprom_rev == 4)
-			offset = SPROM4_PPID;
-		else
-			offset = SPROM_PPID;
+		value = (value & mask) >> shift;
+	} else if (length == 32) {
 		value = sprom[offset + 0];
 		value |= sprom[offset + 1] << 8;
-		break;
-	case VALUE_BFLHI:
-		desc = "High 16 bits of Boardflags";
-		if (sprom_rev == 4)
-			offset = SPROM4_BOARDFLAGS + 2;
-		else
-			offset = SPROM_BFLHI;
-		value = sprom[offset + 0];
-		value |= sprom[offset + 1] << 8;
-		break;
-	case VALUE_BFL:
-		desc = "Low 16 bits of Boardflags";
-		if (sprom_rev == 4)
-			offset = SPROM4_BOARDFLAGS;
-		else
-			offset = SPROM_BOARDFLAGS;
-		value = sprom[offset + 0];
-		value |= sprom[offset + 1] << 8;
-		break;
-	case VALUE_BGMAC:
-		desc = "MAC address for 802.11b/g";
-		if (sprom_rev == 3)
-			offset = SPROM3_IL0MACADDR;
-		else if (sprom_rev == 4)
-			offset = SPROM4_IL0MACADDR;
-		else
-			offset = SPROM_IL0MACADDR;
-		value = 0;
-		break;
-	case VALUE_ETMAC:
-		desc = "MAC address for ethernet";
-		if (sprom_rev == 3)
-			offset = SPROM3_ET0MACADDR;
-		else if (sprom_rev == 4)
-			offset = SPROM4_ET0MACADDR;
-		else
-			offset = SPROM_ET0MACADDR;
-		value = 0;
-		break;
-	case VALUE_AMAC:
-		desc = "MAC address for 802.11a";
-		if (sprom_rev == 3)
-			offset = SPROM3_ET1MACADDR;
-		else if (sprom_rev == 4)
-			offset = SPROM4_ET1MACADDR;
-		else
-			offset = SPROM_ET1MACADDR;
-		value = 0;
-		break;
-	case VALUE_ET0PHY:
-		desc = "Ethernet phy settings (0)";
-		offset = SPROM_ETHPHY;
-		tmp = sprom[SPROM_ETHPHY + 0];
-		tmp |= sprom[SPROM_ETHPHY + 1] << 8;
-		value = (tmp & 0x001F);
-		break;
-	case VALUE_ET1PHY:
-		desc = "Ethernet phy settings (1)";
-		offset = SPROM_ETHPHY;
-		tmp = sprom[SPROM_ETHPHY + 0];
-		tmp |= sprom[SPROM_ETHPHY + 1] << 8;
-		value = (tmp & 0x03E0) >> 5;
-		break;
-	case VALUE_ET0MDC:
-		desc = "et0mdcport";
-		offset = SPROM_ETHPHY + 1;
-		value = 0;
-		if (sprom[SPROM_ETHPHY + 1] & (1 << 6))
-			value = 1;
-		break;
-	case VALUE_ET1MDC:
-		desc = "et1mdcport";
-		offset = SPROM_ETHPHY + 1;
-		value = 0;
-		if (sprom[SPROM_ETHPHY + 1] & (1 << 7))
-			value = 1;
-		break;
-	case VALUE_BREV:
-		desc = "Board revision";
-		if (sprom_rev == 4)
-			offset = SPROM4_BOARDREV;
-		else
-			offset = SPROM_BOARDREV;
-		value = sprom[offset + 0];
-		break;
-	case VALUE_LOC:
-		desc = "Locale / Country Code";
-		if (sprom_rev == 4) {
-			offset = SPROM4_COUNTRY;
-			value = sprom[offset] | (sprom[offset + 1] << 8);
-		} else {
-			offset = SPROM_BOARDREV;
-			value = (sprom[offset + 1] & 0x0F);
-		}
-		break;
-	case VALUE_ANTA0:
-		desc = "A PHY antenna 0 available";
-		value = 0;
-		if (sprom_rev == 4) {
-			offset = SPROM4_ANTAVAIL;
-			if (sprom[offset + 1] & 1)
-				value = 1;
-		} else {
-			offset = SPROM_BOARDREV;
-			value = 0;
-			if (sprom[offset + 2] & (1 << 6))
-				value = 1;
-		}
-		break;
-	case VALUE_ANTA1:
-		desc = "A PHY antenna 1 available";
-		value = 0;
-		if (sprom_rev == 4) {
-			offset = SPROM4_ANTAVAIL;
-			if (sprom[offset + 1] & 2)
-				value = 1;
-		} else {
-			offset = SPROM_BOARDREV;
-			value = 0;
-			if (sprom[offset + 2] & (1 << 7))
-				value = 1;
-		}
-		break;
-	case VALUE_ANTBG0:
-		desc = "B/G PHY antenna 0 available";
-		value = 0;
-		if (sprom_rev == 4) {
-			offset = SPROM4_ANTAVAIL;
-			if (sprom[offset] & 1)
-				value = 1;
-		} else {
-			offset = SPROM_BOARDREV;
-			value = 0;
-			if (sprom[offset + 2] & (1 << 4))
-				value = 1;
-		}
-		break;
-	case VALUE_ANTBG1:
-		desc = "B/G PHY antenna 1 available";
-		value = 0;
-		if (sprom_rev == 4) {
-			offset = SPROM4_ANTAVAIL;
-			if (sprom[offset] & 2)
-				value = 1;
-		} else {
-			offset = SPROM_BOARDREV;
-			value = 0;
-			if (sprom[offset + 2] & (1 << 5))
-				value = 1;
-		}
-		break;
-	case VALUE_ANTGA:
-		if (sprom_rev != 4) {
-			desc = "A PHY antenna gain";
-			offset = SPROM_ANTENNA_GAIN;
-		} else {
-			desc = "Antenna 1 Gain";
-			offset = SPROM4_ANTENNA_GAIN;
-		}
-		value = sprom[offset + 1];
-		break;
-	case VALUE_ANTGBG:
-		if (sprom_rev != 4) {
-			desc = "B/G PHY antenna gain";
-			offset = SPROM_ANTENNA_GAIN;
-		} else {
-			desc = "Antenna 0 Gain";
-			offset = SPROM4_ANTENNA_GAIN;
-		}
-		value = sprom[offset];
-		break;
-	case VALUE_PA0B0:
-		desc = "pa0b0";
-		offset = SPROM_PA0B0;
-		value = sprom[offset + 0];
-		value |= sprom[offset + 1] << 8;
-		break;
-	case VALUE_PA0B1:
-		desc = "pa0b1";
-		offset = SPROM_PA0B1;
-		value = sprom[offset + 0];
-		value |= sprom[offset + 1] << 8;
-		break;
-	case VALUE_PA0B2:
-		desc = "pa0b2";
-		offset = SPROM_PA0B2;
-		value = sprom[offset + 0];
-		value |= sprom[offset + 1] << 8;
-		break;
-	case VALUE_PA1B0:
-		desc = "pa1b0";
-		offset = SPROM_PA1B0;
-		value = sprom[offset + 0];
-		value |= sprom[offset + 1] << 8;
-		break;
-	case VALUE_PA1B1:
-		desc = "pa1b1";
-		offset = SPROM_PA1B1;
-		value = sprom[offset + 0];
-		value |= sprom[offset + 1] << 8;
-		break;
-	case VALUE_PA1B2:
-		desc = "pa1b2";
-		offset = SPROM_PA1B2;
-		value = sprom[offset + 0];
-		value |= sprom[offset + 1] << 8;
-		break;
-	case VALUE_WL0GPIO0:
-		desc = "LED 0 behaviour";
-		if (sprom_rev != 4)
-			offset = SPROM_WL0GPIO0 + 0;
-		else
-			offset = SPROM4_WL0GPIO0 + 0;
-		value = sprom[offset];
-		break;
-	case VALUE_WL0GPIO1:
-		desc = "LED 1 behaviour";
-		if (sprom_rev != 4)
-			offset = SPROM_WL0GPIO0 + 1;
-		else
-			offset = SPROM4_WL0GPIO0 + 1;
-		value = sprom[offset];
-		break;
-	case VALUE_WL0GPIO2:
-		desc = "LED 2 behaviour";
-		if (sprom_rev != 4)
-			offset = SPROM_WL0GPIO2 + 0;
-		else
-			offset = SPROM4_WL0GPIO2 + 0;
-		value = sprom[offset];
-		break;
-	case VALUE_WL0GPIO3:
-		desc = "LED 3 behaviour";
-		if (sprom_rev != 4)
-			offset = SPROM_WL0GPIO2 + 1;
-		else
-			offset = SPROM4_WL0GPIO2 + 1;
-		value = sprom[offset];
-		break;
-	case VALUE_MAXPA:
-		desc = "A PHY max powerout";
-		if (sprom_rev != 4)
-			offset = SPROM_MAXPWR + 1;
-		else
-			offset = SPROM4_MAXPWR + 1;
-		value = sprom[offset];
-		break;
-	case VALUE_MAXPBG:
-		desc = "B/G PHY max powerout";
-		if (sprom_rev != 4)
-			offset = SPROM_MAXPWR + 0;
-		else
-			offset = SPROM4_MAXPWR + 0;
-		value = sprom[offset];
-		break;
-	case VALUE_ITSSIA:
-		desc = "A PHY idle TSSI target";
-		if (sprom_rev != 4)
-			offset = SPROM_IDL_TSSI_TGT + 1;
-		else
-			offset = SPROM4_IDL_TSSI_TGT + 1;
-		value = sprom[offset];
-		break;
-	case VALUE_ITSSIBG:
-		desc = "B/G PHY idle TSSI target";
-		if (sprom_rev != 4)
-			offset = SPROM_IDL_TSSI_TGT + 0;
-		else
-			offset = SPROM4_IDL_TSSI_TGT + 0;
-		value = sprom[offset];
-		break;
-	case VALUE_SVER:
-		desc = "SPROM version";
-		if (sprom_rev != 4)
-			offset = SPROM_VERSION;
-		else
-			offset = SPROM4_VERSION;
-		value = sprom[offset];
-		break;
-	default:
-		prerror("vparm->type internal error (1)\n");
-		exit(1);
+		value |= sprom[offset + 2] << 16;
+		value |= sprom[offset + 3] << 24;
 	}
+	sprintf(buffer, "SPROM(0x%03X), %s,        ", offset, desc);
+	buffer[25] = '\0';
+	p = &(sprom[offset]);
 
-	switch (vparm->bits) {
+	switch (length) {
 	case 1:
-		prdata("SPROM(0x%02X, %s) = %s\n",
-		       offset, desc, value ? "ON" : "OFF");
+		prdata("%s%s = %s\n", buffer, label, value ? "ON" : "OFF");
 		break;
 	case 4:
-		prdata("SPROM(0x%02X, %s) = 0x%01X\n",
-		       offset, desc, (value & 0xF));
+		prdata("%s%s = 0x%01X\n", buffer, label, (value & 0xF));
+		break;
+	case 5:
+		prdata("%s%s = 0x%02X\n", buffer, label, (value & 0x1F));
 		break;
 	case 8:
-		prdata("SPROM(0x%02X, %s) = 0x%02X\n",
-		       offset, desc, (value & 0xFF));
+		prdata("%s%s = 0x%02X\n", buffer, label, (value & 0xFF));
 		break;
 	case 16:
-		prdata("SPROM(0x%02X, %s) = 0x%04X\n",
-		       offset, desc, (value & 0xFFFF));
+		prdata("%s%s = 0x%04X\n", buffer, label, value);
 		break;
-	case -1: {
+	case 32:
+		prdata("%s%s = 0x%08X\n", buffer, label, value);
+		break;
+	case 33: /* alphabetic country code */
+		for (i = 0; i < 2; i++) {
+			tbuf[i] = p[i];
+			if (!tbuf[i])	/* if not encoded, the value is zero */
+				tbuf[i] = ' ';
+		}
+		prdata("%s%s = \"%c%c\"\n", buffer, label, tbuf[1], tbuf[0]);
+		break;
+	case 34:
 		/* MAC address. */
-		const uint8_t *p = &(sprom[offset]);
-
-		prdata("SPROM(0x%02X, %s) = %02x:%02x:%02x:%02x:%02x:%02x\n",
-		       offset, desc,
-		       p[1], p[0], p[3], p[2], p[5], p[4]);
+		prdata("%s%s = %02x:%02x:%02x:%02x:%02x:%02x\n",
+		       buffer, label, p[1], p[0], p[3], p[2], p[5], p[4]);
 		break;
-	}
 	default:
 		prerror("vparm->bits internal error (%d)\n",
 			vparm->bits);
@@ -809,15 +560,16 @@ static int parse_input(uint8_t *sprom, char *buffer, size_t bsize)
 		parsed = strtoul(tmp, NULL, 16);
 		sprom[cnt] = parsed & 0xFF;
 	}
-	/* check for "magic" data for V4 SPROM */
-	if (sprom[0x40] == 0x72 && sprom[0x41] == 0x53) {
-		sprom_rev = sprom[SPROM4_VERSION];
+	/* check for 440 byte versions (V4 and higher) */
+	if (inlen > 300) {
+		sprom_rev = sprom[SPROM4_SIZE - 2];
 		sprom_size = SPROM4_SIZE;
 	} else {
-		sprom_rev = sprom[SPROM_VERSION];
+		sprom_rev = sprom[SPROM_SIZE - 2];
 		sprom_size = SPROM_SIZE;
 	}
-
+	if (check_rev(sprom_rev))
+		exit(1);
 	if (cmdargs.verbose) {
 		hexdump_sprom(sprom, tmp, sizeof(tmp));
 		prinfo("Raw input:  %s\n", tmp);
@@ -843,9 +595,9 @@ static int read_infile(int fd, char **buffer, size_t *bsize)
 	}
 	if (cmdargs.bin_mode) {
 		if (s.st_size != SPROM_SIZE && s.st_size != SPROM4_SIZE) {
-			prerror("The input data is no SPROM Binary data. "
+			prerror("The input data is not SPROM Binary data. "
 				"The size must be exactly %d (V1-3) "
-				"or %d (V4) bytes, "
+				"or %d (V4-8) bytes, "
 				"but it is %u bytes\n",
 				SPROM_SIZE, SPROM4_SIZE,
 				(unsigned int)(s.st_size));
@@ -932,6 +684,17 @@ static void print_banner(int forceprint)
 
 static void print_usage(int argc, char *argv[])
 {
+	int tmp;
+	enum valuetype loop;
+	char desc[100];
+	char label[200];
+	char buffer[200];
+	uint16_t offset;
+	uint16_t length;
+	uint16_t mask;
+	uint16_t shift;
+	int rev_bit;
+
 	print_banner(1);
 	prdata("\nUsage: %s [OPTION]\n", argv[0]);
 	prdata("  -i|--input FILE       Input file\n");
@@ -941,48 +704,63 @@ static void print_usage(int argc, char *argv[])
 	prdata("  -f|--force            Override error checks\n");
 	prdata("  -v|--version          Print version\n");
 	prdata("  -h|--help             Print this help\n");
-	prdata("\n");
-	prdata("Value Parameters:\n");
+	if (sprom_rev == 0) {
+		prdata("\nThe rest of this help depends on what SPROM version you are using\n\n");
+		prdata("Please enter it now: ");
+
+		fgets(label, 50, stdin);
+		sscanf(label, "%d", &tmp);
+		sprom_rev = tmp;
+	}
+	if (check_rev(sprom_rev))
+		exit(1);
+
+	rev_bit = BIT(sprom_rev);
+	prdata("\nValue Parameters:\n");
 	prdata("\n");
 	prdata("  -s|--rawset OFF,VAL   Set a VALue at a byte-OFFset\n");
 	prdata("  -g|--rawget OFF       Get a value at a byte-OFFset\n");
 	prdata("\n");
 	prdata("Predefined values (for displaying (GET) or modification):\n");
-	prdata("  --subp [0xFFFF]       Subsystem product ID for PCI\n");
-	prdata("  --subv [0xFFFF]       Subsystem vendor ID for PCI\n");
-	prdata("  --ppid [0xFFFF]       Product ID for PCI\n");
-	prdata("  --bflhi [0xFFFF]      High 16 bits of boardflags (only if spromversion > 1)\n");
-	prdata("  --bfl [0xFFFF]        Low 16 bits of boardflags\n");
-	prdata("  --bgmac [MAC-ADDR]    MAC address for 802.11b/g\n");
-	prdata("  --etmac [MAC-ADDR]    MAC address for ethernet, see b44 driver\n");
-	prdata("  --amac [MAC-ADDR]     Mac address for 802.11a\n");
-	prdata("  --et0phy [0xFF]\n");
-	prdata("  --et1phy [0xFF]\n");
-	prdata("  --et0mdc [BOOL]\n");
-	prdata("  --et1mdc [BOOL]\n");
-	prdata("  --brev [0xFF]         Board revision\n");
-	prdata("  --loc [0xF]           Country code\n");
-	prdata("  --anta0 [BOOL]        Antenna 0 available for A PHY\n");
-	prdata("  --anta1 [BOOL]        Antenna 1 available for A PHY\n");
-	prdata("  --antbg0 [BOOL]       Antenna 0 available for B/G PHY\n");
-	prdata("  --antbg1 [BOOL]       Antenna 1 available for B/G PHY\n");
-	prdata("  --antga [0xFF]        Antenna gain for A PHY\n");
-	prdata("  --antgbg [0xFF]       Antenna gain for B/G PHY\n");
-	prdata("  --pa0b0 [0xFFFF]\n");
-	prdata("  --pa0b1 [0xFFFF]\n");
-	prdata("  --pa0b2 [0xFFFF]\n");
-	prdata("  --pa1b0 [0xFFFF]\n");
-	prdata("  --pa1b1 [0xFFFF]\n");
-	prdata("  --pa1b2 [0xFFFF]\n");
-	prdata("  --wl0gpio0 [0xFF]     LED 0 behaviour\n");
-	prdata("  --wl0gpio1 [0xFF]     LED 1 behaviour\n");
-	prdata("  --wl0gpio2 [0xFF]     LED 2 behaviour\n");
-	prdata("  --wl0gpio3 [0xFF]     LED 3 behaviour\n");
-	prdata("  --maxpa [0xFF]        A PHY max power\n");
-	prdata("  --maxpbg [0xFF]       B/G PHY max power\n");
-	prdata("  --itssia [0xFF]       Idle tssi target for A PHY\n");
-	prdata("  --itssibg [0xFF]      Idle tssi target for B/G PHY\n");
-	prdata("  --sver [0xFF]         SPROM-version\n");
+
+	for (loop = 0; loop <= VAL_LAST; loop++) {
+		if (locate_item_rev(rev_bit, loop, &length, &offset, &mask,
+			    &shift, desc, label))
+			continue;
+
+		switch (length) {
+		case 34:
+			sprintf(buffer, "  --%s [MAC-ADDR]%30s", desc, " ");
+			break;
+		case 33:
+			sprintf(buffer, "  --%s [2 Char String]%30s", desc, " ");
+			break;
+		case 32:
+			sprintf(buffer, "  --%s [0xFFFFFFFF]%30s", desc, " ");
+			break;
+		case 16:
+			sprintf(buffer, "  --%s [0xFFFF]%30s", desc, " ");
+			break;
+		case 8:
+			sprintf(buffer, "  --%s [0xFF]%30s", desc, " ");
+			break;
+		case 5:
+			sprintf(buffer, "  --%s [0x1F]%30s", desc, " ");
+			break;
+		case 4:
+			sprintf(buffer, "  --%s [0xF]%30s", desc, " ");
+			break;
+		case 1:
+			sprintf(buffer, "  --%s [BOOL]%30s", desc, " ");
+			break;
+		default:
+			prerror("Program error: Incorrect value of item length (%d)\n", length);
+			exit(1);
+		}
+		buffer[28] = '\0';
+		prdata("%s%s\n", buffer, label);
+	}
+
 	prdata("\n");
 	prdata("  -P|--print-all        Display all values\n");
 	prdata("\n");
@@ -1084,12 +862,13 @@ static int parse_value(const char *str,
 	unsigned long v;
 	int i;
 
-	vparm->bits = value_length_map[vparm->type];
 	vparm->set = 1;
 	if (strcmp(str, "GET") == 0 || strcmp(str, "get") == 0) {
 		vparm->set = 0;
 		return 0;
 	}
+	if (vparm->bits > 32)
+		return 0;
 	if (vparm->bits == 1) {
 		/* This is a boolean value. */
 		if (strcmp(str, "0") == 0)
@@ -1141,6 +920,24 @@ error_bool:
 	return -1;
 }
 
+static int parse_ccode(const char *str,
+		       struct cmdline_vparm *vparm,
+		       const char *param)
+{
+	const char *in = str;
+	char *out = vparm->u.ccode;
+
+	vparm->bits = 33;
+	vparm->set = 1;
+	if (strcmp(str, "GET") == 0 || strcmp(str, "get") == 0) {
+		vparm->set = 0;
+		return 0;
+	}
+
+	memcpy(out, in, 2);
+	return 1;
+}
+
 static int parse_mac(const char *str,
 		     struct cmdline_vparm *vparm,
 		     const char *param)
@@ -1150,7 +947,7 @@ static int parse_mac(const char *str,
 	const char *in = str;
 	uint8_t *out = vparm->u.mac;
 
-	vparm->bits = -1;
+	vparm->bits = 34;
 	vparm->set = 1;
 	if (strcmp(str, "GET") == 0 || strcmp(str, "get") == 0) {
 		vparm->set = 0;
@@ -1187,7 +984,7 @@ static int parse_rawset(const char *str,
 	uint16_t offset;
 	int err;
 
-	vparm->type = VALUE_RAW;
+	vparm->type = VAL_RAW;
 
 	delim = strchr(str, ',');
 	if (!delim)
@@ -1224,7 +1021,7 @@ static int parse_rawget(const char *str,
 	int err;
 	uint16_t offset;
 
-	vparm->type = VALUE_RAW;
+	vparm->type = VAL_RAW;
 
 	err = parse_value(str, vparm, "--rawget");
 	if (err != 1)
@@ -1237,7 +1034,7 @@ static int parse_rawget(const char *str,
 	}
 
 	vparm->u.raw.offset = offset;
-	vparm->type = VALUE_RAW;
+	vparm->type = VAL_RAW;
 	vparm->set = 0;
 
 	return 0;
@@ -1245,31 +1042,38 @@ static int parse_rawget(const char *str,
 
 static int generate_printall(void)
 {
-	struct cmdline_vparm *vparm;
-	int count, i;
-	enum valuetype vt = VALUE_FIRST;
+	enum valuetype vt = 0;
+	int j;
 
-	count = VALUE_LAST - VALUE_FIRST + 1;
-	for (i = 0; i < count; i++, vt++) {
+	for (vt = 0; vt <= VAL_LAST; vt++) {
 		if (cmdargs.nr_vparm == MAX_VPARM) {
 			prerror("Too many value parameters.\n");
 			return -1;
 		}
+		for (j = 0; ; j++) {
+			enum valuetype type = sprom_table[j].type;
+			short mask = sprom_table[j].rev_mask;
 
-		vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-		vparm->type = vt;
-		vparm->set = 0;
-		vparm->bits = value_length_map[vt];
+			if (mask == 0)
+				break;
+			if ((mask & BIT(sprom_rev)) && (type == vt)) {
+				cmdargs.vparm[cmdargs.nr_vparm].type = vt;
+				cmdargs.vparm[cmdargs.nr_vparm].set = 0;
+				cmdargs.vparm[cmdargs.nr_vparm++].bits = sprom_table[j].length;
+			}
+		}
 	}
-
 	return 0;
 }
 
-static int parse_args(int argc, char *argv[])
+static int parse_args(int argc, char *argv[], int pass)
 {
 	struct cmdline_vparm *vparm;
 	int i, err;
 	char *param;
+	char *arg;
+	uint16_t length;
+	enum valuetype type;
 
 	parse_err = 0;
 	for (i = 1; i < argc; i++) {
@@ -1293,243 +1097,50 @@ static int parse_args(int argc, char *argv[])
 			cmdargs.force = 1;
 		} else if (arg_match(argv, &i, "--binmode", "-b", 0)) {
 			cmdargs.bin_mode = 1;
-
-
-		} else if (arg_match(argv, &i, "--rawset", "-s", &param)) {
+		} else if (pass == 2 && arg_match(argv, &i, "--rawset", "-s", &param)) {
 			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
 			err = parse_rawset(param, vparm);
 			if (err < 0)
 				goto error;
-		} else if (arg_match(argv, &i, "--rawget", "-g", &param)) {
+		} else if (pass == 2 && arg_match(argv, &i, "--rawget", "-g", &param)) {
 			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
 			err = parse_rawget(param, vparm);
 			if (err < 0)
 				goto error;
 
-
-		} else if (arg_match(argv, &i, "--subp", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_SUBP;
-			err = parse_value(param, vparm, "--subp");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--subv", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_SUBV;
-			err = parse_value(param, vparm, "--subv");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--ppid", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_PPID;
-			err = parse_value(param, vparm, "--ppid");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--bflhi", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_BFLHI;
-			err = parse_value(param, vparm, "--bflhi");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--bfl", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_BFL;
-			err = parse_value(param, vparm, "--bfl");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--bgmac", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_BGMAC;
-			err = parse_mac(param, vparm, "--bgmac");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--etmac", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_ETMAC;
-			err = parse_mac(param, vparm, "--etmac");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--amac", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_AMAC;
-			err = parse_mac(param, vparm, "--amac");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--et0phy", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_ET0PHY;
-			err = parse_value(param, vparm, "--et0phy");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--et1phy", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_ET1PHY;
-			err = parse_value(param, vparm, "--et1phy");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--et0mdc", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_ET0MDC;
-			err = parse_value(param, vparm, "--et0mdc");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--et1mdc", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_ET1MDC;
-			err = parse_value(param, vparm, "--et1mdc");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--brev", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_BREV;
-			err = parse_value(param, vparm, "--brev");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--loc", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_LOC;
-			err = parse_value(param, vparm, "--loc");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--anta0", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_ANTA0;
-			err = parse_value(param, vparm, "--anta0");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--anta1", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_ANTA1;
-			err = parse_value(param, vparm, "--anta1");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--antbg0", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_ANTBG0;
-			err = parse_value(param, vparm, "--antbg0");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--antbg1", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_ANTBG1;
-			err = parse_value(param, vparm, "--antbg1");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--antga", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_ANTGA;
-			err = parse_value(param, vparm, "--antga");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--antgbg", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_ANTGBG;
-			err = parse_value(param, vparm, "--antgbg");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--pa0b0", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_PA0B0;
-			err = parse_value(param, vparm, "--pa0b0");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--pa0b1", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_PA0B1;
-			err = parse_value(param, vparm, "--pa0b1");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--pa0b2", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_PA0B2;
-			err = parse_value(param, vparm, "--pa0b2");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--pa1b0", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_PA1B0;
-			err = parse_value(param, vparm, "--pa1b0");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--pa1b1", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_PA1B1;
-			err = parse_value(param, vparm, "--pa1b1");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--pa1b2", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_PA1B2;
-			err = parse_value(param, vparm, "--pa1b2");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--wl0gpio0", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_WL0GPIO0;
-			err = parse_value(param, vparm, "--wl0gpio0");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--wl0gpio1", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_WL0GPIO1;
-			err = parse_value(param, vparm, "--wl0gpio1");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--wl0gpio2", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_WL0GPIO2;
-			err = parse_value(param, vparm, "--wl0gpio2");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--wl0gpio3", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_WL0GPIO3;
-			err = parse_value(param, vparm, "--wl0gpio3");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--maxpa", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_MAXPA;
-			err = parse_value(param, vparm, "--maxpa");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--maxpbg", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_MAXPBG;
-			err = parse_value(param, vparm, "--maxpbg");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--itssia", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_ITSSIA;
-			err = parse_value(param, vparm, "--itssia");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--itssibg", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_ITSSIBG;
-			err = parse_value(param, vparm, "--itssibg");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--sver", 0, &param)) {
-			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
-			vparm->type = VALUE_SVER;
-			err = parse_value(param, vparm, "--sver");
-			if (err < 0)
-				goto error;
-		} else if (arg_match(argv, &i, "--print-all", "-P", 0)) {
+		} else if (pass == 2 && arg_match(argv, &i, "--print-all", "-P", 0)) {
 			err = generate_printall();
 			if (err)
 				goto error;
-		} else {
-			if (!parse_err)
-				prerror("Unrecognized argument: %s\n", argv[i]);
-			goto out_usage;
+
+		} else if (pass == 2) {
+			arg = argv[i];
+			if (arg[0] != '-' || arg[1] != '-')
+				goto out_usage;		/* all must start with "--" */
+			if (locate_item_by_desc(BIT(sprom_rev), &type, &length, arg + 2))
+				goto out_usage;
+			arg_match(argv, &i, arg, NULL, &param);
+			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
+			vparm->type = type;
+			vparm->bits = length;
+			err = parse_value(param, vparm, arg);
+			if (err < 0)
+				goto error;
+			if (length == 34) {
+				err = parse_mac(param, vparm, arg);
+				if (err < 0)
+					goto error;
+			}
+			if (length == 33) {
+				err = parse_ccode(param, vparm, arg);
+				if (err < 0)
+					goto error;
+			}
 		}
 		if (parse_err)
 			goto out_usage;
 	}
-	if (cmdargs.nr_vparm == 0) {
+	if (pass == 2 && cmdargs.nr_vparm == 0) {
 		prerror("No Value parameter given. See --help.\n");
 		return -1;
 	}
@@ -1550,7 +1161,14 @@ int main(int argc, char **argv)
 	char *buffer = NULL;
 	size_t buffer_size = 0;
 
-	err = parse_args(argc, argv);
+	/* Some arguments require that the revision of the sprom be known,
+	 * but that is not known until the sprom data are read. This difficulty
+	 * is handled by making two passes through the argument list. The first
+	 * only process those arguments that do not depend on sprom revision.
+	 *
+	 * Do the first pass through arguments
+	 */
+	err = parse_args(argc, argv, 1);
 	if (err == 1)
 		return 0;
 	else if (err != 0)
@@ -1575,6 +1193,13 @@ int main(int argc, char **argv)
 	if (err)
 		goto out;
 
+	/* do second pass through argument list */
+	err = parse_args(argc, argv, 2);
+	if (err == 1)
+		return 0;
+	else if (err != 0)
+		goto out;
+
 	err = display_sprom(sprom);
 	if (err)
 		goto out;
@@ -1591,6 +1216,7 @@ int main(int argc, char **argv)
 			goto out;
 		prinfo("SPROM modified.\n");
 	}
+	prdata("The input file is data from a revision %d SPROM.\n", sprom_rev);
 out:
 	return err;
 }
