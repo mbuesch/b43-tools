@@ -1,3 +1,10 @@
+/*
+ * Extraction of core 4 firmware from V4 drivers has been commented out as these
+ * cores will not work with driver b43.
+ *
+ * In contrast, extraction of core 5 firmware from V3 drivers should be retained
+ * as those devices will work with b43legacy and are useful for testing.
+ */
 
 /* file member lists */
 static struct extract _e08665c5c5b66beb9c3b2dd54aa80cb3[] =
@@ -23,16 +30,22 @@ static struct extract _e08665c5c5b66beb9c3b2dd54aa80cb3[] =
 
 static struct extract _9207bc565c2fc9fa1591f6c7911d3fc0[] =
 {
-	{ .name = "ucode4",  .offset = 0x66220 +  0x7ad8, .length = 0x4e68, .type = EXT_UCODE_1, },
+/*
+ *	{ .name = "ucode4",  .offset = 0x66220 +  0x7ad8, .length = 0x4e68, .type = EXT_UCODE_1, },
+ */
 	{ .name = "ucode5",  .offset = 0x66220 +  0xc944, .length = 0x5640, .type = EXT_UCODE_2, },
 	{ .name = "ucode11", .offset = 0x66220 + 0x11f90, .length = 0x67e0, .type = EXT_UCODE_2, },
 	{ .name = "ucode13", .offset = 0x66220 + 0x18774, .length = 0x5f60, .type = EXT_UCODE_2, },
-	{ .name = "pcm4", .offset = 0x66220 + 0x1e6d8, .length = 0x520, .type = EXT_PCM, },
+/*
+ *	{ .name = "pcm4", .offset = 0x66220 + 0x1e6d8, .length = 0x520, .type = EXT_PCM, },
+ */
 	{ .name = "pcm5", .offset = 0x66220 + 0x1ebfc, .length = 0x520, .type = EXT_PCM, },
-	{ .name = "b0g0initvals4",	.offset = 0x66220 + 0x1710, .length = 0xe90 - 8, .type = EXT_IV, },
-	{ .name = "b0g0bsinitvals4",	.offset = 0x66220 + 0x25a0, .length = 0x18 - 8, .type = EXT_IV, },
-	{ .name = "a0g0initvals4",	.offset = 0x66220 + 0x25b8, .length = 0xe90 - 8, .type = EXT_IV, },
-	{ .name = "a0g0bsinitvals4",	.offset = 0x66220 + 0x3448, .length = 0x18 - 8, .type = EXT_IV, },
+/*
+ *	{ .name = "b0g0initvals4",	.offset = 0x66220 + 0x1710, .length = 0xe90 - 8, .type = EXT_IV, },
+ *	{ .name = "b0g0bsinitvals4",	.offset = 0x66220 + 0x25a0, .length = 0x18 - 8, .type = EXT_IV, },
+ *	{ .name = "a0g0initvals4",	.offset = 0x66220 + 0x25b8, .length = 0xe90 - 8, .type = EXT_IV, },
+ *	{ .name = "a0g0bsinitvals4",	.offset = 0x66220 + 0x3448, .length = 0x18 - 8, .type = EXT_IV, },
+ */
 	{ .name = "b0g0initvals5",	.offset = 0x66220 + 0x3460, .length = 0xa28 - 8, .type = EXT_IV, },
 	{ .name = "b0g0bsinitvals5",	.offset = 0x66220 + 0x3e88, .length = 0x100 - 8, .type = EXT_IV, },
 	{ .name = "a0g0initvals5",	.offset = 0x66220 + 0x3f88, .length = 0xa28 - 8, .type = EXT_IV, },
@@ -50,16 +63,22 @@ static struct extract _9207bc565c2fc9fa1591f6c7911d3fc0[] =
 
 static struct extract _722e2e0d8cc04b8f118bb5afe6829ff9[] =
 {
-	{ .name = "ucode4",  .offset = 0x76a10 +  0x8960, .length = 0x4e68, .type = EXT_UCODE_1, },
+/*
+ *	{ .name = "ucode4",  .offset = 0x76a10 +  0x8960, .length = 0x4e68, .type = EXT_UCODE_1, },
+ */
 	{ .name = "ucode5",  .offset = 0x76a10 +  0xd7cc, .length = 0x5640, .type = EXT_UCODE_2, },
 	{ .name = "ucode11", .offset = 0x76a10 + 0x12e18, .length = 0x67e0, .type = EXT_UCODE_2, },
 	{ .name = "ucode13", .offset = 0x76a10 + 0x195fc, .length = 0x5f60, .type = EXT_UCODE_2, },
-	{ .name = "pcm4", .offset = 0x76a10 + 0x1f560, .length = 0x520, .type = EXT_PCM, },
+/*
+ *	{ .name = "pcm4", .offset = 0x76a10 + 0x1f560, .length = 0x520, .type = EXT_PCM, },
+ */
 	{ .name = "pcm5", .offset = 0x76a10 + 0x1fa84, .length = 0x520, .type = EXT_PCM, },
-	{ .name = "b0g0initvals4",	.offset = 0x76a10 + 0x1840, .length = 0xe90 - 8, .type = EXT_IV, },
-	{ .name = "b0g0bsinitvals4",	.offset = 0x76a10 + 0x26d0, .length = 0x18 - 8, .type = EXT_IV, },
-	{ .name = "a0g0initvals4",	.offset = 0x76a10 + 0x26e8, .length = 0xe90 - 8, .type = EXT_IV, },
-	{ .name = "a0g0bsinitvals4",	.offset = 0x76a10 + 0x3578, .length = 0x18 - 8, .type = EXT_IV, },
+/*
+ *	{ .name = "b0g0initvals4",	.offset = 0x76a10 + 0x1840, .length = 0xe90 - 8, .type = EXT_IV, },
+ *	{ .name = "b0g0bsinitvals4",	.offset = 0x76a10 + 0x26d0, .length = 0x18 - 8, .type = EXT_IV, },
+ *	{ .name = "a0g0initvals4",	.offset = 0x76a10 + 0x26e8, .length = 0xe90 - 8, .type = EXT_IV, },
+ *	{ .name = "a0g0bsinitvals4",	.offset = 0x76a10 + 0x3578, .length = 0x18 - 8, .type = EXT_IV, },
+ */
 	{ .name = "b0g0initvals5",	.offset = 0x76a10 + 0x3590, .length = 0xa28 - 8, .type = EXT_IV, },
 	{ .name = "b0g0bsinitvals5",	.offset = 0x76a10 + 0x3fb8, .length = 0x100 - 8, .type = EXT_IV, },
 	{ .name = "a0g0initvals5",	.offset = 0x76a10 + 0x40b8, .length = 0xa28 - 8, .type = EXT_IV, },
@@ -116,14 +135,18 @@ static struct extract _1e4763b4cb8cfbaae43e5c6d3d6b2ae7[] =
 static struct extract _cb8d70972b885b1f8883b943c0261a3c[] =
 {
 	{ .name = "pcm5", .offset = 0x8e554, .type = EXT_PCM, .length = 0x520 },
-	{ .name = "pcm4", .offset = 0x8ea78, .type = EXT_PCM, .length = 0x520 },
+/*
+ *	{ .name = "pcm4", .offset = 0x8ea78, .type = EXT_PCM, .length = 0x520 },
+ */
 	{ .name = "ucode15", .offset = 0x8ef9c, .type = EXT_UCODE_3, .length = 0x7710 },
 	{ .name = "ucode14", .offset = 0x966b0, .type = EXT_UCODE_2, .length = 0x7a90 },
 	{ .name = "ucode13", .offset = 0x9e144, .type = EXT_UCODE_2, .length = 0x7de0 },
 	{ .name = "ucode11", .offset = 0xa5f28, .type = EXT_UCODE_2, .length = 0x74a0 },
 	{ .name = "ucode9", .offset = 0xad3cc, .type = EXT_UCODE_2, .length = 0x6240 },
 	{ .name = "ucode5", .offset = 0xb3610, .type = EXT_UCODE_2, .length = 0x5768 },
-	{ .name = "ucode4", .offset = 0xb8d7c, .type = EXT_UCODE_1, .length = 0x4ec8 },
+/*
+ *	{ .name = "ucode4", .offset = 0xb8d7c, .type = EXT_UCODE_1, .length = 0x4ec8 },
+ */
 	{ .name = "lp0bsinitvals15", .offset = 0xbdc44, .type = EXT_IV, .length = 0xf8 },
 	{ .name = "lp0initvals15", .offset = 0xbdd44, .type = EXT_IV, .length = 0xb30 },
 	{ .name = "lp0bsinitvals14", .offset = 0xbe87c, .type = EXT_IV, .length = 0xf8 },
@@ -149,10 +172,12 @@ static struct extract _cb8d70972b885b1f8883b943c0261a3c[] =
 	{ .name = "a0g0initvals5", .offset = 0xc5f24, .type = EXT_IV, .length = 0xa08 },
 	{ .name = "b0g0bsinitvals5", .offset = 0xc6934, .type = EXT_IV, .length = 0xf8 },
 	{ .name = "b0g0initvals5", .offset = 0xc6a34, .type = EXT_IV, .length = 0xa08 },
-	{ .name = "a0g0bsinitvals4", .offset = 0xc7444, .type = EXT_IV, .length = 0x10 },
-	{ .name = "a0g0initvals4", .offset = 0xc745c, .type = EXT_IV, .length = 0xe88 },
-	{ .name = "b0g0bsinitvals4", .offset = 0xc82ec, .type = EXT_IV, .length = 0x10 },
-	{ .name = "b0g0initvals4", .offset = 0xc8304, .type = EXT_IV, .length = 0xe8c },
+/*
+ *	{ .name = "a0g0bsinitvals4", .offset = 0xc7444, .type = EXT_IV, .length = 0x10 },
+ *	{ .name = "a0g0initvals4", .offset = 0xc745c, .type = EXT_IV, .length = 0xe88 },
+ *	{ .name = "b0g0bsinitvals4", .offset = 0xc82ec, .type = EXT_IV, .length = 0x10 },
+ *	{ .name = "b0g0initvals4", .offset = 0xc8304, .type = EXT_IV, .length = 0xe8c },
+ */
 	EXTRACT_LIST_END
 };
 
