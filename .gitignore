@@ -8,7 +8,6 @@
 *.i
 *.lst
 *.pyc
-.gitignore
 
 *.ucode
 *.initval
