@@ -30,7 +30,7 @@
 import sys
 import os
 import re
-import md5
+import hashlib
 
 if len(sys.argv) != 2:
 	print "Usage: %s path/to/wl.o" % sys.argv[0]
@@ -55,7 +55,7 @@ if rodata_fileoffset == None:
 	print "ERROR: Could not find .rodata fileoffset"
 	sys.exit(1)
 
-md5sum = md5.md5(file(fn, "r").read())
+md5sum = hashlib.md5(file(fn, "r").read())
 
 print "static struct extract _%s[] =" % md5sum.hexdigest()
 print "{"
@@ -80,6 +80,14 @@ for sym in syms:
 		size -= 8
 	if "pcm" in name:
 		type = "EXT_PCM"
+	if "bommajor" in name:
+		print "\t/* ucode major version at offset 0x%x */" % pos
+		continue
+	if "bomminor" in name:
+		print "\t/* ucode minor version at offset 0x%x */" % pos
+		continue
+	if "ucode_2w" in name:
+		continue
 	m = ucode_re.match(name)
 	if m:
 		corerev = int(m.group(1))
