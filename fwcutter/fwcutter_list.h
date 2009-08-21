@@ -287,6 +287,7 @@ static struct extract _1a258b2d93efa641c32ddf3c3a962028[] =
 	{ .name = "sslpn0bsinitvals16", .offset = 0xAF048, .type = EXT_IV, .length = 0x0 },
 	EXTRACT_LIST_END
 };
+
 static struct extract _bb8537e3204a1ea5903fe3e66b5e2763[] =
 {
 	/* ucode major version at offset 0xa8b70 */
@@ -337,7 +338,9 @@ static struct extract _bb8537e3204a1ea5903fe3e66b5e2763[] =
 	{ .name = "sslpn0bsinitvals16", .offset = 0xB5348, .type = EXT_IV, .length = 0x0 },
 	{ .name = "lp0bsinitvals16", .offset = 0xB5FE8, .type = EXT_IV, .length = 0x118 },
 	EXTRACT_LIST_END
-};/*
+};
+
+/*
  * Links change, so let's not put them into the README.
  * I still put them here so we know where the file was obtained.
  */
@@ -417,6 +420,3 @@ static const struct file files[] =
 		.extract	= _bb8537e3204a1ea5903fe3e66b5e2763,
 	},
 };
-
-#define FILES (sizeof(files) / sizeof(files[0]))
-

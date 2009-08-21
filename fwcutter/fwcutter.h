@@ -9,6 +9,9 @@
 #define fwcutter_stringify(x)	fwcutter_stringify_1(x)
 #define FWCUTTER_VERSION	fwcutter_stringify(FWCUTTER_VERSION_)
 
+#undef ARRAY_SIZE
+#define ARRAY_SIZE(array)	(sizeof(array) / sizeof((array)[0]))
+
 typedef uint16_t be16_t; /* Big-endian 16bit */
 typedef uint32_t be32_t; /* Big-endian 32bit */
 

@@ -462,10 +462,10 @@ static void print_supported_files(void)
 	       "<ID>\t"
 	       "<MD5 checksum>\n\n");
 	/* print for legacy driver first */
-	for (i = 0; i < FILES; i++)
+	for (i = 0; i < ARRAY_SIZE(files); i++)
 		if (file_ok(&files[i]) && !(files[i].flags & FW_FLAG_V4))
 			print_file(&files[i]);
-	for (i = 0; i < FILES; i++)
+	for (i = 0; i < ARRAY_SIZE(files); i++)
 		if (file_ok(&files[i]) && files[i].flags & FW_FLAG_V4)
 			print_file(&files[i]);
 	printf("\n");
@@ -491,7 +491,7 @@ static const struct file *find_file(FILE *fd)
 		 signature[8], signature[9], signature[10], signature[11],
 		 signature[12], signature[13], signature[14], signature[15]);
 
-	for (i = 0; i < FILES; ++i) {
+	for (i = 0; i < ARRAY_SIZE(files); i++) {
 		if (file_ok(&files[i]) &&
 		    strcasecmp(md5sig, files[i].md5) == 0) {
 			printf("This file is recognised as:\n");
