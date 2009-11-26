@@ -1,43 +1,70 @@
+# The toolchain definitions
 CC		= gcc
 LEX		= flex
 YACC		= bison
+SPARSE		= sparse
+
+V		= @		# Verbose build:  make V=1
+C		= 0		# Sparsechecker build:  make C=1
+Q		= $(V:1=)
+QUIET_CC	= $(Q:@=@echo '     CC       '$@;)$(CC)
+QUIET_DEPEND	= $(Q:@=@echo '     DEPEND   '$@;)$(CC)
+QUIET_LEX	= $(Q:@=@echo '     LEX      '$@;)$(LEX)
+QUIET_YACC	= $(Q:@=@echo '     YACC     '$@;)$(YACC)
+ifeq ($(C),1)
+QUIET_SPARSE	= $(Q:@=@echo '     SPARSE   '$@;)$(SPARSE)
+else
+QUIET_SPARSE	= @/bin/true
+endif
 
 PREFIX		?= /usr/local
-
 CFLAGS		?= -O2 -fomit-frame-pointer -D_BSD_SOURCE -D_GNU_SOURCE
 CFLAGS		+= -std=c99 -Wall -D_BSD_SOURCE -D_GNU_SOURCE
+SPARSEFLAGS	= $(CFLAGS)
 LDFLAGS		+= -lfl
 
 BIN		= b43-asm.bin
-OBJECTS		= parser.o scanner.o main.o initvals.o util.o args.o
+SRCS		= parser.c scanner.c main.c initvals.c util.c args.c
 
 # YACC related CFLAGS
 CFLAGS		+= -DYYSTYPE="void *" -DYYERROR_VERBOSE -DYYDEBUG -Wno-unused
 
+.SUFFIXES:
+.PHONY: all install clean distclean
+.DEFAULT_GOAL := all
+
+DEPS = $(sort $(patsubst %.c,dep/%.d,$(1)))
+OBJS = $(sort $(patsubst %.c,obj/%.o,$(1)))
+
+# Generate dependencies
+$(call DEPS,$(SRCS)): dep/%.d: %.c 
+	@mkdir -p $(dir $@)
+	$(QUIET_DEPEND) -o $@.tmp -MM -MG -MT "$@ $(patsubst dep/%.d,obj/%.o,$@)" $(CFLAGS) $< && mv -f $@.tmp $@
+
+-include $(call DEPS,$(SRCS))
+
+# Generate object files
+$(call OBJS,$(SRCS)): obj/%.o:
+	@mkdir -p $(dir $@)
+	$(QUIET_SPARSE) $(SPARSEFLAGS) $<
+	$(QUIET_CC) -o $@ -c $(CFLAGS) $<
+
 all: $(BIN)
 
 scanner.c: scanner.l parser.c main.h
-	$(LEX) -o scanner.c --header-file=scanner.h scanner.l
+	$(QUIET_LEX) -o scanner.c --header-file=scanner.h scanner.l
 
 scanner.o: scanner.c
-	$(CC) $(CFLAGS) -c -o scanner.o scanner.c
+	$(QUIET_CC) $(CFLAGS) -c -o scanner.o scanner.c
 
 parser.c: parser.y main.h util.h
-	$(YACC) --defines -o parser.c parser.y
+	$(QUIET_YACC) --defines -o parser.c parser.y
 
 parser.o: parser.c
-	$(CC) $(CFLAGS) -c -o parser.o parser.c
+	$(QUIET_CC) $(CFLAGS) -c -o parser.o parser.c
 
-main.o: parser.c main.h list.h util.h args.h initvals.h
-
-initvals.o: initvals.h main.h list.h util.h args.h
-
-util.o: util.h
-
-args.o: args.h main.h util.h
-
-$(BIN): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $(BIN) $(OBJECTS) $(LDFLAGS)
+$(BIN): $(call OBJS,$(SRCS))
+	$(QUIET_CC) $(CFLAGS) -o $(BIN) $(call OBJS,$(SRCS)) $(LDFLAGS)
 
 install: all
 	install -o 0 -g 0 -m 755 $(BIN) $(PREFIX)/bin/
@@ -47,7 +74,7 @@ install: all
 	rm -f b43-asm.inst
 
 clean:
-	-rm -f *~ *.o *.orig *.rej scanner.c scanner.h parser.c parser.h
+	-rm -Rf dep obj *~ *.orig *.rej scanner.c scanner.h parser.c parser.h
 
 distclean: clean
 	-rm -f $(BIN)
