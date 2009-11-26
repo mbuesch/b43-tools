@@ -21,8 +21,8 @@ $(BIN): $(OBJECTS)
 	$(CC) $(CFLAGS) -o $(BIN) $(OBJECTS) $(LDFLAGS)
 
 install: all
-	-install -o 0 -g 0 -m 755 $(BIN) $(PREFIX)/bin/
-	-install -o 0 -g 0 -m 755 b43-ivaldump $(PREFIX)/bin/
+	install -o 0 -g 0 -m 755 $(BIN) $(PREFIX)/bin/
+	install -o 0 -g 0 -m 755 b43-ivaldump $(PREFIX)/bin/
 
 clean:
 	-rm -f *~ *.o *.orig *.rej
