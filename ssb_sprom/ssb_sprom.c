@@ -33,8 +33,8 @@
 
 
 struct cmdline_args cmdargs;
-uint8_t sprom_rev;
-uint16_t sprom_size;
+static uint8_t sprom_rev;
+static uint16_t sprom_size;
 
 /* SPROM layouts are described by the following table. The entries are as follows:
  *
@@ -804,7 +804,7 @@ static int do_cmp_arg(char **argv, int *pos,
 	}
 	if (strcmp(arg, template) == 0) {
 		if (param) {
-			if (*param == 0) {
+			if (*param == NULL) {
 				prerror("%s needs a parameter\n", arg);
 				return ARG_ERROR;
 			}
@@ -1081,20 +1081,20 @@ static int parse_args(int argc, char *argv[], int pass)
 			return -1;
 		}
 
-		if (arg_match(argv, &i, "--version", "-v", 0)) {
+		if (arg_match(argv, &i, "--version", "-v", NULL)) {
 			print_banner(1);
 			return 1;
-		} else if (arg_match(argv, &i, "--help", "-h", 0)) {
+		} else if (arg_match(argv, &i, "--help", "-h", NULL)) {
 			goto out_usage;
 		} else if (arg_match(argv, &i, "--input", "-i", &param)) {
 			cmdargs.infile = param;
 		} else if (arg_match(argv, &i, "--output", "-o", &param)) {
 			cmdargs.outfile = param;
-		} else if (arg_match(argv, &i, "--verbose", "-V", 0)) {
+		} else if (arg_match(argv, &i, "--verbose", "-V", NULL)) {
 			cmdargs.verbose = 1;
-		} else if (arg_match(argv, &i, "--force", "-n", 0)) {
+		} else if (arg_match(argv, &i, "--force", "-n", NULL)) {
 			cmdargs.force = 1;
-		} else if (arg_match(argv, &i, "--binmode", "-b", 0)) {
+		} else if (arg_match(argv, &i, "--binmode", "-b", NULL)) {
 			cmdargs.bin_mode = 1;
 		} else if (pass == 2 && arg_match(argv, &i, "--rawset", "-s", &param)) {
 			vparm = &(cmdargs.vparm[cmdargs.nr_vparm++]);
@@ -1107,7 +1107,7 @@ static int parse_args(int argc, char *argv[], int pass)
 			if (err < 0)
 				goto error;
 
-		} else if (pass == 2 && arg_match(argv, &i, "--print-all", "-P", 0)) {
+		} else if (pass == 2 && arg_match(argv, &i, "--print-all", "-P", NULL)) {
 			err = generate_printall();
 			if (err)
 				goto error;
