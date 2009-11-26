@@ -18,7 +18,7 @@ CFLAGS		+= -std=c99 -O2 -fomit-frame-pointer -Wall -D_BSD_SOURCE
 LDFLAGS		?=
 
 SRCS		= ssb_sprom.c utils.c
-BIN		= ssb_sprom
+BIN		= ssb-sprom
 
 .SUFFIXES:
 .PHONY: all install clean distclean
