@@ -16,7 +16,7 @@ endif
 PREFIX		?= /usr/local
 CFLAGS		?= -O2 -fomit-frame-pointer
 CFLAGS		+= -std=gnu99 -Wall -D_BSD_SOURCE -D_GNU_SOURCE
-SPARSEFLAGS	= $(CFLAGS)
+SPARSEFLAGS	= $(CFLAGS) -D__transparent_union__=__unused__ -D_STRING_ARCH_unaligned=1
 LDFLAGS		?=
 
 BIN = b43-dasm

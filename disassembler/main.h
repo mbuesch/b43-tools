@@ -26,9 +26,9 @@ struct fw_header {
 #define FW_HDR_VER	0x01
 
 
-FILE *infile;
-FILE *outfile;
-const char *infile_name;
-const char *outfile_name;
+extern FILE *infile;
+extern FILE *outfile;
+extern const char *infile_name;
+extern const char *outfile_name;
 
 #endif /* B43_DASM_MAIN_H_ */

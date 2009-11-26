@@ -66,7 +66,7 @@ static int do_cmp_arg(char **argv, int *pos,
 		if (param) {
 			/* Skip the parameter on the next iteration. */
 			(*pos)++;
-			if (*param == 0) {
+			if (*param == NULL) {
 				fprintf(stderr, "%s needs a parameter\n", arg);
 				return ARG_ERROR;
 			}
@@ -117,14 +117,14 @@ int parse_args(int argc, char **argv)
 	outfile_name = NULL;
 
 	for (i = 1; i < argc; i++) {
-		if ((res = cmp_arg(argv, &i, "--help", "-h", 0)) == ARG_MATCH) {
+		if ((res = cmp_arg(argv, &i, "--help", "-h", NULL)) == ARG_MATCH) {
 			usage(argc, argv);
 			return 1;
-		} else if ((res = cmp_arg(argv, &i, "--nohdr", 0, 0)) == ARG_MATCH) {
+		} else if ((res = cmp_arg(argv, &i, "--nohdr", NULL, NULL)) == ARG_MATCH) {
 			cmdargs.no_header = 1;
-		} else if ((res = cmp_arg(argv, &i, "--paddr", 0, 0)) == ARG_MATCH) {
+		} else if ((res = cmp_arg(argv, &i, "--paddr", NULL, NULL)) == ARG_MATCH) {
 			cmdargs.print_addresses = 1;
-		} else if ((res = cmp_arg(argv, &i, "--debug", "-d", 0)) == ARG_MATCH) {
+		} else if ((res = cmp_arg(argv, &i, "--debug", "-d", NULL)) == ARG_MATCH) {
 			_debug++;
 		} else if ((res = cmp_arg(argv, &i, "--arch", "-a", &param)) == ARG_MATCH) {
 			unsigned long arch;
