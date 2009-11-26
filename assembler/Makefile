@@ -20,14 +20,15 @@ endif
 PREFIX		?= /usr/local
 CFLAGS		?= -O2 -fomit-frame-pointer -D_BSD_SOURCE -D_GNU_SOURCE
 CFLAGS		+= -std=c99 -Wall -D_BSD_SOURCE -D_GNU_SOURCE
-SPARSEFLAGS	= $(CFLAGS)
+SPARSEFLAGS	= $(CFLAGS) -D__transparent_union__=__unused__ -D_STRING_ARCH_unaligned=1 \
+		  -D__builtin_stpcpy=stpcpy
 LDFLAGS		+= -lfl
 
 BIN		= b43-asm.bin
 SRCS		= parser.c scanner.c main.c initvals.c util.c args.c
 
 # YACC related CFLAGS
-CFLAGS		+= -DYYSTYPE="void *" -DYYERROR_VERBOSE -DYYDEBUG -Wno-unused
+CFLAGS		+= -DYYSTYPE="void *" -DYYERROR_VERBOSE -DYYDEBUG -DYYENABLE_NLS=0 -DYYLTYPE_IS_TRIVIAL=0 -Wno-unused
 
 .SUFFIXES:
 .PHONY: all install clean distclean

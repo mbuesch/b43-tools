@@ -25,7 +25,7 @@
 int _debug;
 bool arg_print_sizes;
 const char *initvals_fn_extension = ".initvals";
-const char *real_infile_name;
+static const char *real_infile_name;
 
 
 #define ARG_MATCH		0
@@ -64,7 +64,7 @@ static int do_cmp_arg(char **argv, int *pos,
 		if (param) {
 			/* Skip the parameter on the next iteration. */
 			(*pos)++;
-			if (*param == 0) {
+			if (*param == NULL) {
 				fprintf(stderr, "%s needs a parameter\n", arg);
 				return ARG_ERROR;
 			}
@@ -115,16 +115,16 @@ int parse_args(int argc, char **argv)
 	outfile_name = argv[2];
 
 	for (i = 3; i < argc; i++) {
-		if ((res = cmp_arg(argv, &i, "--help", "-h", 0)) == ARG_MATCH) {
+		if ((res = cmp_arg(argv, &i, "--help", "-h", NULL)) == ARG_MATCH) {
 			usage(argc, argv);
 			return 1;
-		} else if ((res = cmp_arg(argv, &i, "--debug", "-d", 0)) == ARG_MATCH) {
+		} else if ((res = cmp_arg(argv, &i, "--debug", "-d", NULL)) == ARG_MATCH) {
 			_debug++;
-		} else if ((res = cmp_arg(argv, &i, "--psize", "-s", 0)) == ARG_MATCH) {
+		} else if ((res = cmp_arg(argv, &i, "--psize", "-s", NULL)) == ARG_MATCH) {
 			arg_print_sizes = 1;
 		} else if ((res = cmp_arg(argv, &i, "--ivalext", "-e", &initvals_fn_extension)) == ARG_MATCH) {
 			/* initvals_fn_extension is set to the extension. */
-		} else if ((res = cmp_arg(argv, &i, "--__real_infile", 0, &real_infile_name)) == ARG_MATCH) {
+		} else if ((res = cmp_arg(argv, &i, "--__real_infile", NULL, &real_infile_name)) == ARG_MATCH) {
 			/* real_infile_name is set. */
 		} else {
 			fprintf(stderr, "Unrecognized argument: %s\n", argv[i]);
