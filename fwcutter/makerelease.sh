@@ -17,6 +17,8 @@ fi
 tmpdir="/tmp"
 release_name="$project-$version"
 tarball="$release_name.tar.bz2"
+tagname="$project-$version-release"
+tagmsg="$project-$version release"
 
 export GIT_DIR="$origin/../.git"
 
