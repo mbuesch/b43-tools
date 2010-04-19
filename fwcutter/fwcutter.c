@@ -65,18 +65,6 @@ static int file_ok(const struct file *f)
 	return !(f->flags & FW_FLAG_UNSUPPORTED) || cmdargs.unsupported;
 }
 
-/* Convert a CPU-endian 16bit integer to Big-Endian */
-static be16_t to_be16(uint16_t v)
-{
-	uint8_t ret[2];
-
-	ret[0] = (v & 0xFF00) >> 8;
-	ret[1] = (v & 0x00FF);
-
-	return *((be16_t *)ret);
-}
-
-#if 0
 /* Convert a Big-Endian 16bit integer to CPU-endian */
 static uint16_t from_be16(be16_t v)
 {
@@ -87,19 +75,11 @@ static uint16_t from_be16(be16_t v)
 
 	return ret;
 }
-#endif
 
-/* Convert a CPU-endian 32bit integer to Big-Endian */
-static be32_t to_be32(uint32_t v)
+/* Convert a CPU-endian 16bit integer to Big-Endian */
+static be16_t to_be16(uint16_t v)
 {
-	uint8_t ret[4];
-
-	ret[0] = (v & 0xFF000000) >> 24;
-	ret[1] = (v & 0x00FF0000) >> 16;
-	ret[2] = (v & 0x0000FF00) >> 8;
-	ret[3] = (v & 0x000000FF);
-
-	return *((be32_t *)ret);
+	return (be16_t)from_be16((be16_t)v);
 }
 
 /* Convert a Big-Endian 32bit integer to CPU-endian */
@@ -113,6 +93,12 @@ static uint32_t from_be32(be32_t v)
 	ret |= (uint32_t)(((uint8_t *)&v)[3]);
 
 	return ret;
+}
+
+/* Convert a CPU-endian 32bit integer to Big-Endian */
+static be32_t to_be32(uint32_t v)
+{
+	return (be32_t)from_be32((be32_t)v);
 }
 
 /* tiny disassembler */
