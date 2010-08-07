@@ -18,7 +18,7 @@ subc      | A,B,rD     | Sub with Carry                  | rD=A-B-Carry
 subc.     | A,B,rD     | Sub with Carry, set Carry       | rD=A-B-C SaveCarry
 
 Branch instructions:
-jmp       | l          | Unconditional jump              | PC=l
+jmp       | l          | Uncond. jump (virtual instr.)   | PC=l
 jand      | A,B,l      | Jump if binary AND              | if(A&B) PC=l
 jnand     | A,B,l      | Jump if not binary AND          | if(!(A&B)) PC=l
 js        | A,B,l      | Jump if all bits set            | if((A&B)==A) PC=l
@@ -41,7 +41,7 @@ jext      | E,A,B,l    | Jump if External Condition true | if(E) PC=l
 jnext     | E,A,B,l    | Jump if External Condition false| if(!E) PC=l
 
 Data transfer instructions:
-mov       | A,rD       | Copy data                       | rD=A
+mov       | A,rD       | Copy data (virtual instruction) | rD=A
 tkiph     | A,rD       | TKIP S-Box lookup high          | rD=SBOX[hi8(A)]
 tkiphs    | A,rD       | TKIP S-Box lkup hi swap'd       | rD=byteswap(tkiph)
 tkipl     | A,rD       | TKIP S-Box lookup low           | rD=SBOX[lo8(A)]
@@ -54,14 +54,14 @@ and       | A,B,rD     | Bitwise AND                     | rD=A&B
 xor       | A,B,rD     | Bitwise XOR                     | rD=A^B
 sr        | A,B,rD     | Rightshift                      | rD=A>>B
 sl        | A,B,rD     | Leftshift                       | rD=A<<B
-srx       | M,S,A,B,rD | Extended right shift            |
+srx       | M,S,A,B,rD | Shift right over two registers  | See detailed docs
 rl        | A,B,rD     | Rotate left                     | rD=lrot(A, B bits)
 rr        | A,B,rD     | Rotate right                    | rD=rrot(A, B bits)
 nand      | A,B,rD     | Clear bits (notmask+and)        | rD=A&(~B)
-orx       | M,S,A,B,rD | Extended bitwise OR             |
+orx       | M,S,A,B,rD | OR with shift and select        | See detailed docs
 
 Other instructions:
-nap       | none       | Sleep until event               |
+nap       | none       | Sleep until event               | See detailed docs
 
 
 
@@ -81,3 +81,12 @@ lrY	= Link Register (lr0 - lr3)
 Raw instruction format:
 @bitcode_in_hexadecimal
 Example: @1C0 @C11,@C22,r3
+
+
+Virtual instructions are translated by the assembler to other
+lowlevel instructions.
+
+
+Please also see the detailed microcode documentation at:
+http://bcm-v4.sipsolutions.net/802.11/Microcode
+
