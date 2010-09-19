@@ -325,9 +325,21 @@ static unsigned int generate_mem_operand(struct assembler_context *ctx,
 	case MEM_DIRECT:
 		/* format: 0b0mmm mmmm mmmm */
 		off = mem->offset;
-		if (off & ~0x7FF) { //FIXME 4096 words for v15 arch possible?
-			asm_warn(ctx, "DIRECT memoffset 0x%X too long (> 11 bits)", off);
-			off &= 0x7FF;
+		switch (ctx->arch) {
+		case 5:
+			if (off & ~0x7FF) {
+				asm_warn(ctx, "DIRECT memoffset 0x%X too long (> 11 bits)", off);
+				off &= 0x7FF;
+			}
+			break;
+		case 15:
+			if (off & ~0xFFF) {
+				asm_warn(ctx, "DIRECT memoffset 0x%X too long (> 12 bits)", off);
+				off &= 0xFFF;
+			}
+			break;
+		default:
+			asm_error(ctx, "Internal error: generate_mem_operand invalid arch");
 		}
 		val |= off;
 		break;
@@ -345,9 +357,9 @@ static unsigned int generate_mem_operand(struct assembler_context *ctx,
 			/* Assembler bug. The parser shouldn't pass this value. */
 			asm_error(ctx, "OFFR-nr too big");
 		}
-		if (reg == 6) {
+		if (reg == 6 && ctx->arch == 5) {
 			asm_warn(ctx, "Using offset register 6. This register is broken "
-				 "on certain devices. Use off0 to off5 only.");
+				 "on architecture 5 devices. Use off0 to off5 only.");
 		}
 		val |= off;
 		val |= (reg << 6);

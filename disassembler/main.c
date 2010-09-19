@@ -94,7 +94,7 @@ static const char * disasm_indirect_mem_operand(unsigned int operand)
 
 	ret = xmalloc(12);
 	snprintf(ret, 12, "[0x%02X,off%u]",
-		 (operand & 0x3F), ((operand >> 6) & 0x7));
+		 (operand & 0x3F), ((operand >> 6) & 0x7)); //FIXME r15?
 
 	return ret;
 }

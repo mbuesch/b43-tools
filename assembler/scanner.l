@@ -56,7 +56,7 @@ NEWLINE		((\r)|(\n)|(\r\n))
 ^{WS}*\.text{WS}*$			{ update_lineinfo(); return SECTION_TEXT; }
 ^{WS}*\.initvals/\({IDENTIFIER}\)	{ update_lineinfo(); return SECTION_IVALS; }
 
-spr[0-9a-fA-F]{3,3}	{ update_lineinfo(); return SPR; }
+spr[0-9a-fA-F]{1,4}	{ update_lineinfo(); return SPR; }
 r/([0-9]|([1-5][0-9])|(6[0-3]))	{ update_lineinfo(); return GPR; }
 off/[0-6]		{ update_lineinfo(); return OFFR; }
 lr/[0-3]		{ update_lineinfo(); return LR; }
