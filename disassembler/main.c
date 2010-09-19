@@ -489,6 +489,33 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 		stmt->u.insn.operands[2] = str;
 		break;
 	}
+//TODO also implement it in the assembler
+#if 0
+	case 0x004: {
+		if (cmdargs.arch != 15) {
+			fprintf(stderr, "Error: arch 15 call instruction found in arch %d binary\n",
+				cmdargs.arch);
+			exit(1);
+		}
+		stmt->u.insn.name = "call";
+		stmt->u.insn.is_labelref = 0;
+		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
+		if (stmt->u.insn.bin->operands[0] != 0x1780 ||
+		    stmt->u.insn.bin->operands[1] != 0x1780) {
+			fprintf(stderr, "r15 call: Invalid first or second argument\n");
+		}
+		break;
+	}
+	case 0x005: {
+		if (cmdargs.arch != 15) {
+			fprintf(stderr, "Error: arch 15 ret instruction found in arch %d binary\n",
+				cmdargs.arch);
+			exit(1);
+		}
+		stmt->u.insn.name = "ret";
+		break;
+	}
+#endif
 	case 0x1E0: {
 		unsigned int flags, mask;
 
@@ -760,19 +787,21 @@ static void emit_asm(struct disassembler_context *ctx)
 			fprintf(outfile, "\t%s", stmt->u.insn.name);
 			first = 1;
 			for (i = 0; i < ARRAY_SIZE(stmt->u.insn.operands); i++) {
-				if (stmt->u.insn.is_labelref == i) {
-					fprintf(outfile, ", %s",
-						stmt->u.insn.labelref->u.label.name);
-				}
-				if (!stmt->u.insn.operands[i])
+				if (!stmt->u.insn.operands[i] &&
+				    stmt->u.insn.is_labelref != i)
 					continue;
 				if (first)
 					fprintf(outfile, "\t");
 				if (!first)
 					fprintf(outfile, ", ");
 				first = 0;
-				fprintf(outfile, "%s",
-					stmt->u.insn.operands[i]);
+				if (stmt->u.insn.is_labelref == i) {
+					fprintf(outfile, "%s",
+						stmt->u.insn.labelref->u.label.name);
+				} else {
+					fprintf(outfile, "%s",
+						stmt->u.insn.operands[i]);
+				}
 			}
 			fprintf(outfile, "\n");
 			addr++;
