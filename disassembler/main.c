@@ -72,8 +72,8 @@ static const char * gen_raw_code(unsigned int operand)
 {
 	char *ret;
 
-	ret = xmalloc(5);
-	snprintf(ret, 5, "@%03X", operand);
+	ret = xmalloc(6);
+	snprintf(ret, 6, "@%X", operand);
 
 	return ret;
 }
@@ -91,10 +91,23 @@ static const char * disasm_mem_operand(unsigned int operand)
 static const char * disasm_indirect_mem_operand(unsigned int operand)
 {
 	char *ret;
+	unsigned int offset, reg;
 
+	switch (cmdargs.arch) {
+	case 5:
+		offset = (operand & 0x3F);
+		reg = ((operand >> 6) & 0x7);
+		break;
+	case 15:
+		offset = (operand & 0x7F);
+		reg = ((operand >> 7) & 0x7);
+		break;
+	default:
+		fprintf(stderr, "Internal error: disasm_indirect_mem_operand invalid arch\n");
+		exit(1);
+	}
 	ret = xmalloc(12);
-	snprintf(ret, 12, "[0x%02X,off%u]",
-		 (operand & 0x3F), ((operand >> 6) & 0x7)); //FIXME r15?
+	snprintf(ret, 12, "[0x%02X,off%u]", offset, reg);
 
 	return ret;
 }

@@ -169,6 +169,17 @@ static bool is_possible_imm(unsigned int imm)
 	return 1;
 }
 
+static unsigned int immediate_nr_bits(struct assembler_context *ctx)
+{
+	switch (ctx->arch) {
+	case 5:
+		return 10; /* 10 bits */
+	case 15:
+		return 11; /* 11 bits */
+	}
+	asm_error(ctx, "Internal error: immediate_nr_bits unknown arch\n");
+}
+
 static bool is_valid_imm(struct assembler_context *ctx,
 			 unsigned int imm)
 {
@@ -189,14 +200,7 @@ static bool is_valid_imm(struct assembler_context *ctx,
 		return 0;
 	imm &= 0xFFFF;
 
-	if (ctx->arch == 5) {
-		immediate_size = 10; /* 10bit */
-	} else if (ctx->arch == 15) {
-		immediate_size = 11; /* 11bit */
-	} else {
-		asm_error(ctx, "Unknown immediate size for arch %u",
-			  ctx->arch);
-	}
+	immediate_size = immediate_nr_bits(ctx);
 
 	/* First create a mask with all possible bits for
 	 * an immediate value unset. */
@@ -253,8 +257,6 @@ static unsigned int generate_imm_operand(struct assembler_context *ctx,
 	unsigned int val, tmp;
 	unsigned int mask;
 
-	/* format: 0b11ii iiii iiii */
-
 	val = 0xC00;
 	if (ctx->arch == 15)
 		val <<= 1;
@@ -262,9 +264,9 @@ static unsigned int generate_imm_operand(struct assembler_context *ctx,
 
 	if (!is_valid_imm(ctx, tmp)) {
 		asm_warn(ctx, "IMMEDIATE 0x%X (%d) too long "
-			      "(> 9 bits + sign). Did you intend to "
+			      "(> %u bits + sign). Did you intend to "
 			      "use implicit sign extension?",
-			 tmp, (int)tmp);
+			 tmp, (int)tmp, immediate_nr_bits(ctx) - 1);
 	}
 
 	if (ctx->arch == 15)
@@ -283,16 +285,14 @@ static unsigned int generate_reg_operand(struct assembler_context *ctx,
 
 	switch (reg->type) {
 	case GPR:
-		/* format: 0b1011 11rr rrrr */
 		val |= 0xBC0;
 		if (ctx->arch == 15)
 			val <<= 1;
-		if (reg->nr & ~0x3F) //FIXME 128 regs for v15 arch possible?
+		if (reg->nr & ~0x3F) /* REVISIT: 128 regs for v15 arch possible? Probably not... */
 			asm_error(ctx, "GPR-nr too big");
 		val |= reg->nr;
 		break;
 	case SPR:
-		/* format: 0b100. .... .... */
 		val |= 0x800;
 		if (ctx->arch == 15)
 			val <<= 1;
@@ -301,7 +301,6 @@ static unsigned int generate_reg_operand(struct assembler_context *ctx,
 		val |= reg->nr;
 		break;
 	case OFFR:
-		/* format: 0b1000 0110 0rrr */
 		val |= 0x860;
 		if (ctx->arch == 15)
 			val <<= 1;
@@ -319,11 +318,10 @@ static unsigned int generate_reg_operand(struct assembler_context *ctx,
 static unsigned int generate_mem_operand(struct assembler_context *ctx,
 					 const struct memory *mem)
 {
-	unsigned int val = 0, off, reg;
+	unsigned int val = 0, off, reg, off_mask, reg_shift;
 
 	switch (mem->type) {
 	case MEM_DIRECT:
-		/* format: 0b0mmm mmmm mmmm */
 		off = mem->offset;
 		switch (ctx->arch) {
 		case 5:
@@ -344,25 +342,38 @@ static unsigned int generate_mem_operand(struct assembler_context *ctx,
 		val |= off;
 		break;
 	case MEM_INDIRECT:
-		/* format: 0b101r rroo oooo */
+		switch (ctx->arch) {
+		case 5:
+			val = 0xA00;
+			off_mask = 0x3F;
+			reg_shift = 6;
+			break;
+		case 15:
+			val = 0x1400;
+			off_mask = 0x7F;
+			reg_shift = 7;
+			break;
+		default:
+			asm_error(ctx, "Internal error: MEM_INDIRECT invalid arch\n");
+		}
+
 		off = mem->offset;
 		reg = mem->offr_nr;
-		val |= 0xA00;
-		//FIXME what about v15 arch?
-		if (off & ~0x3F) {
-			asm_warn(ctx, "INDIRECT memoffset 0x%X too long (> 6 bits)", off);
-			off &= 0x3F;
+		if (off & ~off_mask) {
+			asm_warn(ctx, "INDIRECT memoffset 0x%X too long (> %u bits)",
+				 off, reg_shift);
+			off &= off_mask;
 		}
 		if (reg > 6) {
 			/* Assembler bug. The parser shouldn't pass this value. */
 			asm_error(ctx, "OFFR-nr too big");
 		}
-		if (reg == 6 && ctx->arch == 5) {
+		if (reg == 6) {
 			asm_warn(ctx, "Using offset register 6. This register is broken "
-				 "on architecture 5 devices. Use off0 to off5 only.");
+				 "on certain devices. Use off0 to off5 only.");
 		}
 		val |= off;
-		val |= (reg << 6);
+		val |= (reg << reg_shift);
 		break;
 	default:
 		asm_error(ctx, "generate_mem_operand() memtype");

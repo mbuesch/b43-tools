@@ -144,7 +144,7 @@ shm16			{ update_lineinfo(); return IVAL_SHM16; }
 shm32			{ update_lineinfo(); return IVAL_SHM32; }
 tram			{ update_lineinfo(); return IVAL_TRAM; }
 
-@[0-9a-fA-F]{3,3}	{ update_lineinfo(); return RAW_CODE; }
+@[0-9a-fA-F]{1,4}	{ update_lineinfo(); return RAW_CODE; }
 
 0x[0-9a-fA-F]+		{ update_lineinfo(); return HEXNUM; }
 -?[0-9]+		{ update_lineinfo(); return DECNUM; }
