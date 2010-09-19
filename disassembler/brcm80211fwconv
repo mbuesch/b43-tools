@@ -56,7 +56,7 @@ def indexToName(index):
 	except KeyError:
 		return "Unknown"
 
-def parseHeader(hdr_data):
+def parseHeader(hdr_data, sortByOffset):
 	sections = []
 	for i in range(0, len(hdr_data), 3 * 4):
 		offset = ord(hdr_data[i + 0]) | (ord(hdr_data[i + 1]) << 8) |\
@@ -67,7 +67,10 @@ def parseHeader(hdr_data):
 			(ord(hdr_data[i + 10]) << 16) | (ord(hdr_data[i + 11]) << 24)
 
 		sections.append( (offset, length, index) )
-	sections.sort(key = lambda x: x[2]) # Sort by index
+	if sortByOffset:
+		sections.sort(key = lambda x: x[0]) # Sort by offset
+	else:
+		sections.sort(key = lambda x: x[2]) # Sort by index
 	return sections
 
 def generateHeaderData(sections):
@@ -95,7 +98,7 @@ def getSectionByIndex(sections, searchIndex):
 			return section
 	return None
 
-def parseHeaderFile(hdr_filepath):
+def parseHeaderFile(hdr_filepath, sortByOffset=False):
 	try:
 		hdr_data = file(hdr_filepath, "rb").read()
 	except (IOError), e:
@@ -104,7 +107,7 @@ def parseHeaderFile(hdr_filepath):
 	if len(hdr_data) % (3 * 4) != 0:
 		print "Invalid header file format"
 		return None
-	return parseHeader(hdr_data)
+	return parseHeader(hdr_data, sortByOffset)
 
 def dumpInfo(hdr_filepath):
 	sections = parseHeaderFile(hdr_filepath)
@@ -142,7 +145,7 @@ def extractSection(hdr_filepath, bin_filepath, extractIndex, outfilePath):
 	return 0
 
 def mergeSection(hdr_filepath, bin_filepath, mergeIndex, mergefilePath):
-	sections = parseHeaderFile(hdr_filepath)
+	sections = parseHeaderFile(hdr_filepath, sortByOffset=True)
 	if not sections:
 		return 1
 	try:
