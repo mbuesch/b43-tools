@@ -161,9 +161,14 @@ def mergeSection(hdr_filepath, bin_filepath, mergeIndex, mergefilePath):
 	newBin = []
 	newSections = []
 	newOffset = 0
+	foundIt = False
 	for section in sections:
 		(offset, length, index) = section
 		if index == mergeIndex:
+			if foundIt:
+				print "Confused. Multiple sections with index %d?" % index
+				return 1
+			foundIt = True
 			# We overwrite this section
 			newBin.append(merge_data)
 			newSections.append( (newOffset, len(merge_data), index) )
@@ -176,6 +181,9 @@ def mergeSection(hdr_filepath, bin_filepath, mergeIndex, mergefilePath):
 				return 1
 			newSections.append( (newOffset, length, index) )
 			newOffset += length
+	if not foundIt:
+		print "Did not find section with index %d" % mergeIndex
+		return 1
 	newBin = "".join(newBin)
 	newHdr = generateHeaderData(newSections)
 	try:
