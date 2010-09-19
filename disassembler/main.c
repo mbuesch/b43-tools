@@ -230,6 +230,15 @@ raw:
 	stmt->u.insn.operands[out_idx] = gen_raw_code(operand);
 }
 
+static void disasm_opcode_raw(struct disassembler_context *ctx,
+			      struct statement *stmt)
+{
+	stmt->u.insn.name = gen_raw_code(stmt->u.insn.bin->opcode);
+	disasm_std_operand(stmt, 0, 0, 1);
+	disasm_std_operand(stmt, 1, 1, 1);
+	disasm_std_operand(stmt, 2, 2, 1);
+}
+
 static void disasm_constant_opcodes(struct disassembler_context *ctx,
 				    struct statement *stmt)
 {
@@ -439,14 +448,20 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 	case 0x002: {
 		char *str;
 
-		//FIXME: Broken for r15
-		stmt->u.insn.name = "call";
-		stmt->u.insn.is_labelref = 1;
-//printf("CALL 0x%X 0x%X 0x%X\n", stmt->u.insn.bin->operands[0], stmt->u.insn.bin->operands[1], stmt->u.insn.bin->operands[2]);
-		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
-		str = xmalloc(4);
-		snprintf(str, 4, "lr%u", stmt->u.insn.bin->operands[0]);
-		stmt->u.insn.operands[0] = str;
+		switch (cmdargs.arch) {
+		case 5:
+			stmt->u.insn.name = "call";
+			stmt->u.insn.is_labelref = 1;
+			stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
+			str = xmalloc(4);
+			snprintf(str, 4, "lr%u", stmt->u.insn.bin->operands[0]);
+			stmt->u.insn.operands[0] = str;
+			break;
+		case 15:
+			//FIXME: This opcode is different on r15. Decode raw for now.
+			disasm_opcode_raw(ctx, stmt);
+			break;
+		}
 		break;
 	}
 	case 0x003: {
@@ -529,10 +544,7 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 		break;
 	}
 	default:
-		stmt->u.insn.name = gen_raw_code(bin->opcode);
-		disasm_std_operand(stmt, 0, 0, 1);
-		disasm_std_operand(stmt, 1, 1, 1);
-		disasm_std_operand(stmt, 2, 2, 1);
+		disasm_opcode_raw(ctx, stmt);
 		break;
 	}
 }
