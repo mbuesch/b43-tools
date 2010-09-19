@@ -749,7 +749,9 @@ static void emit_asm(struct disassembler_context *ctx)
 	if (err)
 		exit(1);
 
-	fprintf(outfile, "%%arch %u\n\n", ctx->arch);
+	fprintf(outfile, "%%arch %u\n", ctx->arch);
+	fprintf(outfile, "%%start entry\n\n");
+	fprintf(outfile, "entry:\n");
 	list_for_each_entry(stmt, &ctx->stmt_list, list) {
 		switch (stmt->type) {
 		case STMT_INSN:
