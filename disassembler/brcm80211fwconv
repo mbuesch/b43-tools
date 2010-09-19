@@ -70,6 +70,24 @@ def parseHeader(hdr_data):
 	sections.sort(key = lambda x: x[2]) # Sort by index
 	return sections
 
+def generateHeaderData(sections):
+	data = []
+	for section in sections:
+		(offset, length, index) = section
+		data.append(chr(offset & 0xFF))
+		data.append(chr((offset >> 8) & 0xFF))
+		data.append(chr((offset >> 16) & 0xFF))
+		data.append(chr((offset >> 24) & 0xFF))
+		data.append(chr(length & 0xFF))
+		data.append(chr((length >> 8) & 0xFF))
+		data.append(chr((length >> 16) & 0xFF))
+		data.append(chr((length >> 24) & 0xFF))
+		data.append(chr(index & 0xFF))
+		data.append(chr((index >> 8) & 0xFF))
+		data.append(chr((index >> 16) & 0xFF))
+		data.append(chr((index >> 24) & 0xFF))
+	return "".join(data)
+
 def getSectionByIndex(sections, searchIndex):
 	for section in sections:
 		(offset, length, index) = section
@@ -98,7 +116,7 @@ def dumpInfo(hdr_filepath):
 			(index, indexToName(index), offset, length)
 	return 0
 
-def extractSection(hdr_filepath, bin_filepath, extractIndex, outfile):
+def extractSection(hdr_filepath, bin_filepath, extractIndex, outfilePath):
 	sections = parseHeaderFile(hdr_filepath)
 	if not sections:
 		return 1
@@ -113,9 +131,55 @@ def extractSection(hdr_filepath, bin_filepath, extractIndex, outfile):
 		print "Failed to read bin file: %s" % e.strerror
 		return 1
 	try:
+		outfile = file(outfilePath, "wb")
 		outfile.write(bin_data[offset : offset + length])
 	except IndexError:
 		print "Binfile index error."
+		return 1
+	except (IOError), e:
+		print "Failed to write output file: %s" % e.strerror
+		return 1
+	return 0
+
+def mergeSection(hdr_filepath, bin_filepath, mergeIndex, mergefilePath):
+	sections = parseHeaderFile(hdr_filepath)
+	if not sections:
+		return 1
+	try:
+		bin_data = file(bin_filepath, "rb").read()
+	except (IOError), e:
+		print "Failed to read bin file: %s" % e.strerror
+		return 1
+	try:
+		merge_data = file(mergefilePath, "rb").read()
+	except (IOError), e:
+		print "Failed to open merge output file: %s" % e.strerror
+		return 1
+	newBin = []
+	newSections = []
+	newOffset = 0
+	for section in sections:
+		(offset, length, index) = section
+		if index == mergeIndex:
+			# We overwrite this section
+			newBin.append(merge_data)
+			newSections.append( (newOffset, len(merge_data), index) )
+			newOffset += len(merge_data)
+		else:
+			try:
+				newBin.append(bin_data[offset : offset + length])
+			except IndexError:
+				print "Failed to read input data"
+				return 1
+			newSections.append( (newOffset, length, index) )
+			newOffset += length
+	newBin = "".join(newBin)
+	newHdr = generateHeaderData(newSections)
+	try:
+		file(bin_filepath, "wb").write(newBin)
+		file(hdr_filepath, "wb").write(newHdr)
+	except (IOError), e:
+		print "Failed to write bin or header file: %s" % e.strerror
 		return 1
 	return 0
 
@@ -124,27 +188,29 @@ def usage():
 	print ""
 	print "Usage: %s [OPTIONS]" % sys.argv[0]
 	print ""
-	print "  -H|--header FILE       Use FILE as input header file"
-	print "  -B|--bin FILE          Use FILE as bin file"
-	print "  -O|--outfile FILE      Use FILE as output file. If not set, stdout is used."
+	print "  -H|--header FILE         Use FILE as header file"
+	print "  -B|--bin FILE            Use FILE as bin file"
 	print ""
 	print "Actions:"
-	print "  -d|--dump              Dump general information"
-	print "  -x|--extract INDEX     Extract the section with index INDEX"
+	print "  -d|--dump                Dump general information"
+	print "  -x|--extract INDEX:FILE  Extract the section with index INDEX to FILE"
+	print "  -m|--merge INDEX:FILE    Merges FILE into the bin file stream at INDEX"
+	print "                           A Merge modifies the files specified in -H and -B"
 	print ""
-	print "  -h|--help              Print this help text"
+	print "  -h|--help                Print this help text"
 
 def main():
 	opt_header = None
 	opt_bin = None
 	opt_action = None
 	opt_index = None
-	opt_outfile = sys.stdout
+	opt_outfile = None
+	opt_mergefile = None
 
 	try:
 		(opts, args) = getopt.getopt(sys.argv[1:],
-			"hH:B:O:dx:",
-			[ "help", "header=", "bin=", "outfile=", "dump", "extract=", ])
+			"hH:B:dx:m:",
+			[ "help", "header=", "bin=", "dump", "extract=", "merge=", ])
 	except getopt.GetoptError:
 		usage()
 		return 1
@@ -156,20 +222,26 @@ def main():
 			opt_header = v
 		if o in ("-B", "--bin"):
 			opt_bin = v
-		if o in ("-O", "--outfile"):
-			try:
-				opt_outfile = file(v, "wb")
-			except (IOError), e:
-				print "Failed to open output file: %s" % e.strerror
-				return 1
 		if o in ("-d", "--dump"):
 			opt_action = "dump"
 		if o in ("-x", "--extract"):
 			opt_action = "extract"
 			try:
-				opt_index = int(v)
-			except ValueError:
+				v = v.split(':')
+				opt_index = int(v[0])
+				opt_outfile = v[1]
+			except IndexError, ValueError:
 				print "Invalid -x|--extract index number\n"
+				usage()
+				return 1
+		if o in ("-m", "--merge"):
+			opt_action = "merge"
+			try:
+				v = v.split(':')
+				opt_index = int(v[0])
+				opt_mergefile = v[1]
+			except IndexError, ValueError:
+				print "Invalid -m|--merge index and/or merge file name\n"
 				usage()
 				return 1
 	if not opt_action:
@@ -188,6 +260,12 @@ def main():
 			usage()
 			return 1
 		return extractSection(opt_header, opt_bin, opt_index, opt_outfile)
+	elif opt_action == "merge":
+		if not opt_header or not opt_bin:
+			print "No header or bin file specified\n"
+			usage()
+			return 1
+		return mergeSection(opt_header, opt_bin, opt_index, opt_mergefile)
 	return 1
 
 if __name__ == "__main__":
