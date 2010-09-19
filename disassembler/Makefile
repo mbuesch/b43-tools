@@ -48,8 +48,9 @@ $(BIN): $(call OBJS,$(SRCS))
 	$(QUIET_CC) $(CFLAGS) -o $(BIN) $(call OBJS,$(SRCS)) $(LDFLAGS)
 
 install: all
-	install -o 0 -g 0 -m 755 $(BIN) $(PREFIX)/bin/
-	install -o 0 -g 0 -m 755 b43-ivaldump $(PREFIX)/bin/
+	install -m 755 $(BIN) $(PREFIX)/bin/
+	install -m 755 b43-ivaldump $(PREFIX)/bin/
+	install -m 755 brcm80211fwconv $(PREFIX)/bin/
 
 clean:
 	-rm -Rf obj dep *~ *.orig *.rej
