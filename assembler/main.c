@@ -117,6 +117,7 @@ static void eval_directives(struct assembler_context *ctx)
 	struct label *l;
 	int have_start_label = 0;
 	int have_arch = 0;
+	unsigned int arch_fallback = 0;
 
 	for_each_statement(ctx, s) {
 		if (s->type == STMT_ASMDIR) {
@@ -126,6 +127,17 @@ static void eval_directives(struct assembler_context *ctx)
 				if (have_arch)
 					asm_error(ctx, "Multiple %%arch definitions");
 				ctx->arch = ad->u.arch;
+				if (ctx->arch > 5 && ctx->arch < 15)
+					arch_fallback = 5;
+				if (ctx->arch > 15)
+					arch_fallback = 15;
+				if (arch_fallback) {
+					asm_warn(ctx, "Using %%arch %d is incorrect. "
+						 "The wireless core revision %d uses the "
+						 "firmware architecture %d. So use %%arch %d",
+						 ctx->arch, ctx->arch, arch_fallback, arch_fallback);
+					ctx->arch = arch_fallback;
+				}
 				if (ctx->arch != 5 && ctx->arch != 15) {
 					asm_error(ctx, "Architecture version %u unsupported",
 						  ctx->arch);
