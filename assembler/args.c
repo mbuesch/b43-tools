@@ -26,6 +26,7 @@ int _debug;
 bool arg_print_sizes;
 const char *initvals_fn_extension = ".initvals";
 static const char *real_infile_name;
+enum fwformat output_format = FMT_B43;
 
 
 #define ARG_MATCH		0
@@ -97,17 +98,20 @@ static int cmp_arg(char **argv, int *pos,
 static void usage(int argc, char **argv)
 {
 	printf("Usage: %s INPUT_FILE OUTPUT_FILE [OPTIONS]\n", argv[0]);
-	printf("  -h|--help           Print this help\n");
+	printf("  -f|--format FMT     Output file format. FMT must be one of:\n");
+	printf("                      raw-le32, raw-be32, b43\n");
 	printf("  -d|--debug          Print verbose debugging info\n");
 	printf("                      Repeat for more verbose debugging\n");
 	printf("  -s|--psize          Print the size of the code after assembling\n");
 	printf("  -e|--ivalext EXT    Filename extension for the initvals\n");
+	printf("  -h|--help           Print this help\n");
 }
 
 int parse_args(int argc, char **argv)
 {
 	int i;
 	int res;
+	const char *param;
 
 	if (argc < 3)
 		goto out_usage;
@@ -118,6 +122,17 @@ int parse_args(int argc, char **argv)
 		if ((res = cmp_arg(argv, &i, "--help", "-h", NULL)) == ARG_MATCH) {
 			usage(argc, argv);
 			return 1;
+		} else if ((res = cmp_arg(argv, &i, "--format", "-f", &param)) == ARG_MATCH) {
+			if (strcasecmp(param, "raw-le32") == 0)
+				output_format = FMT_RAW_LE32;
+			else if (strcasecmp(param, "raw-be32") == 0)
+				output_format = FMT_RAW_BE32;
+			else if (strcasecmp(param, "b43") == 0)
+				output_format = FMT_B43;
+			else {
+				fprintf(stderr, "Invalid -f|--format\n\n");
+				goto out_usage;
+			}
 		} else if ((res = cmp_arg(argv, &i, "--debug", "-d", NULL)) == ARG_MATCH) {
 			_debug++;
 		} else if ((res = cmp_arg(argv, &i, "--psize", "-s", NULL)) == ARG_MATCH) {

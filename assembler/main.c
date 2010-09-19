@@ -1048,7 +1048,7 @@ static void emit_code(struct assembler_context *ctx)
 	struct code_output *c;
 	uint64_t code;
 	unsigned char outbuf[8];
-	unsigned int insn_count = 0;
+	unsigned int insn_count = 0, insn_count_limit;
 	struct fw_header hdr;
 
 	fn = outfile_name;
@@ -1070,19 +1070,37 @@ static void emit_code(struct assembler_context *ctx)
 		}
 	}
 
-	memset(&hdr, 0, sizeof(hdr));
-	hdr.type = FW_TYPE_UCODE;
-	hdr.ver = FW_HDR_VER;
-	hdr.size = cpu_to_be32(8 * insn_count);
-	if (fwrite(&hdr, sizeof(hdr), 1, fd) != 1) {
-		fprintf(stderr, "Could not write microcode outfile\n");
-		exit(1);
+	switch (output_format) {
+	case FMT_RAW_LE32:
+	case FMT_RAW_BE32:
+		/* Nothing */
+		break;
+	case FMT_B43:
+		memset(&hdr, 0, sizeof(hdr));
+		hdr.type = FW_TYPE_UCODE;
+		hdr.ver = FW_HDR_VER;
+		hdr.size = cpu_to_be32(8 * insn_count);
+		if (fwrite(&hdr, sizeof(hdr), 1, fd) != 1) {
+			fprintf(stderr, "Could not write microcode outfile\n");
+			exit(1);
+		}
+		break;
 	}
 
-	if (insn_count > NUM_INSN_LIMIT)
-		asm_warn(ctx, "Generating more than %d instructions. This "
+	switch (ctx->arch) {
+	case 5:
+		insn_count_limit = NUM_INSN_LIMIT_R5;
+		break;
+	case 15:
+		insn_count_limit = ~0; //FIXME limit currently unknown.
+		break;
+	default:
+		asm_error(ctx, "Internal error: emit_code unknown arch\n");
+	}
+	if (insn_count > insn_count_limit)
+		asm_warn(ctx, "Generating more than %u instructions. This "
 			      "will overflow the device microcode memory.",
-			 NUM_INSN_LIMIT);
+			 insn_count_limit);
 
 	list_for_each_entry(c, &ctx->output, list) {
 		switch (c->type) {
@@ -1094,41 +1112,52 @@ static void emit_code(struct assembler_context *ctx)
 					c->operands[1].u.operand,
 					c->operands[2].u.operand);
 			}
-			code = 0;
 
-			if (ctx->arch == 5) {
-				/* Instruction binary format is: xxyyyzzz0000oooX
-				 *                        byte-0-^       byte-7-^
-				 * ooo is the opcode
-				 * Xxx is the first operand
-				 * yyy is the second operand
-				 * zzz is the third operand
-				 */
+			switch (ctx->arch) {
+			case 5:
+				code = 0;
 				code |= ((uint64_t)c->operands[2].u.operand);
 				code |= ((uint64_t)c->operands[1].u.operand) << 12;
 				code |= ((uint64_t)c->operands[0].u.operand) << 24;
 				code |= ((uint64_t)c->opcode) << 36;
-				code = ((code & (uint64_t)0xFFFFFFFF00000000ULL) >> 32) |
-				       ((code & (uint64_t)0x00000000FFFFFFFFULL) << 32);
-			} else if (ctx->arch == 15) {
+				break;
+			case 15:
+				code = 0;
 				code |= ((uint64_t)c->operands[2].u.operand);
 				code |= ((uint64_t)c->operands[1].u.operand) << 13;
 				code |= ((uint64_t)c->operands[0].u.operand) << 26;
 				code |= ((uint64_t)c->opcode) << 39;
-				code = ((code & (uint64_t)0xFFFFFFFF00000000ULL) >> 32) |
-				       ((code & (uint64_t)0x00000000FFFFFFFFULL) << 32);
-			} else {
+				break;
+			default:
 				asm_error(ctx, "No emit format for arch %u",
 					  ctx->arch);
 			}
-			outbuf[0] = (code & (uint64_t)0xFF00000000000000ULL) >> 56;
-			outbuf[1] = (code & (uint64_t)0x00FF000000000000ULL) >> 48;
-			outbuf[2] = (code & (uint64_t)0x0000FF0000000000ULL) >> 40;
-			outbuf[3] = (code & (uint64_t)0x000000FF00000000ULL) >> 32;
-			outbuf[4] = (code & (uint64_t)0x00000000FF000000ULL) >> 24;
-			outbuf[5] = (code & (uint64_t)0x0000000000FF0000ULL) >> 16;
-			outbuf[6] = (code & (uint64_t)0x000000000000FF00ULL) >> 8;
-			outbuf[7] = (code & (uint64_t)0x00000000000000FFULL) >> 0;
+
+			switch (output_format) {
+			case FMT_B43:
+			case FMT_RAW_BE32:
+				code = ((code & (uint64_t)0xFFFFFFFF00000000ULL) >> 32) |
+				       ((code & (uint64_t)0x00000000FFFFFFFFULL) << 32);
+				outbuf[0] = (code & (uint64_t)0xFF00000000000000ULL) >> 56;
+				outbuf[1] = (code & (uint64_t)0x00FF000000000000ULL) >> 48;
+				outbuf[2] = (code & (uint64_t)0x0000FF0000000000ULL) >> 40;
+				outbuf[3] = (code & (uint64_t)0x000000FF00000000ULL) >> 32;
+				outbuf[4] = (code & (uint64_t)0x00000000FF000000ULL) >> 24;
+				outbuf[5] = (code & (uint64_t)0x0000000000FF0000ULL) >> 16;
+				outbuf[6] = (code & (uint64_t)0x000000000000FF00ULL) >> 8;
+				outbuf[7] = (code & (uint64_t)0x00000000000000FFULL) >> 0;
+				break;
+			case FMT_RAW_LE32:
+				outbuf[7] = (code & (uint64_t)0xFF00000000000000ULL) >> 56;
+				outbuf[6] = (code & (uint64_t)0x00FF000000000000ULL) >> 48;
+				outbuf[5] = (code & (uint64_t)0x0000FF0000000000ULL) >> 40;
+				outbuf[4] = (code & (uint64_t)0x000000FF00000000ULL) >> 32;
+				outbuf[3] = (code & (uint64_t)0x00000000FF000000ULL) >> 24;
+				outbuf[2] = (code & (uint64_t)0x0000000000FF0000ULL) >> 16;
+				outbuf[1] = (code & (uint64_t)0x000000000000FF00ULL) >> 8;
+				outbuf[0] = (code & (uint64_t)0x00000000000000FFULL) >> 0;
+				break;
+			}
 
 			if (fwrite(&outbuf, ARRAY_SIZE(outbuf), 1, fd) != 1) {
 				fprintf(stderr, "Could not write microcode outfile\n");

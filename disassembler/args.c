@@ -100,7 +100,7 @@ static void usage(FILE *fd, int argc, char **argv)
 {
 	fprintf(fd, "Usage: %s INPUT_FILE OUTPUT_FILE [OPTIONS]\n", argv[0]);
 	fprintf(fd, "  -a|--arch ARCH      The architecture type of the input file (5 or 15)\n");
-	fprintf(fd, "  -f|--format FMT     Input file format. FMT may be one of:\n");
+	fprintf(fd, "  -f|--format FMT     Input file format. FMT must be one of:\n");
 	fprintf(fd, "                      raw-le32, raw-be32, b43\n");
 	fprintf(fd, "  --paddr             Print the code addresses\n");
 	fprintf(fd, "  -d|--debug          Print verbose debugging info\n");

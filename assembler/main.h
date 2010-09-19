@@ -30,7 +30,7 @@ struct fw_header {
 /* Maximum number of allowed instructions in the code output.
  * This is what device memory can hold at maximum.
  */
-#define NUM_INSN_LIMIT	4096
+#define NUM_INSN_LIMIT_R5	4096
 
 
 struct lineinfo {
