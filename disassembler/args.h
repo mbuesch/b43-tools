@@ -1,9 +1,15 @@
 #ifndef B43_DASM_ARGS_H_
 #define B43_DASM_ARGS_H_
 
+enum fwformat {
+	FMT_RAW_LE32,	/* Raw microcode. No headers. 32bit little endian chunks. */
+	FMT_RAW_BE32,	/* Raw microcode. No headers. 32bit big endian chunks. */
+	FMT_B43,	/* b43/b43legacy headers. */
+};
+
 struct cmdline_args {
 	unsigned int arch;
-	int no_header;
+	enum fwformat informat;
 	int print_addresses;
 };
 

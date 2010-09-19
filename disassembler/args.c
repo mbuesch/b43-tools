@@ -26,7 +26,7 @@ int _debug;
 
 struct cmdline_args cmdargs = {
 	.arch = 5,		/* Default to v5 architecture. */
-	.no_header = 0,		/* Input file does not have a header. */
+	.informat = FMT_B43,	/* Input file format */
 	.print_addresses = 0,	/* Print the code addresses in the output. */
 };
 
@@ -96,15 +96,16 @@ static int cmp_arg(char **argv, int *pos,
 	return err;
 }
 
-static void usage(int argc, char **argv)
+static void usage(FILE *fd, int argc, char **argv)
 {
-	fprintf(stderr, "Usage: %s INPUT_FILE OUTPUT_FILE [OPTIONS]\n", argv[0]);
-	fprintf(stderr, "  -a|--arch ARCH      The architecture type of the input file\n");
-	fprintf(stderr, "  -h|--help           Print this help\n");
-	fprintf(stderr, "  --nohdr             The input file does not have a header\n");
-	fprintf(stderr, "  --paddr             Print the code addresses\n");
-	fprintf(stderr, "  -d|--debug          Print verbose debugging info\n");
-	fprintf(stderr, "                      Repeat for more verbose debugging\n");
+	fprintf(fd, "Usage: %s INPUT_FILE OUTPUT_FILE [OPTIONS]\n", argv[0]);
+	fprintf(fd, "  -a|--arch ARCH      The architecture type of the input file (5 or 15)\n");
+	fprintf(fd, "  -f|--format FMT     Input file format. FMT may be one of:\n");
+	fprintf(fd, "                      raw-le32, raw-be32, b43\n");
+	fprintf(fd, "  --paddr             Print the code addresses\n");
+	fprintf(fd, "  -d|--debug          Print verbose debugging info\n");
+	fprintf(fd, "                      Repeat for more verbose debugging\n");
+	fprintf(fd, "  -h|--help           Print this help\n");
 }
 
 int parse_args(int argc, char **argv)
@@ -118,10 +119,19 @@ int parse_args(int argc, char **argv)
 
 	for (i = 1; i < argc; i++) {
 		if ((res = cmp_arg(argv, &i, "--help", "-h", NULL)) == ARG_MATCH) {
-			usage(argc, argv);
+			usage(stdout, argc, argv);
 			return 1;
-		} else if ((res = cmp_arg(argv, &i, "--nohdr", NULL, NULL)) == ARG_MATCH) {
-			cmdargs.no_header = 1;
+		} else if ((res = cmp_arg(argv, &i, "--format", "-f", &param)) == ARG_MATCH) {
+			if (strcasecmp(param, "raw-le32") == 0)
+				cmdargs.informat = FMT_RAW_LE32;
+			else if (strcasecmp(param, "raw-be32") == 0)
+				cmdargs.informat = FMT_RAW_BE32;
+			else if (strcasecmp(param, "b43") == 0)
+				cmdargs.informat = FMT_B43;
+			else {
+				fprintf(stderr, "Invalid -f|--format\n");
+				return -1;
+			}
 		} else if ((res = cmp_arg(argv, &i, "--paddr", NULL, NULL)) == ARG_MATCH) {
 			cmdargs.print_addresses = 1;
 		} else if ((res = cmp_arg(argv, &i, "--debug", "-d", NULL)) == ARG_MATCH) {
@@ -131,7 +141,7 @@ int parse_args(int argc, char **argv)
 			char *tail;
 
 			arch = strtol(param, &tail, 0);
-			if (strlen(tail) || (arch != 5)) {
+			if (strlen(tail) || (arch != 5 && arch != 15)) {
 				fprintf(stderr, "Unsupported architecture \"%s\"\n",
 					param);
 				return -1;
@@ -155,7 +165,7 @@ int parse_args(int argc, char **argv)
 
 	return 0;
 out_usage:
-	usage(argc, argv);
+	usage(stderr, argc, argv);
 	return -1;
 }
 

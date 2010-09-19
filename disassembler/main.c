@@ -82,8 +82,8 @@ static const char * disasm_mem_operand(unsigned int operand)
 {
 	char *ret;
 
-	ret = xmalloc(8);
-	snprintf(ret, 8, "[0x%03X]", operand);
+	ret = xmalloc(9);
+	snprintf(ret, 9, "[0x%X]", operand);
 
 	return ret;
 }
@@ -102,14 +102,29 @@ static const char * disasm_indirect_mem_operand(unsigned int operand)
 static const char * disasm_imm_operand(unsigned int operand)
 {
 	char *ret;
+	unsigned int signmask;
+	unsigned int mask;
 
-	operand &= ~0xC00;
+	switch (cmdargs.arch) {
+	case 5:
+		signmask = (1 << 9);
+		mask = 0x3FF;
+		break;
+	case 15:
+		signmask = (1 << 10);
+		mask = 0x7FF;
+		break;
+	default:
+		fprintf(stderr, "Internal error: disasm_imm_operand invalid arch\n");
+		exit(1);
+	}
+
+	operand &= mask;
 
 	ret = xmalloc(7);
-	if (operand & (1 << 9))
-		snprintf(ret, 7, "0x%04X", (operand | 0xFC00));
-	else
-		snprintf(ret, 7, "0x%03X", operand);
+	if (operand & signmask)
+		operand = (operand | (~mask & 0xFFFF));
+	snprintf(ret, 7, "0x%X", operand);
 
 	return ret;
 }
@@ -117,9 +132,22 @@ static const char * disasm_imm_operand(unsigned int operand)
 static const char * disasm_spr_operand(unsigned int operand)
 {
 	char *ret;
+	unsigned int mask;
 
-	ret = xmalloc(7);
-	snprintf(ret, 7, "spr%03X", (operand & 0x1FF));
+	switch (cmdargs.arch) {
+	case 5:
+		mask = 0x1FF;
+		break;
+	case 15:
+		mask = 0x7FF;
+		break;
+	default:
+		fprintf(stderr, "Internal error: disasm_spr_operand invalid arch\n");
+		exit(1);
+	}
+
+	ret = xmalloc(8);
+	snprintf(ret, 8, "spr%X", (operand & mask));
 
 	return ret;
 }
@@ -127,19 +155,22 @@ static const char * disasm_spr_operand(unsigned int operand)
 static const char * disasm_gpr_operand(unsigned int operand)
 {
 	char *ret;
+	unsigned int mask;
 
-	ret = xmalloc(4);
-	snprintf(ret, 4, "r%u", (operand & 0x3F));
-
-	return ret;
-}
-
-static const char * disasm_offr_operand(unsigned int operand)
-{
-	char *ret;
+	switch (cmdargs.arch) {
+	case 5:
+		mask = 0x3F;
+		break;
+	case 15:
+		mask = 0x7F;
+		break;
+	default:
+		fprintf(stderr, "Internal error: disasm_gpr_operand invalid arch\n");
+		exit(1);
+	}
 
 	ret = xmalloc(5);
-	snprintf(ret, 5, "off%u", (operand & 0x7));
+	snprintf(ret, 5, "r%u", (operand & mask));
 
 	return ret;
 }
@@ -154,24 +185,46 @@ static void disasm_std_operand(struct statement *stmt,
 	if (forceraw)
 		goto raw;
 
-	if (!(operand & 0x800)) {
-		stmt->u.insn.operands[out_idx] = disasm_mem_operand(operand);
-		return;
-	} else if ((operand & 0xC00) == 0xC00) { 
-		stmt->u.insn.operands[out_idx] = disasm_imm_operand(operand);
-		return;
-	} else if ((operand & 0xFC0) == 0xBC0) {
-		stmt->u.insn.operands[out_idx] = disasm_gpr_operand(operand);
-		return;
-	} else if ((operand & 0xE00) == 0x800) {
-		stmt->u.insn.operands[out_idx] = disasm_spr_operand(operand);
-		return;
-	} else if ((operand & 0xFF8) == 0x860) {
-		stmt->u.insn.operands[out_idx] = disasm_offr_operand(operand);
-		return;
-	} else if ((operand & 0xE00) == 0xA00) {
-		stmt->u.insn.operands[out_idx] = disasm_indirect_mem_operand(operand);
-		return;
+	switch (cmdargs.arch) {
+	case 5:
+		if (!(operand & 0x800)) {
+			stmt->u.insn.operands[out_idx] = disasm_mem_operand(operand);
+			return;
+		} else if ((operand & 0xC00) == 0xC00) { 
+			stmt->u.insn.operands[out_idx] = disasm_imm_operand(operand);
+			return;
+		} else if ((operand & 0xFC0) == 0xBC0) {
+			stmt->u.insn.operands[out_idx] = disasm_gpr_operand(operand);
+			return;
+		} else if ((operand & 0xE00) == 0x800) {
+			stmt->u.insn.operands[out_idx] = disasm_spr_operand(operand);
+			return;
+		} else if ((operand & 0xE00) == 0xA00) {
+			stmt->u.insn.operands[out_idx] = disasm_indirect_mem_operand(operand);
+			return;
+		}
+		break;
+	case 15:
+		if (!(operand & 0x1000)) {
+			stmt->u.insn.operands[out_idx] = disasm_mem_operand(operand);
+			return;
+		} else if ((operand & 0x1800) == 0x1800) { 
+			stmt->u.insn.operands[out_idx] = disasm_imm_operand(operand);
+			return;
+		} else if ((operand & 0x1F80) == 0x1780) {
+			stmt->u.insn.operands[out_idx] = disasm_gpr_operand(operand);
+			return;
+		} else if ((operand & 0x1C00) == 0x1000) {
+			stmt->u.insn.operands[out_idx] = disasm_spr_operand(operand);
+			return;
+		} else if ((operand & 0x1C00) == 0x1400) {
+			stmt->u.insn.operands[out_idx] = disasm_indirect_mem_operand(operand);
+			return;
+		}
+		break;
+	default:
+		fprintf(stderr, "Internal error: disasm_std_operand invalid arch\n");
+		exit(1);
 	}
 raw:
 	stmt->u.insn.operands[out_idx] = gen_raw_code(operand);
@@ -386,8 +439,10 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 	case 0x002: {
 		char *str;
 
+		//FIXME: Broken for r15
 		stmt->u.insn.name = "call";
 		stmt->u.insn.is_labelref = 1;
+//printf("CALL 0x%X 0x%X 0x%X\n", stmt->u.insn.bin->operands[0], stmt->u.insn.bin->operands[1], stmt->u.insn.bin->operands[2]);
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		str = xmalloc(4);
 		snprintf(str, 4, "lr%u", stmt->u.insn.bin->operands[0]);
@@ -407,10 +462,22 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 		break;
 	}
 	case 0x1E0: {
-		unsigned int flags;
+		unsigned int flags, mask;
+
+		switch (cmdargs.arch) {
+		case 5:
+			mask = 0x3FF;
+			break;
+		case 15:
+			mask = 0x7FF;
+			break;
+		default:
+			fprintf(stderr, "Internal error: TKIP invalid arch\n");
+			exit(1);
+		}
 
 		flags = stmt->u.insn.bin->operands[1];
-		switch (flags & ~0xC00) {
+		switch (flags & mask) {
 		case 0x1:
 			stmt->u.insn.name = "tkiph";
 			break;
@@ -433,17 +500,30 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 		break;
 	}
 	case 0x001: {
+		unsigned int mask;
+
 		stmt->u.insn.name = "nap";
-		if (stmt->u.insn.bin->operands[0] != 0xBC0) {
-			fprintf(stderr, "NAP: invalid first argument 0x%03X\n",
+		switch (cmdargs.arch) {
+		case 5:
+			mask = 0xBC0;
+			break;
+		case 15:
+			mask = 0x1780;
+			break;
+		default:
+			fprintf(stderr, "Internal error: NAP invalid arch\n");
+			exit(1);
+		}
+		if (stmt->u.insn.bin->operands[0] != mask) {
+			fprintf(stderr, "NAP: invalid first argument 0x%04X\n",
 				stmt->u.insn.bin->operands[0]);
 		}
-		if (stmt->u.insn.bin->operands[1] != 0xBC0) {
-			fprintf(stderr, "NAP: invalid second argument 0x%03X\n",
+		if (stmt->u.insn.bin->operands[1] != mask) {
+			fprintf(stderr, "NAP: invalid second argument 0x%04X\n",
 				stmt->u.insn.bin->operands[1]);
 		}
-		if (stmt->u.insn.bin->operands[2] != 0x000) {
-			fprintf(stderr, "NAP: invalid third argument 0x%03X\n",
+		if (stmt->u.insn.bin->operands[2] != 0) {
+			fprintf(stderr, "NAP: invalid third argument 0x%04X\n",
 				stmt->u.insn.bin->operands[2]);
 		}
 		break;
@@ -693,7 +773,12 @@ static int read_input(struct disassembler_context *ctx)
 	if (err)
 		goto error;
 
-	if (!cmdargs.no_header) {
+	switch (cmdargs.informat) {
+	case FMT_RAW_LE32:
+	case FMT_RAW_BE32:
+		/* Nothing */
+		break;
+	case FMT_B43:
 		ret = fread(&hdr, 1, sizeof(hdr), infile);
 		if (ret != sizeof(hdr)) {
 			fprintf(stderr, "Corrupt input file (not fwcutter output)\n");
@@ -707,6 +792,7 @@ static int read_input(struct disassembler_context *ctx)
 			fprintf(stderr, "Invalid input file header version.\n");
 			goto err_close;
 		}
+		break;
 	}
 
 	while (1) {
@@ -722,21 +808,62 @@ static int read_input(struct disassembler_context *ctx)
 			goto err_free_code;
 		}
 
-		codeword = 0;
-		codeword |= ((uint64_t)tmp[0]) << 56;
-		codeword |= ((uint64_t)tmp[1]) << 48;
-		codeword |= ((uint64_t)tmp[2]) << 40;
-		codeword |= ((uint64_t)tmp[3]) << 32;
-		codeword |= ((uint64_t)tmp[4]) << 24;
-		codeword |= ((uint64_t)tmp[5]) << 16;
-		codeword |= ((uint64_t)tmp[6]) << 8;
-		codeword |= ((uint64_t)tmp[7]);
+		switch (cmdargs.informat) {
+		case FMT_B43:
+		case FMT_RAW_BE32:
+			codeword = 0;
+			codeword |= ((uint64_t)tmp[0]) << 56;
+			codeword |= ((uint64_t)tmp[1]) << 48;
+			codeword |= ((uint64_t)tmp[2]) << 40;
+			codeword |= ((uint64_t)tmp[3]) << 32;
+			codeword |= ((uint64_t)tmp[4]) << 24;
+			codeword |= ((uint64_t)tmp[5]) << 16;
+			codeword |= ((uint64_t)tmp[6]) << 8;
+			codeword |= ((uint64_t)tmp[7]);
+			codeword = ((codeword & (uint64_t)0xFFFFFFFF00000000ULL) >> 32) |
+				   ((codeword & (uint64_t)0x00000000FFFFFFFFULL) << 32);
+			break;
+		case FMT_RAW_LE32:
+			codeword = 0;
+			codeword |= ((uint64_t)tmp[7]) << 56;
+			codeword |= ((uint64_t)tmp[6]) << 48;
+			codeword |= ((uint64_t)tmp[5]) << 40;
+			codeword |= ((uint64_t)tmp[4]) << 32;
+			codeword |= ((uint64_t)tmp[3]) << 24;
+			codeword |= ((uint64_t)tmp[2]) << 16;
+			codeword |= ((uint64_t)tmp[1]) << 8;
+			codeword |= ((uint64_t)tmp[0]);
+			break;
+		}
 
-		code[pos].opcode = (codeword >> 4) & 0xFFF;
-		code[pos].operands[0] = (codeword & 0xF) << 8;
-		code[pos].operands[0] |= (codeword >> 56) & 0xFF;
-		code[pos].operands[1] = (codeword >> 44) & 0xFFF;
-		code[pos].operands[2] = (codeword >> 32) & 0xFFF;
+		switch (cmdargs.arch) {
+		case 5:
+			if (codeword >> 48) {
+				fprintf(stderr, "Instruction format error at 0x%X (upper not clear). "
+					"Wrong input format or architecture?\n", (unsigned int)pos);
+				goto err_free_code;
+			}
+			code[pos].opcode = (codeword >> 36) & 0xFFF;
+			code[pos].operands[2] = codeword & 0xFFF;
+			code[pos].operands[1] = (codeword >> 12) & 0xFFF;
+			code[pos].operands[0] = (codeword >> 24) & 0xFFF;
+			break;
+		case 15:
+			if (codeword >> 51) {
+				fprintf(stderr, "Instruction format error at 0x%X (upper not clear). "
+					"Wrong input format or architecture?\n", (unsigned int)pos);
+				goto err_free_code;
+			}
+			code[pos].opcode = (codeword >> 39) & 0xFFF;
+			code[pos].operands[2] = codeword & 0x1FFF;
+			code[pos].operands[1] = (codeword >> 13) & 0x1FFF;
+			code[pos].operands[0] = (codeword >> 26) & 0x1FFF;
+			break;
+		default:
+			fprintf(stderr, "Internal error: read_input unknown arch %u\n",
+				cmdargs.arch);
+			goto err_free_code;
+		}
 
 		pos++;
 	}
