@@ -1,3 +1,6 @@
+obj
+dep
+
 parser.h
 parser.c
 scanner.h
