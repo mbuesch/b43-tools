@@ -68,6 +68,25 @@ const char *infile_name;
 const char *outfile_name;
 
 
+#define _msg_helper(type, msg, x...)	do {		\
+	fprintf(stderr, "Disassembler " type		\
+		":\n  " msg "\n" ,##x);			\
+					} while (0)
+
+#define dasm_error(msg, x...)	do {		\
+	_msg_helper("ERROR", msg ,##x);		\
+	exit(1);				\
+				} while (0)
+
+#define dasm_int_error(msg, x...) \
+	dasm_error("Internal error (bug): " msg ,##x)
+
+#define dasm_warn(msg, x...)	\
+	_msg_helper("warning", msg ,##x)
+
+#define asm_info(msg, x...)	\
+	_msg_helper("info", msg ,##x)
+
 static const char * gen_raw_code(unsigned int operand)
 {
 	char *ret;
@@ -103,8 +122,7 @@ static const char * disasm_indirect_mem_operand(unsigned int operand)
 		reg = ((operand >> 7) & 0x7);
 		break;
 	default:
-		fprintf(stderr, "Internal error: disasm_indirect_mem_operand invalid arch\n");
-		exit(1);
+		dasm_int_error("disasm_indirect_mem_operand invalid arch");
 	}
 	ret = xmalloc(12);
 	snprintf(ret, 12, "[0x%02X,off%u]", offset, reg);
@@ -128,8 +146,7 @@ static const char * disasm_imm_operand(unsigned int operand)
 		mask = 0x7FF;
 		break;
 	default:
-		fprintf(stderr, "Internal error: disasm_imm_operand invalid arch\n");
-		exit(1);
+		dasm_int_error("disasm_imm_operand invalid arch");
 	}
 
 	operand &= mask;
@@ -155,8 +172,7 @@ static const char * disasm_spr_operand(unsigned int operand)
 		mask = 0x7FF;
 		break;
 	default:
-		fprintf(stderr, "Internal error: disasm_spr_operand invalid arch\n");
-		exit(1);
+		dasm_int_error("disasm_spr_operand invalid arch");
 	}
 
 	ret = xmalloc(8);
@@ -178,8 +194,7 @@ static const char * disasm_gpr_operand(unsigned int operand)
 		mask = 0x7F;
 		break;
 	default:
-		fprintf(stderr, "Internal error: disasm_gpr_operand invalid arch\n");
-		exit(1);
+		dasm_int_error("disasm_gpr_operand invalid arch");
 	}
 
 	ret = xmalloc(5);
@@ -236,8 +251,7 @@ static void disasm_std_operand(struct statement *stmt,
 		}
 		break;
 	default:
-		fprintf(stderr, "Internal error: disasm_std_operand invalid arch\n");
-		exit(1);
+		dasm_int_error("disasm_std_operand invalid arch");
 	}
 raw:
 	stmt->u.insn.operands[out_idx] = gen_raw_code(operand);
@@ -493,24 +507,21 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 #if 0
 	case 0x004: {
 		if (cmdargs.arch != 15) {
-			fprintf(stderr, "Error: arch 15 call instruction found in arch %d binary\n",
-				cmdargs.arch);
-			exit(1);
+			dasm_error("arch 15 call instruction found in arch %d binary",
+				   cmdargs.arch);
 		}
 		stmt->u.insn.name = "call";
 		stmt->u.insn.is_labelref = 0;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		if (stmt->u.insn.bin->operands[0] != 0x1780 ||
-		    stmt->u.insn.bin->operands[1] != 0x1780) {
-			fprintf(stderr, "r15 call: Invalid first or second argument\n");
-		}
+		    stmt->u.insn.bin->operands[1] != 0x1780)
+			dasm_warn("r15 call: Invalid first or second argument");
 		break;
 	}
 	case 0x005: {
 		if (cmdargs.arch != 15) {
-			fprintf(stderr, "Error: arch 15 ret instruction found in arch %d binary\n",
-				cmdargs.arch);
-			exit(1);
+			dasm_error("arch 15 ret instruction found in arch %d binary",
+				   cmdargs.arch);
 		}
 		stmt->u.insn.name = "ret";
 		break;
@@ -527,8 +538,7 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 			mask = 0x7FF;
 			break;
 		default:
-			fprintf(stderr, "Internal error: TKIP invalid arch\n");
-			exit(1);
+			dasm_int_error("TKIP invalid arch");
 		}
 
 		flags = stmt->u.insn.bin->operands[1];
@@ -546,9 +556,7 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 			stmt->u.insn.name = "tkipls";
 			break;
 		default:
-			fprintf(stderr, "Invalid TKIP flags %X\n",
-				flags);
-			exit(1);
+			dasm_error("Invalid TKIP flags %X", flags);
 		}
 		disasm_std_operand(stmt, 0, 0, 0);
 		disasm_std_operand(stmt, 2, 2, 0);
@@ -566,20 +574,19 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 			mask = 0x1780;
 			break;
 		default:
-			fprintf(stderr, "Internal error: NAP invalid arch\n");
-			exit(1);
+			dasm_int_error("NAP invalid arch");
 		}
 		if (stmt->u.insn.bin->operands[0] != mask) {
-			fprintf(stderr, "NAP: invalid first argument 0x%04X\n",
-				stmt->u.insn.bin->operands[0]);
+			dasm_warn("NAP: invalid first argument 0x%04X\n",
+				  stmt->u.insn.bin->operands[0]);
 		}
 		if (stmt->u.insn.bin->operands[1] != mask) {
-			fprintf(stderr, "NAP: invalid second argument 0x%04X\n",
-				stmt->u.insn.bin->operands[1]);
+			dasm_warn("NAP: invalid second argument 0x%04X\n",
+				  stmt->u.insn.bin->operands[1]);
 		}
 		if (stmt->u.insn.bin->operands[2] != 0) {
-			fprintf(stderr, "NAP: invalid third argument 0x%04X\n",
-				stmt->u.insn.bin->operands[2]);
+			dasm_warn("NAP: invalid third argument 0x%04X\n",
+				  stmt->u.insn.bin->operands[2]);
 		}
 		break;
 	}
@@ -747,11 +754,8 @@ static void resolve_labels(struct disassembler_context *ctx)
 			continue;
 		labeladdr = stmt->u.insn.labeladdr;
 		label = get_label_at(ctx, labeladdr);
-		if (!label) {
-			fprintf(stderr, "Labeladdress %X out of bounds\n",
-				labeladdr);
-			exit(1);
-		}
+		if (!label)
+			dasm_error("Labeladdress %X out of bounds", labeladdr);
 		stmt->u.insn.labelref = label;
 	}
 
