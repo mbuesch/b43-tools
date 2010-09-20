@@ -127,7 +127,9 @@ jext			{ update_lineinfo(); return OP_JEXT; }
 jnext			{ update_lineinfo(); return OP_JNEXT; }
 
 call			{ update_lineinfo(); return OP_CALL; }
+calls			{ update_lineinfo(); return OP_CALLS; }
 ret			{ update_lineinfo(); return OP_RET; }
+rets			{ update_lineinfo(); return OP_RETS; }
 
 tkiph			{ update_lineinfo(); return OP_TKIPH; }
 tkiphs			{ update_lineinfo(); return OP_TKIPHS; }

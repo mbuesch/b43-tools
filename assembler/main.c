@@ -482,6 +482,27 @@ static struct code_output * do_assemble_insn(struct assembler_context *ctx,
 	return out;
 }
 
+static void do_assemble_ret(struct assembler_context *ctx,
+			    struct instruction *insn,
+			    unsigned int opcode)
+{
+	struct code_output *out;
+
+	/* Get the previous instruction and check whether it
+	 * is a jump instruction. */
+	list_for_each_entry_reverse(out, &ctx->output, list) {
+		/* Search the last insn. */
+		if (out->type == OUT_INSN) {
+			if (out->is_jump_insn) {
+				asm_warn(ctx, "RET instruction directly after "
+					 "jump instruction. The hardware won't like this.");
+			}
+			break;
+		}
+	}
+	do_assemble_insn(ctx, insn, opcode);
+}
+
 static unsigned int merge_ext_into_opcode(struct assembler_context *ctx,
 					  unsigned int opbase,
 					  struct instruction *insn)
@@ -855,22 +876,24 @@ static void assemble_instruction(struct assembler_context *ctx,
 		out->is_jump_insn = 1;
 		break;
 	case OP_CALL:
+		if (ctx->arch != 5)
+			asm_error(ctx, "'call' instruction is only supported on arch 5");
 		do_assemble_insn(ctx, insn, 0x002);
 		break;
+	case OP_CALLS:
+		if (ctx->arch != 15)
+			asm_error(ctx, "'calls' instruction is only supported on arch 15");
+		do_assemble_insn(ctx, insn, 0x004);
+		break;
 	case OP_RET:
-		/* Get the previous instruction and check whether it
-		 * is a jump instruction. */
-		list_for_each_entry_reverse(out, &ctx->output, list) {
-			/* Search the last insn. */
-			if (out->type == OUT_INSN) {
-				if (out->is_jump_insn) {
-					asm_warn(ctx, "RET instruction directly after "
-						 "jump instruction. The hardware won't like this.");
-				}
-				break;
-			}
-		}
-		do_assemble_insn(ctx, insn, 0x003);
+		if (ctx->arch != 5)
+			asm_error(ctx, "'ret' instruction is only supported on arch 5");
+		do_assemble_ret(ctx, insn, 0x003);
+		break;
+	case OP_RETS:
+		if (ctx->arch != 15)
+			asm_error(ctx, "'rets' instruction is only supported on arch 15");
+		do_assemble_insn(ctx, insn, 0x005);
 		break;
 	case OP_TKIPH:
 	case OP_TKIPHS:

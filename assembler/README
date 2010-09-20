@@ -34,7 +34,9 @@ jge       | A,B,l      | Jump if greater or equal        | if(A>=B) PC=l
 jg        | A,B,l      | Jump if greater                 | if(A>B) PC=l
 jle       | A,B,l      | Jump if less or equal           | if(A<=B) PC=l
 call      | lrX,l      | Store PC, call function         | lrX=PC; PC=l
+calls     | l          | Store PC, call function         | PC->stack; PC=l
 ret       | lrX,lrY    | Store PC, ret from func         | lrX=PC; PC=lrY
+rets      |            | ret from function               | stack->PC
 jzx       | M,S,A,B,l  | Jump if zero after shift + mask |
 jnzx      | M,S,A,B,l  | Jump if nonzero after shift+msk |
 jext      | E,A,B,l    | Jump if External Condition true | if(E) PC=l

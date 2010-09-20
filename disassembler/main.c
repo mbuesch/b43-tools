@@ -515,30 +515,31 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 		stmt->u.insn.operands[2] = str;
 		break;
 	}
-//TODO also implement it in the assembler
-#if 0
 	case 0x004: {
 		if (cmdargs.arch != 15) {
-			dasm_error("arch 15 call instruction found in arch %d binary",
+			dasm_error("arch 15 'calls' instruction found in arch %d binary",
 				   cmdargs.arch);
 		}
-		stmt->u.insn.name = "call";
+		stmt->u.insn.name = "calls";
 		stmt->u.insn.is_labelref = 0;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		if (stmt->u.insn.bin->operands[0] != 0x1780 ||
 		    stmt->u.insn.bin->operands[1] != 0x1780)
-			dasm_warn("r15 call: Invalid first or second argument");
+			dasm_warn("r15 calls: Invalid first or second argument");
 		break;
 	}
 	case 0x005: {
 		if (cmdargs.arch != 15) {
-			dasm_error("arch 15 ret instruction found in arch %d binary",
+			dasm_error("arch 15 'rets' instruction found in arch %d binary",
 				   cmdargs.arch);
 		}
-		stmt->u.insn.name = "ret";
+		stmt->u.insn.name = "rets";
+		if (stmt->u.insn.bin->operands[0] != 0x1780 ||
+		    stmt->u.insn.bin->operands[1] != 0x1780 ||
+		    stmt->u.insn.bin->operands[2] != 0)
+			dasm_warn("r15 rets: Invalid argument(s)");
 		break;
 	}
-#endif
 	case 0x1E0: {
 		unsigned int flags, mask;
 

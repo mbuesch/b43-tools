@@ -43,7 +43,7 @@ extern struct initvals_sect *cur_initvals_sect;
 
 %token EQUAL NOT_EQUAL LOGICAL_OR LOGICAL_AND PLUS MINUS MULTIPLY DIVIDE BITW_OR BITW_AND BITW_XOR BITW_NOT LEFTSHIFT RIGHTSHIFT
 
-%token OP_ADD OP_ADDSC OP_ADDC OP_ADDSCC OP_SUB OP_SUBSC OP_SUBC OP_SUBSCC OP_SRA OP_OR OP_AND OP_XOR OP_SR OP_SRX OP_SL OP_RL OP_RR OP_NAND OP_ORX OP_MOV OP_JMP OP_JAND OP_JNAND OP_JS OP_JNS OP_JE OP_JNE OP_JLS OP_JGES OP_JGS OP_JLES OP_JL OP_JGE OP_JG OP_JLE OP_JZX OP_JNZX OP_JEXT OP_JNEXT OP_CALL OP_RET OP_TKIPH OP_TKIPHS OP_TKIPL OP_TKIPLS OP_NAP RAW_CODE
+%token OP_ADD OP_ADDSC OP_ADDC OP_ADDSCC OP_SUB OP_SUBSC OP_SUBC OP_SUBSCC OP_SRA OP_OR OP_AND OP_XOR OP_SR OP_SRX OP_SL OP_RL OP_RR OP_NAND OP_ORX OP_MOV OP_JMP OP_JAND OP_JNAND OP_JS OP_JNS OP_JE OP_JNE OP_JLS OP_JGES OP_JGS OP_JLES OP_JL OP_JGE OP_JG OP_JLE OP_JZX OP_JNZX OP_JEXT OP_JNEXT OP_CALL OP_CALLS OP_RET OP_RETS OP_TKIPH OP_TKIPHS OP_TKIPL OP_TKIPLS OP_NAP RAW_CODE
 
 %token IVAL_MMIO16 IVAL_MMIO32 IVAL_PHY IVAL_RADIO IVAL_SHM16 IVAL_SHM32 IVAL_TRAM
 
@@ -456,7 +456,21 @@ statement	: asmdir {
 			s->u.insn = $1;
 			$$ = s;
 		  }
+		| insn_calls {
+			struct statement *s = xmalloc(sizeof(struct statement));
+			INIT_LIST_HEAD(&s->list);
+			s->type = STMT_INSN;
+			s->u.insn = $1;
+			$$ = s;
+		  }
 		| insn_ret {
+			struct statement *s = xmalloc(sizeof(struct statement));
+			INIT_LIST_HEAD(&s->list);
+			s->type = STMT_INSN;
+			s->u.insn = $1;
+			$$ = s;
+		  }
+		| insn_rets {
 			struct statement *s = xmalloc(sizeof(struct statement));
 			INIT_LIST_HEAD(&s->list);
 			s->type = STMT_INSN;
@@ -922,6 +936,24 @@ insn_call	: OP_CALL linkreg COMMA labelref {
 		  }
 		;
 
+insn_calls	:  OP_CALLS labelref {
+			struct instruction *insn = xmalloc(sizeof(struct instruction));
+			struct operlist *ol = xmalloc(sizeof(struct operlist));
+			struct operand *oper_r0 = xmalloc(sizeof(struct operand));
+			struct registr *r0 = xmalloc(sizeof(struct registr));
+			r0->type = GPR;
+			r0->nr = 0;
+			oper_r0->type = OPER_REG;
+			oper_r0->u.reg = r0;
+			ol->oper[0] = oper_r0;
+			ol->oper[1] = oper_r0;
+			ol->oper[2] = $2;
+			insn->op = OP_CALLS;
+			insn->operands = ol;
+			$$ = insn;
+		  }
+		;
+
 insn_ret	: OP_RET linkreg COMMA linkreg {
 			struct instruction *insn = xmalloc(sizeof(struct instruction));
 			struct operlist *ol = xmalloc(sizeof(struct operlist));
@@ -938,6 +970,27 @@ insn_ret	: OP_RET linkreg COMMA linkreg {
 			ol->oper[1] = oper_zero;
 			ol->oper[2] = oper_lr1;
 			insn->op = OP_RET;
+			insn->operands = ol;
+			$$ = insn;
+		  }
+		;
+
+insn_rets	: OP_RETS {
+			struct instruction *insn = xmalloc(sizeof(struct instruction));
+			struct operlist *ol = xmalloc(sizeof(struct operlist));
+			struct operand *oper_r0 = xmalloc(sizeof(struct operand));
+			struct operand *oper_zero = xmalloc(sizeof(struct operand));
+			struct registr *r0 = xmalloc(sizeof(struct registr));
+			oper_zero->type = OPER_RAW;
+			oper_zero->u.raw = 0;
+			r0->type = GPR;
+			r0->nr = 0;
+			oper_r0->type = OPER_REG;
+			oper_r0->u.reg = r0;
+			ol->oper[0] = oper_r0;
+			ol->oper[1] = oper_r0;
+			ol->oper[2] = oper_zero;
+			insn->op = OP_RETS;
 			insn->operands = ol;
 			$$ = insn;
 		  }
