@@ -22,13 +22,12 @@
 #include <unistd.h>
 
 
-int _debug;
-
 struct cmdline_args cmdargs = {
-	.arch = 5,
-	.informat = FMT_B43,
-	.print_addresses = 0,
-	.unknown_decode = 0,
+	.debug			= 0,
+	.arch			= 5,
+	.informat		= FMT_B43,
+	.print_addresses	= 0,
+	.unknown_decode		= 0,
 };
 
 #define ARG_MATCH		0
@@ -139,7 +138,7 @@ int parse_args(int argc, char **argv)
 		} else if ((res = cmp_arg(argv, &i, "--unkdec", "-u", NULL)) == ARG_MATCH) {
 			cmdargs.unknown_decode = 1;
 		} else if ((res = cmp_arg(argv, &i, "--debug", "-d", NULL)) == ARG_MATCH) {
-			_debug++;
+			cmdargs.debug++;
 		} else if ((res = cmp_arg(argv, &i, "--arch", "-a", &param)) == ARG_MATCH) {
 			unsigned long arch;
 			char *tail;

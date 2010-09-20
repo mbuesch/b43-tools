@@ -8,6 +8,7 @@ enum fwformat {
 };
 
 struct cmdline_args {
+	int debug;			/* Debug level. */
 	unsigned int arch;		/* The architecture we're disassembling. */
 	enum fwformat informat;		/* The input file format. */
 	int print_addresses;		/* Print a comment with instruction address. */
@@ -21,11 +22,10 @@ void close_input_file(void);
 int open_output_file(void);
 void close_output_file(void);
 
-extern int _debug;
 extern struct cmdline_args cmdargs;
 
-#define IS_DEBUG		(_debug > 0)
-#define IS_VERBOSE_DEBUG	(_debug > 1)
-#define IS_INSANE_DEBUG		(_debug > 2)
+#define IS_DEBUG		(cmdargs.debug > 0)
+#define IS_VERBOSE_DEBUG	(cmdargs.debug > 1)
+#define IS_INSANE_DEBUG		(cmdargs.debug > 2)
 
 #endif /* B43_DASM_ARGS_H_ */
