@@ -6,15 +6,20 @@ SUM="sha1sum"
 TMPDIR="/tmp"
 
 
-if [ $# -ne 1 ]; then
+if [ $# -lt 1 ]; then
 	echo "b43-(d)asm trivial selftest"
 	echo "This selftest will take the binary input file, disassemble"
 	echo "it, assemble it and compare the two binaries."
 	echo
-	echo "Usage: $0 /path/to/binary"
+	echo "Usage: $0 /path/to/binary [arch] [format]"
 	exit 1
 fi
-infile="$1"
+arch="5"
+format="b43"
+infile="$1" && shift
+[ $# -eq 0 ] || arch="$1" && shift
+[ $# -eq 0 ] || format="$1" && shift
+
 
 if ! [ -r "$infile" ]; then
 	echo "Can not read input binary $infile"
@@ -33,14 +38,14 @@ function cleanup
 cleanup
 
 
-$DASM "$infile" "$asmfile"
+$DASM "$infile" "$asmfile" --arch $arch --format $format
 err=$?
 if [ $err -ne 0 ]; then
 	echo "Disassembling FAILED: $err"
 	cleanup
 	exit 1
 fi
-$ASM "$asmfile" "$outfile"
+$ASM "$asmfile" "$outfile" --format $format
 err=$?
 if [ $err -ne 0 ]; then
 	echo "Assembling FAILED: $err"
