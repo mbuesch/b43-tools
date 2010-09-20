@@ -857,11 +857,11 @@ static int read_input(struct disassembler_context *ctx)
 	case FMT_B43:
 		ret = fread(&hdr, 1, sizeof(hdr), infile);
 		if (ret != sizeof(hdr)) {
-			fprintf(stderr, "Corrupt input file (not fwcutter output)\n");
+			fprintf(stderr, "Corrupt input file (no b43 header found)\n");
 			goto err_close;
 		}
 		if (hdr.type != FW_TYPE_UCODE) {
-			fprintf(stderr, "Corrupt input file. Not a microcode image.\n");
+			fprintf(stderr, "Corrupt input file. Not a b43 microcode image.\n");
 			goto err_close;
 		}
 		if (hdr.ver != FW_HDR_VER) {
