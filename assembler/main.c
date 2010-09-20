@@ -1116,7 +1116,7 @@ static void emit_code(struct assembler_context *ctx)
 		}
 	}
 
-	switch (output_format) {
+	switch (cmdargs.outformat) {
 	case FMT_RAW_LE32:
 	case FMT_RAW_BE32:
 		/* Nothing */
@@ -1179,7 +1179,7 @@ static void emit_code(struct assembler_context *ctx)
 					  ctx->arch);
 			}
 
-			switch (output_format) {
+			switch (cmdargs.outformat) {
 			case FMT_B43:
 			case FMT_RAW_BE32:
 				code = ((code & (uint64_t)0xFFFFFFFF00000000ULL) >> 32) |
@@ -1215,7 +1215,7 @@ static void emit_code(struct assembler_context *ctx)
 		}
 	}
 
-	if (arg_print_sizes) {
+	if (cmdargs.print_sizes) {
 		printf("%s:  text = %u instructions (%u bytes)\n",
 		       fn, insn_count,
 		       (unsigned int)(insn_count * sizeof(uint64_t)));

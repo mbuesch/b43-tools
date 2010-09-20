@@ -22,11 +22,12 @@
 #include <unistd.h>
 
 
-int _debug;
-bool arg_print_sizes;
-const char *initvals_fn_extension = ".initvals";
-static const char *real_infile_name;
-enum fwformat output_format = FMT_B43;
+struct cmdline_args cmdargs = {
+	.debug			= 0,
+	.print_sizes		= 0,
+	.initvals_fn_extension	= ".initvals",
+	.outformat		= FMT_B43,
+};
 
 
 #define ARG_MATCH		0
@@ -124,31 +125,31 @@ int parse_args(int argc, char **argv)
 			return 1;
 		} else if ((res = cmp_arg(argv, &i, "--format", "-f", &param)) == ARG_MATCH) {
 			if (strcasecmp(param, "raw-le32") == 0)
-				output_format = FMT_RAW_LE32;
+				cmdargs.outformat = FMT_RAW_LE32;
 			else if (strcasecmp(param, "raw-be32") == 0)
-				output_format = FMT_RAW_BE32;
+				cmdargs.outformat = FMT_RAW_BE32;
 			else if (strcasecmp(param, "b43") == 0)
-				output_format = FMT_B43;
+				cmdargs.outformat = FMT_B43;
 			else {
 				fprintf(stderr, "Invalid -f|--format\n\n");
 				goto out_usage;
 			}
 		} else if ((res = cmp_arg(argv, &i, "--debug", "-d", NULL)) == ARG_MATCH) {
-			_debug++;
+			cmdargs.debug++;
 		} else if ((res = cmp_arg(argv, &i, "--psize", "-s", NULL)) == ARG_MATCH) {
-			arg_print_sizes = 1;
-		} else if ((res = cmp_arg(argv, &i, "--ivalext", "-e", &initvals_fn_extension)) == ARG_MATCH) {
-			/* initvals_fn_extension is set to the extension. */
-		} else if ((res = cmp_arg(argv, &i, "--__real_infile", NULL, &real_infile_name)) == ARG_MATCH) {
-			/* real_infile_name is set. */
+			cmdargs.print_sizes = 1;
+		} else if ((res = cmp_arg(argv, &i, "--ivalext", "-e", &param)) == ARG_MATCH) {
+			cmdargs.initvals_fn_extension = param;
+		} else if ((res = cmp_arg(argv, &i, "--__real_infile", NULL, &param)) == ARG_MATCH) {
+			cmdargs.real_infile_name = param;
 		} else {
 			fprintf(stderr, "Unrecognized argument: %s\n", argv[i]);
 			goto out_usage;
 		}
 	}
-	if (!real_infile_name)
-		real_infile_name = infile_name;
-	if (strcmp(real_infile_name, outfile_name) == 0) {
+	if (!cmdargs.real_infile_name)
+		cmdargs.real_infile_name = infile_name;
+	if (strcmp(cmdargs.real_infile_name, outfile_name) == 0) {
 		fprintf(stderr, "Error: INPUT and OUTPUT filename must not be the same\n");
 		goto out_usage;
 	}
