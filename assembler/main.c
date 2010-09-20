@@ -1104,7 +1104,7 @@ static void emit_code(struct assembler_context *ctx)
 		exit(1);
 	}
 	if (IS_VERBOSE_DEBUG)
-		fprintf(stderr, "\nCode:\n");
+		printf("\nCode:\n");
 
 	list_for_each_entry(c, &ctx->output, list) {
 		switch (c->type) {
@@ -1152,7 +1152,7 @@ static void emit_code(struct assembler_context *ctx)
 		switch (c->type) {
 		case OUT_INSN:
 			if (IS_VERBOSE_DEBUG) {
-				fprintf(stderr, "%03X %03X,%03X,%03X\n",
+				printf("%03X %04X,%04X,%04X\n",
 					c->opcode,
 					c->operands[0].u.operand,
 					c->operands[1].u.operand,
