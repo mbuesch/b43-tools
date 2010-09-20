@@ -103,7 +103,7 @@ static void usage(FILE *fd, int argc, char **argv)
 	fprintf(fd, "  -a|--arch ARCH      The architecture type of the input file (5 or 15)\n");
 	fprintf(fd, "  -f|--format FMT     Input file format. FMT must be one of:\n");
 	fprintf(fd, "                      raw-le32, raw-be32, b43\n");
-	fprintf(fd, "  --paddr             Print the code addresses\n");
+	fprintf(fd, "  -p|--paddr          Print the code addresses\n");
 	fprintf(fd, "  -u|--unkdec         Decode operands of unknown instructions\n");
 	fprintf(fd, "  -d|--debug          Print verbose debugging info\n");
 	fprintf(fd, "                      Repeat for more verbose debugging\n");
@@ -134,7 +134,7 @@ int parse_args(int argc, char **argv)
 				fprintf(stderr, "Invalid -f|--format\n");
 				return -1;
 			}
-		} else if ((res = cmp_arg(argv, &i, "--paddr", NULL, NULL)) == ARG_MATCH) {
+		} else if ((res = cmp_arg(argv, &i, "--paddr", "-p", NULL)) == ARG_MATCH) {
 			cmdargs.print_addresses = 1;
 		} else if ((res = cmp_arg(argv, &i, "--unkdec", "-u", NULL)) == ARG_MATCH) {
 			cmdargs.unknown_decode = 1;

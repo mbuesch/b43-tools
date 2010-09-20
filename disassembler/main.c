@@ -803,7 +803,7 @@ static void emit_asm(struct disassembler_context *ctx)
 		switch (stmt->type) {
 		case STMT_INSN:
 			if (cmdargs.print_addresses)
-				fprintf(outfile, "/* %03X */", addr);
+				fprintf(outfile, "/* %04X */", addr);
 			fprintf(outfile, "\t%s", stmt->u.insn.name);
 			first = 1;
 			for (i = 0; i < ARRAY_SIZE(stmt->u.insn.operands); i++) {
