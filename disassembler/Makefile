@@ -32,7 +32,7 @@ OBJS = $(sort $(patsubst %.c,obj/%.o,$(1)))
 # Generate dependencies
 $(call DEPS,$(SRCS)): dep/%.d: %.c 
 	@mkdir -p $(dir $@)
-	$(QUIET_DEPEND) -o $@.tmp -MM -MG -MT "$@ $(patsubst dep/%.d,obj/%.o,$@)" $(CFLAGS) $< && mv -f $@.tmp $@
+	$(QUIET_DEPEND) -o $@.tmp -MM -MT "$@ $(patsubst dep/%.d,obj/%.o,$@)" $(CFLAGS) $< && mv -f $@.tmp $@
 
 -include $(call DEPS,$(SRCS))
 
