@@ -8,9 +8,10 @@ enum fwformat {
 };
 
 struct cmdline_args {
-	unsigned int arch;
-	enum fwformat informat;
-	int print_addresses;
+	unsigned int arch;		/* The architecture we're disassembling. */
+	enum fwformat informat;		/* The input file format. */
+	int print_addresses;		/* Print a comment with instruction address. */
+	int unknown_decode;		/* Decode operands of unknown instructions. */
 };
 
 int parse_args(int argc, char **argv);

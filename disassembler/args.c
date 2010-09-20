@@ -25,9 +25,10 @@
 int _debug;
 
 struct cmdline_args cmdargs = {
-	.arch = 5,		/* Default to v5 architecture. */
-	.informat = FMT_B43,	/* Input file format */
-	.print_addresses = 0,	/* Print the code addresses in the output. */
+	.arch = 5,
+	.informat = FMT_B43,
+	.print_addresses = 0,
+	.unknown_decode = 0,
 };
 
 #define ARG_MATCH		0
@@ -103,6 +104,7 @@ static void usage(FILE *fd, int argc, char **argv)
 	fprintf(fd, "  -f|--format FMT     Input file format. FMT must be one of:\n");
 	fprintf(fd, "                      raw-le32, raw-be32, b43\n");
 	fprintf(fd, "  --paddr             Print the code addresses\n");
+	fprintf(fd, "  -u|--unkdec         Decode operands of unknown instructions\n");
 	fprintf(fd, "  -d|--debug          Print verbose debugging info\n");
 	fprintf(fd, "                      Repeat for more verbose debugging\n");
 	fprintf(fd, "  -h|--help           Print this help\n");
@@ -134,6 +136,8 @@ int parse_args(int argc, char **argv)
 			}
 		} else if ((res = cmp_arg(argv, &i, "--paddr", NULL, NULL)) == ARG_MATCH) {
 			cmdargs.print_addresses = 1;
+		} else if ((res = cmp_arg(argv, &i, "--unkdec", "-u", NULL)) == ARG_MATCH) {
+			cmdargs.unknown_decode = 1;
 		} else if ((res = cmp_arg(argv, &i, "--debug", "-d", NULL)) == ARG_MATCH) {
 			_debug++;
 		} else if ((res = cmp_arg(argv, &i, "--arch", "-a", &param)) == ARG_MATCH) {

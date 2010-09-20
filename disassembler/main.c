@@ -203,15 +203,20 @@ static const char * disasm_gpr_operand(unsigned int operand)
 	return ret;
 }
 
-static void disasm_std_operand(struct statement *stmt,
+static void disasm_raw_operand(struct statement *stmt,
 			       int oper_idx,
-			       int out_idx,
-			       int forceraw)
+			       int out_idx)
 {
 	unsigned int operand = stmt->u.insn.bin->operands[oper_idx];
 
-	if (forceraw)
-		goto raw;
+	stmt->u.insn.operands[out_idx] = gen_raw_code(operand);
+}
+
+static void disasm_std_operand(struct statement *stmt,
+			       int oper_idx,
+			       int out_idx)
+{
+	unsigned int operand = stmt->u.insn.bin->operands[oper_idx];
 
 	switch (cmdargs.arch) {
 	case 5:
@@ -253,17 +258,24 @@ static void disasm_std_operand(struct statement *stmt,
 	default:
 		dasm_int_error("disasm_std_operand invalid arch");
 	}
-raw:
-	stmt->u.insn.operands[out_idx] = gen_raw_code(operand);
+	/* No luck. Disassemble to raw operand. */
+	disasm_raw_operand(stmt, oper_idx, out_idx);
 }
 
 static void disasm_opcode_raw(struct disassembler_context *ctx,
-			      struct statement *stmt)
+			      struct statement *stmt,
+			      int raw_operands)
 {
 	stmt->u.insn.name = gen_raw_code(stmt->u.insn.bin->opcode);
-	disasm_std_operand(stmt, 0, 0, 1);
-	disasm_std_operand(stmt, 1, 1, 1);
-	disasm_std_operand(stmt, 2, 2, 1);
+	if (raw_operands) {
+		disasm_raw_operand(stmt, 0, 0);
+		disasm_raw_operand(stmt, 1, 1);
+		disasm_raw_operand(stmt, 2, 2);
+	} else {
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
+	}
 }
 
 static void disasm_constant_opcodes(struct disassembler_context *ctx,
@@ -274,203 +286,203 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 	switch (bin->opcode) {
 	case 0x1C0:
 		stmt->u.insn.name = "add";
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
-		disasm_std_operand(stmt, 2, 2, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
 		break;
 	case 0x1C2:
 		stmt->u.insn.name = "add.";
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
-		disasm_std_operand(stmt, 2, 2, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
 		break;
 	case 0x1C1:
 		stmt->u.insn.name = "addc";
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
-		disasm_std_operand(stmt, 2, 2, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
 		break;
 	case 0x1C3:
 		stmt->u.insn.name = "addc.";
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
-		disasm_std_operand(stmt, 2, 2, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
 		break;
 	case 0x1D0:
 		stmt->u.insn.name = "sub";
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
-		disasm_std_operand(stmt, 2, 2, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
 		break;
 	case 0x1D2:
 		stmt->u.insn.name = "sub.";
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
-		disasm_std_operand(stmt, 2, 2, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
 		break;
 	case 0x1D1:
 		stmt->u.insn.name = "subc";
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
-		disasm_std_operand(stmt, 2, 2, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
 		break;
 	case 0x1D3:
 		stmt->u.insn.name = "subc.";
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
-		disasm_std_operand(stmt, 2, 2, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
 		break;
 	case 0x130:
 		stmt->u.insn.name = "sra";
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
-		disasm_std_operand(stmt, 2, 2, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
 		break;
 	case 0x160:
 		stmt->u.insn.name = "or";
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
-		disasm_std_operand(stmt, 2, 2, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
 		break;
 	case 0x140:
 		stmt->u.insn.name = "and";
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
-		disasm_std_operand(stmt, 2, 2, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
 		break;
 	case 0x170:
 		stmt->u.insn.name = "xor";
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
-		disasm_std_operand(stmt, 2, 2, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
 		break;
 	case 0x120:
 		stmt->u.insn.name = "sr";
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
-		disasm_std_operand(stmt, 2, 2, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
 		break;
 	case 0x110:
 		stmt->u.insn.name = "sl";
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
-		disasm_std_operand(stmt, 2, 2, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
 		break;
 	case 0x1A0:
 		stmt->u.insn.name = "rl";
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
-		disasm_std_operand(stmt, 2, 2, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
 		break;
 	case 0x1B0:
 		stmt->u.insn.name = "rr";
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
-		disasm_std_operand(stmt, 2, 2, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
 		break;
 	case 0x150:
 		stmt->u.insn.name = "nand";
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
-		disasm_std_operand(stmt, 2, 2, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
 		break;
 	case 0x040:
 		stmt->u.insn.name = "jand";
 		stmt->u.insn.is_labelref = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
 		break;
 	case (0x040 | 0x1):
 		stmt->u.insn.name = "jnand";
 		stmt->u.insn.is_labelref = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
 		break;
 	case 0x050:
 		stmt->u.insn.name = "js";
 		stmt->u.insn.is_labelref = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
 		break;
 	case (0x050 | 0x1):
 		stmt->u.insn.name = "jns";
 		stmt->u.insn.is_labelref = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
 		break;
 	case 0x0D0:
 		stmt->u.insn.name = "je";
 		stmt->u.insn.is_labelref = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
 		break;
 	case (0x0D0 | 0x1):
 		stmt->u.insn.name = "jne";
 		stmt->u.insn.is_labelref = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
 		break;
 	case 0x0D2:
 		stmt->u.insn.name = "jls";
 		stmt->u.insn.is_labelref = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
 		break;
 	case (0x0D2 | 0x1):
 		stmt->u.insn.name = "jges";
 		stmt->u.insn.is_labelref = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
 		break;
 	case 0x0D4:
 		stmt->u.insn.name = "jgs";
 		stmt->u.insn.is_labelref = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
 		break;
 	case (0x0D4 | 0x1):
 		stmt->u.insn.name = "jles";
 		stmt->u.insn.is_labelref = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
 		break;
 	case 0x0DA:
 		stmt->u.insn.name = "jl";
 		stmt->u.insn.is_labelref = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
 		break;
 	case (0x0DA | 0x1):
 		stmt->u.insn.name = "jge";
 		stmt->u.insn.is_labelref = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
 		break;
 	case 0x0DC:
 		stmt->u.insn.name = "jg";
 		stmt->u.insn.is_labelref = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
 		break;
 	case (0x0DC | 0x1):
 		stmt->u.insn.name = "jle";
 		stmt->u.insn.is_labelref = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 1, 1, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
 		break;
 	case 0x002: {
 		char *str;
@@ -486,7 +498,7 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 			break;
 		case 15:
 			//FIXME: This opcode is different on r15. Decode raw for now.
-			disasm_opcode_raw(ctx, stmt);
+			disasm_opcode_raw(ctx, stmt, 1);
 			break;
 		}
 		break;
@@ -558,8 +570,8 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 		default:
 			dasm_error("Invalid TKIP flags %X", flags);
 		}
-		disasm_std_operand(stmt, 0, 0, 0);
-		disasm_std_operand(stmt, 2, 2, 0);
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 2, 2);
 		break;
 	}
 	case 0x001: {
@@ -591,7 +603,7 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 		break;
 	}
 	default:
-		disasm_opcode_raw(ctx, stmt);
+		disasm_opcode_raw(ctx, stmt, (cmdargs.unknown_decode == 0));
 		break;
 	}
 }
@@ -623,9 +635,9 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 			snprintf(str, 3, "%d", (bin->opcode & 0x00F));
 			stmt->u.insn.operands[1] = str;
 
-			disasm_std_operand(stmt, 0, 2, 0);
-			disasm_std_operand(stmt, 1, 3, 0);
-			disasm_std_operand(stmt, 2, 4, 0);
+			disasm_std_operand(stmt, 0, 2);
+			disasm_std_operand(stmt, 1, 3);
+			disasm_std_operand(stmt, 2, 4);
 			break;
 		case 0x300:
 			stmt->u.insn.name = "orx";
@@ -637,9 +649,9 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 			snprintf(str, 3, "%d", (bin->opcode & 0x00F));
 			stmt->u.insn.operands[1] = str;
 
-			disasm_std_operand(stmt, 0, 2, 0);
-			disasm_std_operand(stmt, 1, 3, 0);
-			disasm_std_operand(stmt, 2, 4, 0);
+			disasm_std_operand(stmt, 0, 2);
+			disasm_std_operand(stmt, 1, 3);
+			disasm_std_operand(stmt, 2, 4);
 			break;
 		case 0x400:
 			stmt->u.insn.name = "jzx";
@@ -651,8 +663,8 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 			snprintf(str, 3, "%d", (bin->opcode & 0x00F));
 			stmt->u.insn.operands[1] = str;
 
-			disasm_std_operand(stmt, 0, 2, 0);
-			disasm_std_operand(stmt, 1, 3, 0);
+			disasm_std_operand(stmt, 0, 2);
+			disasm_std_operand(stmt, 1, 3);
 			stmt->u.insn.is_labelref = 4;
 			stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 			break;
@@ -666,8 +678,8 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 			snprintf(str, 3, "%d", (bin->opcode & 0x00F));
 			stmt->u.insn.operands[1] = str;
 
-			disasm_std_operand(stmt, 0, 2, 0);
-			disasm_std_operand(stmt, 1, 3, 0);
+			disasm_std_operand(stmt, 0, 2);
+			disasm_std_operand(stmt, 1, 3);
 			stmt->u.insn.is_labelref = 4;
 			stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 			break;
@@ -680,8 +692,8 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 
 			/* We don't disassemble the first and second operand, as
 			 * that always is a dummy r0 operand.
-			 * disasm_std_operand(stmt, 0, 1, 0);
-			 * disasm_std_operand(stmt, 1, 2, 0);
+			 * disasm_std_operand(stmt, 0, 1);
+			 * disasm_std_operand(stmt, 1, 2);
 			 * stmt->u.insn.is_labelref = 3;
 			 */
 			stmt->u.insn.is_labelref = 1;
@@ -696,8 +708,8 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 
 			/* We don't disassemble the first and second operand, as
 			 * that always is a dummy r0 operand.
-			 * disasm_std_operand(stmt, 0, 1, 0);
-			 * disasm_std_operand(stmt, 1, 2, 0);
+			 * disasm_std_operand(stmt, 0, 1);
+			 * disasm_std_operand(stmt, 1, 2);
 			 * stmt->u.insn.is_labelref = 3;
 			 */
 			stmt->u.insn.is_labelref = 1;
