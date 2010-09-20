@@ -603,6 +603,9 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 		}
 		break;
 	}
+	case 0x000:
+		disasm_opcode_raw(ctx, stmt, 1);
+		break;
 	default:
 		disasm_opcode_raw(ctx, stmt, (cmdargs.unknown_decode == 0));
 		break;
