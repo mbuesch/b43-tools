@@ -7,6 +7,11 @@
 
 #define ARRAY_SIZE(x)	(sizeof(x)/sizeof(x[0]))
 
+#undef min
+#undef max
+#define min(x,y)	((x) < (y) ? (x) : (y))
+#define max(x,y)	((x) > (y) ? (x) : (y))
+
 
 void dump(const char *data,
 	  size_t size,
