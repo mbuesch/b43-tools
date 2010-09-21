@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 #
 #  b43-asm preprocessing frontend
 #
-#  Copyright (c) 2007 Michael Buesch <mb@bu3sch.de>
+#  Copyright (c) 2010 Michael Buesch <mb@bu3sch.de>
 #  Licensed under the GNU/GPL version 2.
 #
 
@@ -42,7 +42,7 @@ outfile="$1"
 shift
 
 cpp_args=
-if [ "$1" == "--cpp-args" ]; then
+if [ "$1" = "--cpp-args" ]; then
 	shift
 	while [ "$1" != "--" ]; do
 		if [ $# -eq 0 ]; then
