@@ -183,7 +183,7 @@ static void interpret_cppinfo(const char *str)
 		goto error;
 	memset(tmp, 0, sizeof(tmp));
 	memcpy(tmp, str, min(sizeof(tmp) - 1,
-			     (int)(found - str)));
+			     (size_t)(found - str)));
 	cur_lineinfo.lineno = strtoul(tmp, NULL, 10) - 1;
 	str = found;
 	str++;
@@ -200,7 +200,7 @@ static void interpret_cppinfo(const char *str)
 	memset(cur_lineinfo.file, 0, sizeof(cur_lineinfo.file));
 	memcpy(cur_lineinfo.file, str,
 	       min(sizeof(cur_lineinfo.file) - 1,
-		   (int)(found - str)));
+		   (size_t)(found - str)));
 
 	return;
 error:

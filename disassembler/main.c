@@ -788,9 +788,9 @@ static void resolve_labels(struct disassembler_context *ctx)
 static void emit_asm(struct disassembler_context *ctx)
 {
 	struct statement *stmt;
-	int first, i;
+	int first;
 	int err;
-	unsigned int addr = 0;
+	unsigned int i, addr = 0;
 
 	err = open_output_file();
 	if (err)
@@ -808,14 +808,16 @@ static void emit_asm(struct disassembler_context *ctx)
 			first = 1;
 			for (i = 0; i < ARRAY_SIZE(stmt->u.insn.operands); i++) {
 				if (!stmt->u.insn.operands[i] &&
-				    stmt->u.insn.is_labelref != i)
+				    (stmt->u.insn.is_labelref < 0 ||
+				     (unsigned int)stmt->u.insn.is_labelref != i))
 					continue;
 				if (first)
 					fprintf(outfile, "\t");
 				if (!first)
 					fprintf(outfile, ", ");
 				first = 0;
-				if (stmt->u.insn.is_labelref == i) {
+				if (stmt->u.insn.is_labelref >= 0 &&
+				    (unsigned int)stmt->u.insn.is_labelref == i) {
 					fprintf(outfile, "%s",
 						stmt->u.insn.labelref->u.label.name);
 				} else {

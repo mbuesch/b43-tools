@@ -429,7 +429,7 @@ static struct code_output * do_assemble_insn(struct assembler_context *ctx,
 					     struct instruction *insn,
 					     unsigned int opcode)
 {
-	int i;
+	unsigned int i;
 	struct operlist *ol;
 	int nr_oper = 0;
 	uint64_t code = 0;
@@ -1017,7 +1017,7 @@ static void resolve_labels(struct assembler_context *ctx)
 {
 	struct code_output *c;
 	int addr;
-	int i;
+	unsigned int i;
 	unsigned int current_address;
 
 	/* Calculate the absolute addresses for each instruction. */
