@@ -19,7 +19,7 @@
 import sys
 import os
 import re
-import md5
+import hashlib
 from tempfile import *
 
 
@@ -343,7 +343,7 @@ class TextPatcher:
 			self.deleted = False
 
 	def __init__(self, text, expected_md5sum):
-		sum = md5.md5(text).hexdigest()
+		sum = hashlib.md5(text).hexdigest()
 		if sum != expected_md5sum:
 			print "Patcher: The text does not match the expected MD5 sum"
 			print "Expected:   " + expected_md5sum
