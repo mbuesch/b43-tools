@@ -62,7 +62,7 @@ class B43PsmDebug:
 class B43:
 	"""Hardware access layer. This accesses the hardware through the debugfs interface."""
 
-	def __init__(self, phy):
+	def __init__(self, phy=None):
 		debugfs_path = self.__debugfs_find()
 
 		# Construct the debugfs b43 path to the device
