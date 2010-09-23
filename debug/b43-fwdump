@@ -21,6 +21,7 @@ import getopt
 from libb43 import *
 from sys import stdout
 from tempfile import *
+import re
 
 
 def usage():
@@ -91,21 +92,28 @@ def dump_regs(prefix, regs):
 	stdout.write("\n")
 	return
 
+def dasmLineIsPC(line, pc):
+	m = re.match(r'.*/\*\s+([0-9a-fA-F]+)\s+\*/.*', line, re.DOTALL)
+	if not m:
+		return False
+	linePC = int(m.group(1), 16)
+	return pc == linePC
+
 def makeShortDump(dasm, pc):
 	dasm = dasm.splitlines()
 	i = 0
 	for line in dasm:
-		if "/* %03X */" % pc in line:
+		if dasmLineIsPC(line, pc):
 			break
 		i += 1
-	if i >= len(dasm):
+	else:
 		return "<Could not find PC in the binary>"
 	ret = ""
 	pos = max(i - 8, 0)
 	end = min(i + 8, len(dasm) - 1)
 	while pos != end:
 		ret += dasm[pos]
-		if "/* %03X */" % pc in dasm[pos]:
+		if dasmLineIsPC(dasm[pos], pc):
 			ret += "\t\t<<<<<<<<<<<"
 		ret += "\n"
 		pos += 1
