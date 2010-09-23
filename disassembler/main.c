@@ -39,7 +39,7 @@ struct statement {
 			const char *name;
 			const char *operands[5];
 
-			int is_labelref;
+			int labelref_operand;
 			unsigned int labeladdr;
 			struct statement *labelref;
 		} insn;
@@ -388,125 +388,125 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 		break;
 	case 0x040:
 		stmt->u.insn.name = "jand";
-		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case (0x040 | 0x1):
 		stmt->u.insn.name = "jnand";
-		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case 0x050:
 		stmt->u.insn.name = "js";
-		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case (0x050 | 0x1):
 		stmt->u.insn.name = "jns";
-		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case 0x0D0:
 		stmt->u.insn.name = "je";
-		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case (0x0D0 | 0x1):
 		stmt->u.insn.name = "jne";
-		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case 0x0D2:
 		stmt->u.insn.name = "jls";
-		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case (0x0D2 | 0x1):
 		stmt->u.insn.name = "jges";
-		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case 0x0D4:
 		stmt->u.insn.name = "jgs";
-		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case (0x0D4 | 0x1):
 		stmt->u.insn.name = "jles";
-		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case 0x0D6:
 		stmt->u.insn.name = "@D6"; /* FIXME */
-		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case (0x0D6 | 0x1):
 		stmt->u.insn.name = "@D7"; /* FIXME */
-		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 	case 0x0D8:
 		stmt->u.insn.name = "@D8"; /* FIXME */
-		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case (0x0D8 | 0x1):
 		stmt->u.insn.name = "@D9"; /* FIXME */
-		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case 0x0DA:
 		stmt->u.insn.name = "jl";
-		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case (0x0DA | 0x1):
 		stmt->u.insn.name = "jge";
-		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case 0x0DC:
 		stmt->u.insn.name = "jg";
-		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case (0x0DC | 0x1):
 		stmt->u.insn.name = "jle";
-		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
@@ -517,7 +517,7 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 		switch (cmdargs.arch) {
 		case 5:
 			stmt->u.insn.name = "call";
-			stmt->u.insn.is_labelref = 1;
+			stmt->u.insn.labelref_operand = 1;
 			stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 			str = xmalloc(4);
 			snprintf(str, 4, "lr%u", stmt->u.insn.bin->operands[0]);
@@ -548,7 +548,7 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 				   cmdargs.arch);
 		}
 		stmt->u.insn.name = "calls";
-		stmt->u.insn.is_labelref = 0;
+		stmt->u.insn.labelref_operand = 0;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		if (stmt->u.insn.bin->operands[0] != 0x1780 ||
 		    stmt->u.insn.bin->operands[1] != 0x1780)
@@ -653,7 +653,7 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 		stmt->type = STMT_INSN;
 		INIT_LIST_HEAD(&stmt->list);
 		stmt->u.insn.bin = bin;
-		stmt->u.insn.is_labelref = -1;
+		stmt->u.insn.labelref_operand = -1; /* none */
 
 		switch (bin->opcode & 0xF00) {
 		case 0x200:
@@ -696,7 +696,7 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 
 			disasm_std_operand(stmt, 0, 2);
 			disasm_std_operand(stmt, 1, 3);
-			stmt->u.insn.is_labelref = 4;
+			stmt->u.insn.labelref_operand = 4;
 			stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 			break;
 		case 0x500:
@@ -711,7 +711,7 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 
 			disasm_std_operand(stmt, 0, 2);
 			disasm_std_operand(stmt, 1, 3);
-			stmt->u.insn.is_labelref = 4;
+			stmt->u.insn.labelref_operand = 4;
 			stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 			break;
 		case 0x600:
@@ -725,9 +725,9 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 			 * that always is a dummy r0 operand.
 			 * disasm_std_operand(stmt, 0, 1);
 			 * disasm_std_operand(stmt, 1, 2);
-			 * stmt->u.insn.is_labelref = 3;
+			 * stmt->u.insn.labelref_operand = 3;
 			 */
-			stmt->u.insn.is_labelref = 1;
+			stmt->u.insn.labelref_operand = 1;
 			stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 			break;
 		case 0x700:
@@ -741,9 +741,9 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 			 * that always is a dummy r0 operand.
 			 * disasm_std_operand(stmt, 0, 1);
 			 * disasm_std_operand(stmt, 1, 2);
-			 * stmt->u.insn.is_labelref = 3;
+			 * stmt->u.insn.labelref_operand = 3;
 			 */
-			stmt->u.insn.is_labelref = 1;
+			stmt->u.insn.labelref_operand = 1;
 			stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 			break;
 		default:
@@ -793,8 +793,8 @@ static void resolve_labels(struct disassembler_context *ctx)
 	list_for_each_entry_safe(stmt, n, &ctx->stmt_list, list) {
 		if (stmt->type != STMT_INSN)
 			continue;
-		if (stmt->u.insn.is_labelref == -1)
-			continue;
+		if (stmt->u.insn.labelref_operand < 0)
+			continue; /* Doesn't have label reference operand. */
 		labeladdr = stmt->u.insn.labeladdr;
 		label = get_label_at(ctx, labeladdr);
 		if (!label)
@@ -835,16 +835,16 @@ static void emit_asm(struct disassembler_context *ctx)
 			first = 1;
 			for (i = 0; i < ARRAY_SIZE(stmt->u.insn.operands); i++) {
 				if (!stmt->u.insn.operands[i] &&
-				    (stmt->u.insn.is_labelref < 0 ||
-				     (unsigned int)stmt->u.insn.is_labelref != i))
+				    (stmt->u.insn.labelref_operand < 0 ||
+				     (unsigned int)stmt->u.insn.labelref_operand != i))
 					continue;
 				if (first)
 					fprintf(outfile, "\t");
 				if (!first)
 					fprintf(outfile, ", ");
 				first = 0;
-				if (stmt->u.insn.is_labelref >= 0 &&
-				    (unsigned int)stmt->u.insn.is_labelref == i) {
+				if (stmt->u.insn.labelref_operand >= 0 &&
+				    (unsigned int)stmt->u.insn.labelref_operand == i) {
 					fprintf(outfile, "%s",
 						stmt->u.insn.labelref->u.label.name);
 				} else {
