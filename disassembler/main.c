@@ -456,6 +456,33 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
+	case 0x0D6:
+		stmt->u.insn.name = "@D6"; /* FIXME */
+		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		break;
+	case (0x0D6 | 0x1):
+		stmt->u.insn.name = "@D7"; /* FIXME */
+		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+	case 0x0D8:
+		stmt->u.insn.name = "@D8"; /* FIXME */
+		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		break;
+	case (0x0D8 | 0x1):
+		stmt->u.insn.name = "@D9"; /* FIXME */
+		stmt->u.insn.is_labelref = 2;
+		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		break;
 	case 0x0DA:
 		stmt->u.insn.name = "jl";
 		stmt->u.insn.is_labelref = 2;
