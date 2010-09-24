@@ -533,16 +533,25 @@ class B43AsmLine:
 	def getLine(self):
 		return self.text
 
+	def __repr__(self):
+		return self.getLine()
+
 	def isInstruction(self):
 		return False
 
 class B43AsmInstruction(B43AsmLine):
 	def __init__(self, opcode):
-		self.opcode = opcode
-		self.operands = []
+		self.setOpcode(opcode)
+		self.clearOperands()
 
 	def getOpcode(self):
 		return self.opcode
+
+	def setOpcode(self, opcode):
+		self.opcode = opcode
+
+	def clearOperands(self):
+		self.operands = []
 
 	def addOperand(self, operand):
 		self.operands.append(operand)
@@ -643,15 +652,38 @@ class B43Beautifier(B43AsmParser):
 				continue
 			opcode = line.getOpcode()
 			operands = line.getOperands()
+			# Transform unconditional jump
+			if opcode == "jext" and int(operands[0], 16) == 0x7F:
+				label = operands[1]
+				line.setOpcode("jmp")
+				line.clearOperands()
+				line.addOperand(label)
+				continue
+			# Transform external conditions
 			if opcode == "jext" or opcode == "jnext":
 				operands[0] = self.symCond.get(int(operands[0], 16))
 				continue
+			# Transform orx 7,8,imm,imm,target to mov
+			if opcode == "orx" and \
+			   int(operands[0], 16) == 7 and int(operands[1], 16) == 8 and\
+			   operands[2].startswith("0x") and operands[3].startswith("0x"):
+				value = int(operands[3], 16) & 0xFF
+				value |= (int(operands[2], 16) & 0xFF) << 8
+				target = operands[4]
+				line.setOpcode("mov")
+				line.clearOperands()
+				line.addOperand("0x%X" % value)
+				line.addOperand(target)
+				opcode = line.getOpcode()
+				operands = line.getOperands()
 			for i in range(0, len(operands)):
 				o = operands[i]
+				# Transform SPR operands
 				m = spr_re.match(o)
 				if m:
 					operands[i] = self.symSpr.get(o)
 					continue
+				# Transform SHM operands
 				m = shm_re.match(o)
 				if m:
 					offset = int(m.group(1), 16)
@@ -660,7 +692,7 @@ class B43Beautifier(B43AsmParser):
 
 	def getAsm(self):
 		"""Returns the beautified asm code."""
-		ret = self.preamble
+		ret = [ self.preamble ]
 		for line in self.codelines:
-			ret += line.getLine() + "\n"
-		return ret
+			ret.append(str(line))
+		return "\n".join(ret)
