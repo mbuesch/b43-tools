@@ -1,7 +1,7 @@
 """
 #  b43 debugging library
 #
-#  Copyright (C) 2008 Michael Buesch <mb@bu3sch.de>
+#  Copyright (C) 2008-2010 Michael Buesch <mb@bu3sch.de>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License version 3
@@ -622,13 +622,15 @@ class B43Beautifier(B43AsmParser):
 	def __init__(self, asm_code, headers_dir):
 		"""asm_code is the assembly code. headers_dir is a full
 		path to the directory containing the symbolic SPR,SHM,etc... definitions"""
+		if headers_dir.endswith("/"):
+			headers_dir = headers_dir[:-1]
 		B43AsmParser.__init__(self, asm_code)
 		self.symSpr = B43SymbolicSpr(headers_dir + "/spr.inc")
 		self.symShm = B43SymbolicShm(headers_dir + "/shm.inc")
 		self.symCond = B43SymbolicCondition(headers_dir + "/cond.inc")
-		self.preamble = "#include <%s/spr.inc>\n" % headers_dir
-		self.preamble += "#include <%s/shm.inc>\n" % headers_dir
-		self.preamble += "#include <%s/cond.inc>\n" % headers_dir
+		self.preamble = "#include \"%s/spr.inc\"\n" % headers_dir
+		self.preamble += "#include \"%s/shm.inc\"\n" % headers_dir
+		self.preamble += "#include \"%s/cond.inc\"\n" % headers_dir
 		self.preamble += "\n"
 		self.__process_code()
 

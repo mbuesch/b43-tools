@@ -2,7 +2,7 @@
 """
 #  b43 firmware assembly code beautifier
 #
-#  Copyright (C) 2008 Michael Buesch <mb@bu3sch.de>
+#  Copyright (C) 2008-2010 Michael Buesch <mb@bu3sch.de>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License version 3
@@ -32,26 +32,22 @@ def usage():
 	print ""
 	print "-h|--help            Print this help text"
 	print "-a|--asmfile [FILE]  Assembly code source file"
-	print "-b|--binfile [FILE]  Binary code source file"
 	print "-d|--defs [DIR]      Directory containing the defs files"
 	print ""
-	print "The options  -d AND (-a XOR -b)  are essential."
-	print "The --defs directory is the \"common\" subdirectory in the"
-	print "b43-ucode assembly source tree."
+	print "The options  -d  and  -a  are essential."
+	print "The \"include\" directory can be used for --defs"
 
 def parseArgs():
 	global opt_asmfile
-	global opt_binfile
 	global opt_defsfiles
 
 	opt_asmfile = None
-	opt_binfile = None
 	opt_defsfiles = None
 
 	try:
 		(opts, args) = getopt.getopt(sys.argv[1:],
-			"ha:b:d:",
-			[ "help", "asmfile=", "binfile=", "defs=" ])
+			"ha:d:",
+			[ "help", "asmfile=", "defs=" ])
 	except getopt.GetoptError:
 		usage()
 		sys.exit(1)
@@ -61,47 +57,32 @@ def parseArgs():
 			usage()
 			sys.exit(0)
 		if o in ("-a", "--asmfile"):
-			if opt_binfile:
-				print "Must not set both of --asmfile and --binfile"
-				sys.exit(1)
 			opt_asmfile = v
-		if o in ("-b", "--binfile"):
-			if opt_asmfile:
-				print "Must not set both of --asmfile and --binfile"
-				sys.exit(1)
-			opt_binfile = v
 		if o in ("-d", "--defs"):
 			opt_defsfiles = v
 
-	if not opt_asmfile and not opt_binfile:
-		print "Must set either --asmfile or --binfile"
+	if not opt_asmfile:
+		print "Must provide --asmfile"
 		sys.exit(1)
 	if not opt_defsfiles:
-		print "Must set --defs"
+		print "Must provide --defs"
 		sys.exit(1)
 
 def main():
 	parseArgs()
 
-	# Get the assembly
-	if opt_asmfile:
-		try:
-			asm = file(opt_asmfile).read()
-		except IOError, e:
-			print "Could not read asmfile %s: %s" % (e.filename, e.strerror)
-			sys.exit(1)
-	else:
-		try:
-			bin = file(opt_binfile).read()
-		except IOError, e:
-			print "Could not read binfile %s: %s" % (e.filename, e.strerror)
-			sys.exit(1)
-		asm = Disassembler(bin, "").getAsm()
+	try:
+		asm = file(opt_asmfile).read()
+	except IOError, e:
+		print "Could not read asmfile %s: %s" % (e.filename, e.strerror)
+		return 1
+	try:
+		b = B43Beautifier(asm, opt_defsfiles)
+		sys.stdout.write(b.getAsm())
+	except B43Exception:
+		return 1
+	return 0
 
-	b = B43Beautifier(asm, opt_defsfiles)
-	sys.stdout.write(b.getAsm())
+if __name__ == "__main__":
+	sys.exit(main())
 
-try:
-	main()
-except B43Exception:
-	sys.exit(1)
