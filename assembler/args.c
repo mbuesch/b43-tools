@@ -96,9 +96,9 @@ static int cmp_arg(char **argv, int *pos,
 	return err;
 }
 
-static void usage(int argc, char **argv)
+static void usage(void)
 {
-	printf("Usage: %s INPUT_FILE OUTPUT_FILE [OPTIONS]\n", argv[0]);
+	printf("Usage: b43-asm INPUT_FILE OUTPUT_FILE [OPTIONS]\n");
 	printf("  -f|--format FMT     Output file format. FMT must be one of:\n");
 	printf("                      raw-le32, raw-be32, b43\n");
 	printf("  -d|--debug          Print verbose debugging info\n");
@@ -121,7 +121,7 @@ int parse_args(int argc, char **argv)
 
 	for (i = 3; i < argc; i++) {
 		if ((res = cmp_arg(argv, &i, "--help", "-h", NULL)) == ARG_MATCH) {
-			usage(argc, argv);
+			usage();
 			return 1;
 		} else if ((res = cmp_arg(argv, &i, "--format", "-f", &param)) == ARG_MATCH) {
 			if (strcasecmp(param, "raw-le32") == 0)
@@ -156,7 +156,7 @@ int parse_args(int argc, char **argv)
 
 	return 0;
 out_usage:
-	usage(argc, argv);
+	usage();
 	return -1;
 }
 
