@@ -19,17 +19,14 @@ import sys
 
 def usage():
 	print "b43 initvals file dumper"
+	print "Prints a .initvals assembly section to stdout."
 	print ""
-	print "Copyright (C) 2008 Michael Buesch <mb@bu3sch.de>"
+	print "Copyright (C) 2008-2010 Michael Buesch <mb@bu3sch.de>"
 	print "Licensed under the GNU/GPL version 2"
 	print ""
 	print "Usage: b43-ivaldump FILE"
 	print ""
 	print "FILE is the file that is going to be dumped"
-	print ""
-	print "The dump will look like this:"
-	print "XX-bit  0xDEAD -> 0xBEEF"
-	print "This is an XX-bit write of the value 0xDEAD to register 0xBEEF"
 	return
 
 if len(sys.argv) != 2:
@@ -56,8 +53,11 @@ if ord(ivals[1]) != 1:
 	print "Initvals file version %d is not supported by this program." % ord(ivals[1])
 	sys.exit(1)
 
+sectname = filename.split('/')[-1]
+if sectname.endswith(".fw"):
+	sectname = sectname[:-3]
+print ".initvals(%s)" % sectname
 idx = 8 # skip header
-
 while idx < len(ivals):
 	off_sz = ord(ivals[idx + 0]) << 8
 	off_sz |= ord(ivals[idx + 1])
@@ -70,9 +70,9 @@ while idx < len(ivals):
 		data |= ord(ivals[idx + 4]) << 8
 		data |= ord(ivals[idx + 5]) << 0
 		idx += 6
-		print "32-bit  0x%08X -> 0x%04X" % (data, offset)
+		print "\tmmio32\t0x%08X, 0x%04X" % (data, offset)
 	else:
 		data = ord(ivals[idx + 2]) << 8
 		data |= ord(ivals[idx + 3]) << 0
 		idx += 4
-		print "16-bit  0x%04X -> 0x%04X" % (data, offset)
+		print "\tmmio16\t0x%08X, 0x%04X" % (data, offset)
