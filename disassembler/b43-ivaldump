@@ -75,4 +75,4 @@ while idx < len(ivals):
 		data = ord(ivals[idx + 2]) << 8
 		data |= ord(ivals[idx + 3]) << 0
 		idx += 4
-		print "\tmmio16\t0x%08X, 0x%04X" % (data, offset)
+		print "\tmmio16\t0x%04X, 0x%04X" % (data, offset)

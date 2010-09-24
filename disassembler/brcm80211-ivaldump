@@ -64,7 +64,10 @@ for idx in range(0, len(ivals), 8):
 	if size == 4:
 		print "\tmmio32\t0x%08X, 0x%04X" % (value, addr)
 	elif size == 2:
-		print "\tmmio16\t0x%08X, 0x%04X" % (value, addr)
+		if value & 0xFFFF0000:
+			print "The input file is malformed (invalid value for 16bit field)"
+			sys.exit(1)
+		print "\tmmio16\t0x%04X, 0x%04X" % (value, addr)
 	else:
 		print "The input file is malformed (invalid size field: 0x%04X)" % size
 		sys.exit(1)

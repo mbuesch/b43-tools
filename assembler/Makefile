@@ -70,10 +70,10 @@ $(BIN): $(call OBJS,$(SRCS))
 	$(QUIET_CC) $(CFLAGS) -o $(BIN) $(call OBJS,$(SRCS)) $(LDFLAGS)
 
 install: all
-	install -o 0 -g 0 -m 755 $(BIN) $(PREFIX)/bin/
+	install -m 755 $(BIN) $(PREFIX)/bin/
 	cp b43-asm b43-asm.inst
 	sed -i -e 's/installed=0/installed=1/' b43-asm.inst
-	install -o 0 -g 0 -m 755 b43-asm.inst $(PREFIX)/bin/b43-asm
+	install -m 755 b43-asm.inst $(PREFIX)/bin/b43-asm
 	rm -f b43-asm.inst
 
 clean:
