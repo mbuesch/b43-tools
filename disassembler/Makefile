@@ -52,7 +52,8 @@ $(BIN): $(call OBJS,$(SRCS))
 install: all
 	install -m 755 $(BIN) $(PREFIX)/bin/
 	install -m 755 b43-ivaldump $(PREFIX)/bin/
-	install -m 755 brcm80211fwconv $(PREFIX)/bin/
+	install -m 755 brcm80211-ivaldump $(PREFIX)/bin/
+	install -m 755 brcm80211-fwconv $(PREFIX)/bin/
 
 clean:
 	-rm -Rf obj dep *~ *.orig *.rej
