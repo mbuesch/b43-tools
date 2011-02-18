@@ -15,7 +15,7 @@
 typedef uint16_t be16_t; /* Big-endian 16bit */
 typedef uint32_t be32_t; /* Big-endian 32bit */
 
-#ifdef __DragonFly__
+#if defined(__DragonFly__) || defined(__FreeBSD__)
 #define bswap_16	bswap16
 #define bswap_32	bswap32
 #endif

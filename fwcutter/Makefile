@@ -12,7 +12,7 @@ QUIET_DEPEND	= $(Q:@=@echo '     DEPEND   '$@;)$(CC)
 ifeq ($(C),1)
 QUIET_SPARSE	= $(Q:@=@echo '     SPARSE   '$@;)$(SPARSE)
 else
-QUIET_SPARSE	= @/bin/true
+QUIET_SPARSE	= @true
 endif
 
 PREFIX ?= /usr/local
