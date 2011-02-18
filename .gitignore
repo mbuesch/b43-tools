@@ -11,6 +11,9 @@
 
 *.ucode
 *.initval
+*.initvals
+*.fw
+*.asm
 
 # stgit generated dirs
 patches-*
