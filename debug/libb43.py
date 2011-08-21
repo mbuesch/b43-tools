@@ -1,7 +1,7 @@
 """
 #  b43 debugging library
 #
-#  Copyright (C) 2008-2010 Michael Buesch <mb@bu3sch.de>
+#  Copyright (C) 2008-2010 Michael Buesch <m@bues.ch>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License version 3

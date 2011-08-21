@@ -2,7 +2,7 @@
 
   Broadcom Sonics Silicon Backplane bus SPROM data modification tool
 
-  Copyright (c) 2006-2008 Michael Buesch <mb@bu3sch.de>
+  Copyright (c) 2006-2008 Michael Buesch <m@bues.ch>
   Copyright (c) 2008 Larry Finger <Larry.Finger@lwfinger.net>
 
   This program is free software; you can redistribute it and/or modify

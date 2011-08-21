@@ -2,7 +2,7 @@
 """
 #  b43 firmware state dumper
 #
-#  Copyright (C) 2008 Michael Buesch <mb@bu3sch.de>
+#  Copyright (C) 2008 Michael Buesch <m@bues.ch>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License version 3
@@ -27,7 +27,7 @@ import re
 def usage():
 	print "b43 firmware state dumper"
 	print ""
-	print "Copyright (C) 2008 Michael Buesch <mb@bu3sch.de>"
+	print "Copyright (C) 2008 Michael Buesch <m@bues.ch>"
 	print "Licensed under the GNU/GPL version 3"
 	print ""
 	print "Usage: b43-fwdump [OPTIONS]"

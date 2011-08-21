@@ -2,7 +2,7 @@
  * firmware cutter for broadcom 43xx wireless driver files
  * 
  * Copyright (c) 2005 Martin Langer <martin-langer@gmx.de>,
- *               2005-2007 Michael Buesch <mb@bu3sch.de>
+ *               2005-2007 Michael Buesch <m@bues.ch>
  *		 2005 Alex Beregszaszi
  *		 2007 Johannes Berg <johannes@sipsolutions.net>
  *

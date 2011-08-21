@@ -2,7 +2,7 @@
 #
 #  Script for creating a "struct extract" list for fwcutter_list.h
 #
-#  Copyright (c) 2008 Michael Buesch <mb@bu3sch.de>
+#  Copyright (c) 2008 Michael Buesch <m@bues.ch>
 #
 #   Redistribution and use in source and binary forms, with or without
 #   modification, are permitted provided that the following conditions
