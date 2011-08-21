@@ -779,7 +779,6 @@ static const struct file files[] =
 {
 	{
 		.name		= "wl_apsta.o",
-		.id		= "FW10",
 		.ucode_version	= "295.14",
 		.md5		= "e08665c5c5b66beb9c3b2dd54aa80cb3",
 		.flags		= FW_FLAG_LE,
@@ -789,7 +788,6 @@ static const struct file files[] =
 		/* http://downloads.openwrt.org/sources/broadcom-wl-4.80.53.0.tar.bz2 */
 		/* This firmware has the old TX header. */
 		.name		= "wl_apsta.o",
-		.id		= "FW11",
 		.ucode_version	= "351.126",
 		.md5		= "9207bc565c2fc9fa1591f6c7911d3fc0",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4,
@@ -799,7 +797,6 @@ static const struct file files[] =
 		/* http://downloads.openwrt.org/sources/broadcom-wl-4.80.53.0.tar.bz2 */
 		/* This firmware has the old TX header. */
 		.name		= "wl_apsta_mimo.o",
-		.id		= "FW11",
 		.ucode_version	= "351.126",
 		.md5		= "722e2e0d8cc04b8f118bb5afe6829ff9",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4,
@@ -808,7 +805,6 @@ static const struct file files[] =
 	{
 		/* ftp://ftp.linksys.com/opensourcecode/wrt150nv11/1.51.3/ */
 		.name		= "wl_ap.o",
-		.id		= "FW12",
 		.ucode_version	= "410.2160",
 		.md5		= "1e4763b4cb8cfbaae43e5c6d3d6b2ae7",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4 | FW_FLAG_UNSUPPORTED,
@@ -817,7 +813,6 @@ static const struct file files[] =
 	{
 		/* http://mirror2.openwrt.org/sources/broadcom-wl-4.150.10.5.tar.bz2 */
 		.name		= "wl_apsta_mimo.o",
-		.id		= "FW13",
 		.ucode_version	= "410.2160",
 		.md5		= "cb8d70972b885b1f8883b943c0261a3c",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4,
@@ -826,7 +821,6 @@ static const struct file files[] =
 	{
 		/* http://downloads.openwrt.org/sources/broadcom-wl-4.178.10.4.tar.bz2 */
 		.name		= "wl_apsta.o",
-		.id		= "FW14",
 		.ucode_version	= "478.104",
 		.md5		= "bb8537e3204a1ea5903fe3e66b5e2763",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4,
@@ -835,7 +829,6 @@ static const struct file files[] =
 	{
 		/* http://mirror2.openwrt.org/sources/broadcom-wl-5.10.56.27.3_mipsel.tar.bz2 */
 		.name		= "wl_prebuilt.o",
-		.id		= "FW15",
 		.ucode_version	= "508.1084",
 		.md5		= "490d4e149ecc45eb1a91f06aa75be071",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4,
@@ -844,7 +837,6 @@ static const struct file files[] =
 	{
 		/* http://www.lwfinger.com/b43-firmware/broadcom-wl-5.10.56.51.tar.bz2 */
 		.name		= "wl_apsta.o",
-		.id		= "FW16",
 		.ucode_version	= "508.1107",
 		.md5		= "f06c8aa30ea549ce21872d10ee9a7d48",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4,
@@ -853,7 +845,6 @@ static const struct file files[] =
 	{
 		/* http://www.lwfinger.com/b43-firmware/broadcom-wl-5.10.56.2808.tar.bz2 */
 		.name		= "wl_apsta.o",
-		.id		= "FW17",
 		.ucode_version	= "508.10872",
 		.md5		= "e413c0017b99195f3231201c53f314d1",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4,
@@ -862,7 +853,6 @@ static const struct file files[] =
 	{
 		/* http://www.lwfinger.com/b43-firmware/broadcom-wl-5.10.144.3.tar.bz2 */
 		.name		= "wl_apsta.o",
-		.id		= "FW18",
 		.ucode_version	= "508.154",
 		.md5		= "023fafbe4918e384dd531a046dbc03e8",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4,
@@ -871,7 +861,6 @@ static const struct file files[] =
 	{
 		/* http://www.lwfinger.com/b43-firmware/broadcom-wl-5.100.104.2.tar.bz2 */
 		.name		= "wl_apsta.o",
-		.id		= "FW19",
 		.ucode_version	= "644.1001",
 		.md5		= "68f38d139b1f69f3ea12393fb645c6f9",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4,
@@ -880,7 +869,6 @@ static const struct file files[] =
 	{
 		/* http://www.lwfinger.com/b43-firmware/broadcom-wl-5.100.138.tar.bz2 */
 		.name		= "wl_apsta.o",
-		.id		= "FW20",
 		.ucode_version	= "666.2",
 		.md5		= "e1b05e268bcdbfef3560c28fc161f30e",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4,

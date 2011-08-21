@@ -425,8 +425,6 @@ static void print_file(const struct file *file)
 	printf("%s\t", file->ucode_version);
 	if (strlen(file->ucode_version) < 8) printf("\t");
 
-	printf("%s\t", file->id);
-
 	printf("%s\n", file->md5);
 }
 
@@ -437,15 +435,10 @@ static void print_supported_files(void)
 	print_banner();
 	printf("\nExtracting firmware is possible "
 	       "from these binary driver files.\n"
-	       "The <ID> column shows the unique identifier string "
-	       "for your firmware.\nYou must select the firmware with the "
-	       "same ID as printed by the kernel driver on modprobe.\n"
-	       "Note that only recent drivers print such a message on modprobe.\n"
 	       "Please read http://linuxwireless.org/en/users/Drivers/b43#devicefirmware\n\n");
 	printf("<driver>\t"
 	       "<filename>\t\t"
 	       "<microcode>\t"
-	       "<ID>\t"
 	       "<MD5 checksum>\n\n");
 	/* print for legacy driver first */
 	for (i = 0; i < ARRAY_SIZE(files); i++)
@@ -481,7 +474,6 @@ static const struct file *find_file(FILE *fd)
 		if (file_ok(&files[i]) &&
 		    strcasecmp(md5sig, files[i].md5) == 0) {
 			printf("This file is recognised as:\n");
-			printf("  ID         :  %s\n", files[i].id);
 			printf("  filename   :  %s\n", files[i].name);
 			printf("  version    :  %s\n", files[i].ucode_version);
 			printf("  MD5        :  %s\n", files[i].md5);

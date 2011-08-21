@@ -68,7 +68,6 @@ struct extract {
 
 struct file {
 	const char *name;
-	const char *id;
 	const char *ucode_version;
 	const char *md5;
 	const struct extract *extract;
