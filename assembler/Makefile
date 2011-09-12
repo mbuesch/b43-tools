@@ -42,7 +42,7 @@ OBJS = $(sort $(patsubst %.c,obj/%.o,$(1)))
 # Generate dependencies
 $(call DEPS,$(SRCS)): dep/%.d: %.c 
 	@mkdir -p $(dir $@)
-	$(QUIET_DEPEND) -o $@.tmp -MM -MT "$@ $(patsubst dep/%.d,obj/%.o,$@)" $(CFLAGS) $< && mv -f $@.tmp $@
+	$(QUIET_DEPEND) -o $@.tmp -MM -MG -MT "$@ $(patsubst dep/%.d,obj/%.o,$@)" $(CFLAGS) $< && mv -f $@.tmp $@
 
 -include $(call DEPS,$(SRCS))
 
@@ -54,14 +54,18 @@ $(call OBJS,$(SRCS)): obj/%.o:
 
 all: $(BIN)
 
-scanner.c: scanner.l parser.c main.h
+scanner.c: scanner.l parser.h main.h util.h
 	$(QUIET_LEX) -o scanner.c --header-file=scanner.h scanner.l
+
+scanner.h: scanner.c
 
 scanner.o: scanner.c
 	$(QUIET_CC) $(CFLAGS) -c -o scanner.o scanner.c
 
 parser.c: parser.y main.h util.h
 	$(QUIET_YACC) --defines -o parser.c parser.y
+
+parser.h: parser.c
 
 parser.o: parser.c
 	$(QUIET_CC) $(CFLAGS) -c -o parser.o parser.c
