@@ -877,7 +877,7 @@ static int read_input(struct disassembler_context *ctx)
 	size_t ret;
 	struct bin_instruction *code = NULL;
 	unsigned char tmp[sizeof(uint64_t)];
-	uint64_t codeword;
+	uint64_t codeword = 0;
 	struct fw_header hdr;
 	int err;
 
