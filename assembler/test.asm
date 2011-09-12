@@ -39,6 +39,9 @@
 	mov	(1 + (%assert(1 == ((1 + 2) - 2)))), r0
 
 label:
+	/* MUL instruction */
+	mul	r0,r1,r2	/* mul, r2 := msb, spr6d := lsb */
+
 	/* ADD instructions */
 	add	r0,r1,r2	/* add */
 	add.	r0,r1,r2	/* add, set carry */
@@ -89,6 +92,10 @@ testlabel:
 	jge	r0,r1,label	/* jump if greater or equal */
 	jg	r0,r1,label	/* jump if greater */
 	jle	r0,r1,label	/* jump if less or equal */
+	jdn	r0,r1,label	/* jump if difference is negative */
+	jdpz	r0,r1,label	/* jump if difference is non negative */
+	jdp	r0,r1,label	/* jump if difference is positive */
+	jdnz	r0,r1,label	/* jump if difference is non positive */
 
 	jzx	7,8,r0,r1,label	/* Jump if zero after shift and mask */
 	jnzx	7,8,r0,r1,label	/* Jump if nonzero after shift and mask */

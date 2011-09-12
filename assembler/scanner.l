@@ -82,6 +82,8 @@ lr/[0-3]		{ update_lineinfo(); return LR; }
 \<\<			{ update_lineinfo(); return LEFTSHIFT; }
 \>\>			{ update_lineinfo(); return RIGHTSHIFT; }
 
+mul			{ update_lineinfo(); return OP_MUL; }
+
 add			{ update_lineinfo(); return OP_ADD; }
 add\.			{ update_lineinfo(); return OP_ADDSC; }
 addc			{ update_lineinfo(); return OP_ADDC; }
@@ -120,6 +122,10 @@ jl			{ update_lineinfo(); return OP_JL; }
 jge			{ update_lineinfo(); return OP_JGE; }
 jg			{ update_lineinfo(); return OP_JG; }
 jle			{ update_lineinfo(); return OP_JLE; }
+jdn			{ update_lineinfo(); return OP_JDN; }
+jdpz			{ update_lineinfo(); return OP_JDPZ; }
+jdp			{ update_lineinfo(); return OP_JDP; }
+jdnz			{ update_lineinfo(); return OP_JDNZ; }
 jzx			{ update_lineinfo(); return OP_JZX; }
 jnzx			{ update_lineinfo(); return OP_JNZX; }
 jext			{ update_lineinfo(); return OP_JEXT; }

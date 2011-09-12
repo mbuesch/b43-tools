@@ -737,6 +737,9 @@ static void assemble_instruction(struct assembler_context *ctx,
 	unsigned int opcode;
 
 	switch (insn->op) {
+	case OP_MUL:
+		do_assemble_insn(ctx, insn, 0x101);
+		break;
 	case OP_ADD:
 		do_assemble_insn(ctx, insn, 0x1C0);
 		break;
@@ -853,6 +856,22 @@ static void assemble_instruction(struct assembler_context *ctx,
 		break;
 	case OP_JLE:
 		out = do_assemble_insn(ctx, insn, 0x0DC | 0x1);
+		out->is_jump_insn = 1;
+		break;
+	case OP_JDN:
+		out = do_assemble_insn(ctx, insn, 0x0D6);
+		out->is_jump_insn = 1;
+		break;
+	case OP_JDPZ:
+		out = do_assemble_insn(ctx, insn, 0x0D6 | 0x1);
+		out->is_jump_insn = 1;
+		break;
+	case OP_JDP:
+		out = do_assemble_insn(ctx, insn, 0x0D8);
+		out->is_jump_insn = 1;
+		break;
+	case OP_JDNZ:
+		out = do_assemble_insn(ctx, insn, 0x0D8 | 0x1);
 		out->is_jump_insn = 1;
 		break;
 	case OP_JZX:

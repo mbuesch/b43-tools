@@ -43,7 +43,7 @@ extern struct initvals_sect *cur_initvals_sect;
 
 %token EQUAL NOT_EQUAL LOGICAL_OR LOGICAL_AND PLUS MINUS MULTIPLY DIVIDE BITW_OR BITW_AND BITW_XOR BITW_NOT LEFTSHIFT RIGHTSHIFT
 
-%token OP_ADD OP_ADDSC OP_ADDC OP_ADDSCC OP_SUB OP_SUBSC OP_SUBC OP_SUBSCC OP_SRA OP_OR OP_AND OP_XOR OP_SR OP_SRX OP_SL OP_RL OP_RR OP_NAND OP_ORX OP_MOV OP_JMP OP_JAND OP_JNAND OP_JS OP_JNS OP_JE OP_JNE OP_JLS OP_JGES OP_JGS OP_JLES OP_JL OP_JGE OP_JG OP_JLE OP_JZX OP_JNZX OP_JEXT OP_JNEXT OP_CALL OP_CALLS OP_RET OP_RETS OP_TKIPH OP_TKIPHS OP_TKIPL OP_TKIPLS OP_NAP RAW_CODE
+%token OP_MUL OP_ADD OP_ADDSC OP_ADDC OP_ADDSCC OP_SUB OP_SUBSC OP_SUBC OP_SUBSCC OP_SRA OP_OR OP_AND OP_XOR OP_SR OP_SRX OP_SL OP_RL OP_RR OP_NAND OP_ORX OP_MOV OP_JMP OP_JAND OP_JNAND OP_JS OP_JNS OP_JE OP_JNE OP_JLS OP_JGES OP_JGS OP_JLES OP_JL OP_JGE OP_JG OP_JLE OP_JZX OP_JNZX OP_JEXT OP_JNEXT OP_JDN OP_JDPZ OP_JDP OP_JDNZ OP_CALL OP_CALLS OP_RET OP_RETS OP_TKIPH OP_TKIPHS OP_TKIPL OP_TKIPLS OP_NAP RAW_CODE
 
 %token IVAL_MMIO16 IVAL_MMIO32 IVAL_PHY IVAL_RADIO IVAL_SHM16 IVAL_SHM32 IVAL_TRAM
 
@@ -174,6 +174,13 @@ statement	: asmdir {
 			INIT_LIST_HEAD(&s->list);
 			s->type = STMT_LABEL;
 			s->u.label = $1;
+			$$ = s;
+		  }
+		| insn_mul {
+			struct statement *s = xmalloc(sizeof(struct statement));
+			INIT_LIST_HEAD(&s->list);
+			s->type = STMT_INSN;
+			s->u.insn = $1;
 			$$ = s;
 		  }
 		| insn_add {
@@ -393,6 +400,34 @@ statement	: asmdir {
 			s->u.insn = $1;
 			$$ = s;
 		  }
+		| insn_jdn {
+			struct statement *s = xmalloc(sizeof(struct statement));
+			INIT_LIST_HEAD(&s->list);
+			s->type = STMT_INSN;
+			s->u.insn = $1;
+			$$ = s;
+		  }
+		| insn_jdpz {
+			struct statement *s = xmalloc(sizeof(struct statement));
+			INIT_LIST_HEAD(&s->list);
+			s->type = STMT_INSN;
+			s->u.insn = $1;
+			$$ = s;
+		  }
+		| insn_jdp {
+			struct statement *s = xmalloc(sizeof(struct statement));
+			INIT_LIST_HEAD(&s->list);
+			s->type = STMT_INSN;
+			s->u.insn = $1;
+			$$ = s;
+		  }
+		| insn_jdnz {
+			struct statement *s = xmalloc(sizeof(struct statement));
+			INIT_LIST_HEAD(&s->list);
+			s->type = STMT_INSN;
+			s->u.insn = $1;
+			$$ = s;
+		  }
 		| insn_jl {
 			struct statement *s = xmalloc(sizeof(struct statement));
 			INIT_LIST_HEAD(&s->list);
@@ -588,6 +623,15 @@ label		: LABEL {
 			l[strlen(l) - 1] = '\0';
 			label->name = l;
 			$$ = label;
+		  }
+		;
+
+/* multiply */
+insn_mul	: OP_MUL operlist_3 {
+			struct instruction *insn = xmalloc(sizeof(struct instruction));
+			insn->op = OP_MUL;
+			insn->operands = $2;
+			$$ = insn;
 		  }
 		;
 
@@ -892,6 +936,38 @@ insn_jzx	: OP_JZX extended_operlist {
 insn_jnzx	: OP_JNZX extended_operlist {
 			struct instruction *insn = xmalloc(sizeof(struct instruction));
 			insn->op = OP_JNZX;
+			insn->operands = $2;
+			$$ = insn;
+		  }
+		;
+
+insn_jdn	: OP_JDN operlist_3 {
+			struct instruction *insn = xmalloc(sizeof(struct instruction));
+			insn->op = OP_JDN;
+			insn->operands = $2;
+			$$ = insn;
+		  }
+		;
+
+insn_jdpz	: OP_JDPZ operlist_3 {
+			struct instruction *insn = xmalloc(sizeof(struct instruction));
+			insn->op = OP_JDPZ;
+			insn->operands = $2;
+			$$ = insn;
+		  }
+		;
+
+insn_jdp	: OP_JDP operlist_3 {
+			struct instruction *insn = xmalloc(sizeof(struct instruction));
+			insn->op = OP_JDP;
+			insn->operands = $2;
+			$$ = insn;
+		  }
+		;
+
+insn_jdnz	: OP_JDNZ operlist_3 {
+			struct instruction *insn = xmalloc(sizeof(struct instruction));
+			insn->op = OP_JDNZ;
 			insn->operands = $2;
 			$$ = insn;
 		  }

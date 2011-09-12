@@ -284,6 +284,12 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 	struct bin_instruction *bin = stmt->u.insn.bin;
 
 	switch (bin->opcode) {
+	case 0x101:
+		stmt->u.insn.name = "mul";
+		disasm_std_operand(stmt, 0, 0);
+		disasm_std_operand(stmt, 1, 1);
+		disasm_std_operand(stmt, 2, 2);
+		break;
 	case 0x1C0:
 		stmt->u.insn.name = "add";
 		disasm_std_operand(stmt, 0, 0);
@@ -457,28 +463,28 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case 0x0D6:
-		stmt->u.insn.name = "@D6"; /* FIXME */
+		stmt->u.insn.name = "jdn";
 		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case (0x0D6 | 0x1):
-		stmt->u.insn.name = "@D7"; /* FIXME */
+		stmt->u.insn.name = "jdpz";
 		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case 0x0D8:
-		stmt->u.insn.name = "@D8"; /* FIXME */
+		stmt->u.insn.name = "jdp";
 		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
 		disasm_std_operand(stmt, 1, 1);
 		break;
 	case (0x0D8 | 0x1):
-		stmt->u.insn.name = "@D9"; /* FIXME */
+		stmt->u.insn.name = "jdnz";
 		stmt->u.insn.labelref_operand = 2;
 		stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
 		disasm_std_operand(stmt, 0, 0);
