@@ -16,6 +16,7 @@ sub       | A,B,rD     | Subtract                        | rD=A-B
 sub.      | A,B,rD     | Sub, set Carry                  | rD=A-B SaveCarry
 subc      | A,B,rD     | Sub with Carry                  | rD=A-B-Carry
 subc.     | A,B,rD     | Sub with Carry, set Carry       | rD=A-B-C SaveCarry
+mul       | A,B,rD     | multiply (rev 11+ only)         | spr06d=lsb; rD=msb
 
 Branch instructions:
 jmp       | l          | Uncond. jump (virtual instr.)   | PC=l
@@ -33,6 +34,10 @@ jl        | A,B,l      | Jump if less                    | if(A<B) PC=l
 jge       | A,B,l      | Jump if greater or equal        | if(A>=B) PC=l
 jg        | A,B,l      | Jump if greater                 | if(A>B) PC=l
 jle       | A,B,l      | Jump if less or equal           | if(A<=B) PC=l
+jdn       | A,B,l      | Jump if diff is < 0, no carry   | if(nc(A-B)<0) PC=l
+jdpz      | A,B,l      | Jump if diff is >= 0, no carry  | if(nc(A-B)>=0) PC=l
+jdp       | A,B,l      | Jump if diff is > 0, no carry   | if(nc(A-B)>0) PC=l
+jdnz      | A,B,l      | Jump if diff is <= 0, no carry  | if(nc(A-B)<=0) PC=l
 call      | lrX,l      | Store PC, call function         | lrX=PC; PC=l
 calls     | l          | Store PC, call function         | PC->stack; PC=l
 ret       | lrX,lrY    | Store PC, ret from func         | lrX=PC; PC=lrY
