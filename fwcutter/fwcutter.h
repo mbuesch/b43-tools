@@ -15,6 +15,8 @@
 typedef uint16_t be16_t; /* Big-endian 16bit */
 typedef uint32_t be32_t; /* Big-endian 32bit */
 
+typedef uint32_t le32_t; /* Little-endian 32bit */
+
 #if defined(__DragonFly__) || defined(__FreeBSD__)
 #define bswap_16	bswap16
 #define bswap_32	bswap32
@@ -25,9 +27,10 @@ typedef uint32_t be32_t; /* Big-endian 32bit */
 #define ARG_ERROR	-1
 
 enum fwcutter_mode {
-	FWCM_EXTRACT = 0,	/* default */
+	FWCM_EXTRACT_B43 = 0,	/* default */
 	FWCM_LIST,
 	FWCM_IDENTIFY,
+	FWCM_EXTRACT_BRCMSMAC,
 };
 
 struct cmdline_args {
@@ -104,5 +107,31 @@ struct b43_iv {
 #define FW_IV_OFFSET_MASK	0x7FFF
 #define FW_IV_32BIT		0x8000
 
+/* header format for brcmsmac firmware */
+struct firmware_hdr {
+	le32_t offset;
+	le32_t len;
+	le32_t idx;
+};
+
+/* numbers of firmware types for brcmsmac firmware */
+enum firmware_brcmsmac {
+	D11UCODE_NAMETAG_START = 0,
+	D11LCN0BSINITVALS24,
+	D11LCN0INITVALS24,
+	D11LCN1BSINITVALS24,
+	D11LCN1INITVALS24,
+	D11LCN2BSINITVALS24,
+	D11LCN2INITVALS24,
+	D11N0ABSINITVALS16,
+	D11N0BSINITVALS16,
+	D11N0INITVALS16,
+	D11UCODE_OVERSIGHT16_MIMO,
+	D11UCODE_OVERSIGHT16_MIMOSZ,
+	D11UCODE_OVERSIGHT24_LCN,
+	D11UCODE_OVERSIGHT24_LCNSZ,
+	D11UCODE_OVERSIGHT_BOMMAJOR,
+	D11UCODE_OVERSIGHT_BOMMINOR
+};
 
 #endif /* _FWCUTTER_H_ */
