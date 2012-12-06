@@ -449,7 +449,7 @@ static int brcmsmac_name_to_idx(const char *name)
 		return D11N0INITVALS16;
 	} else if (strcmp("ucode16_mimo", name) == 0) {
 		return D11UCODE_OVERSIGHT16_MIMO;
-	} else if (strcmp("ucode24_mimo", name) == 0) {
+	} else if (strcmp("ucode24_lcn", name) == 0) {
 		return D11UCODE_OVERSIGHT24_LCN;
 	}
 	return 0;
@@ -459,7 +459,7 @@ static int brcmsmac_name_to_size_idx(const char *name)
 {
 	if (strcmp("ucode16_mimo", name) == 0) {
 		return D11UCODE_OVERSIGHT16_MIMOSZ;
-	} else if (strcmp("ucode24_mimo", name) == 0) {
+	} else if (strcmp("ucode24_lcn", name) == 0) {
 		return D11UCODE_OVERSIGHT24_LCNSZ;
 	}
 	return 0;
