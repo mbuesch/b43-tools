@@ -23,4 +23,4 @@ hook_get_version()
 
 project=b43-fwcutter
 srcsubdir=fwcutter
-makerelease $@
+makerelease "$@"
