@@ -5,10 +5,9 @@
 About this software
 -------------------
 
-b43-fwcutter is a tool which can extract firmware from various source files.
-It's written for BCM43xx driver files.
+http://wireless.kernel.org/en/users/Drivers/b43
 
-The project page is http://bcm43xx.berlios.de/
+b43-fwcutter is a tool to extract firmware from binary Broadcom 43xx driver files.
 
 
 Usage
