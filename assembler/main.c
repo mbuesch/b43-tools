@@ -1260,7 +1260,7 @@ static void initialize(void)
 {
 	INIT_LIST_HEAD(&infile.sl);
 	INIT_LIST_HEAD(&infile.ivals);
-#ifdef YYDEBUG
+#if YYDEBUG
 	if (IS_INSANE_DEBUG)
 		yydebug = 1;
 	else

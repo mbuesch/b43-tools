@@ -30,7 +30,7 @@ BIN		= b43-asm.bin
 SRCS		= parser.c scanner.c main.c initvals.c util.c args.c
 
 # YACC related CFLAGS
-CFLAGS		+= -DYYSTYPE="void *" -DYYERROR_VERBOSE -DYYDEBUG -DYYENABLE_NLS=0 -DYYLTYPE_IS_TRIVIAL=0 -Wno-unused
+CFLAGS		+= -DYYSTYPE="void *" -DYYERROR_VERBOSE -DYYDEBUG=1 -DYYENABLE_NLS=0 -DYYLTYPE_IS_TRIVIAL=0 -Wno-unused
 
 .SUFFIXES:
 .PHONY: all install clean distclean
