@@ -23,7 +23,7 @@
 #include <stdint.h>
 
 extern char *yytext;
-extern void yyerror(char *);
+extern void yyerror(const char *);
 extern int yyparse(void);
 extern int yylex(void);
 
@@ -1471,7 +1471,7 @@ identifier	: IDENT {
 int section = SECTION_TEXT; /* default to .text section */
 struct initvals_sect *cur_initvals_sect;
 
-void yyerror(char *str)
+void yyerror(const char *str)
 {
 	unsigned int i;
 
