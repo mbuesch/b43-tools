@@ -1,4 +1,4 @@
-VERSION = 017
+VERSION = 018
 
 # The toolchain definitions
 CC		= cc
