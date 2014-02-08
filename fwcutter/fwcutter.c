@@ -40,6 +40,8 @@
 
 #if defined(__DragonFly__) || defined(__FreeBSD__)
 #include <sys/endian.h>
+#elif defined(__APPLE__)
+#include <libkern/OSByteOrder.h>
 #else
 #include <byteswap.h>
 #endif

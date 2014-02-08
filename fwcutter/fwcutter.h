@@ -20,6 +20,9 @@ typedef uint32_t le32_t; /* Little-endian 32bit */
 #if defined(__DragonFly__) || defined(__FreeBSD__)
 #define bswap_16	bswap16
 #define bswap_32	bswap32
+#elif defined(__APPLE__)
+#define bswap_16	OSSwapInt16
+#define bswap_32	OSSwapInt32
 #endif
 
 #define ARG_MATCH	0
