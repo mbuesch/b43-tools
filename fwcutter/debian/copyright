@@ -4,7 +4,7 @@ Source: http://linuxwireless.org/en/users/Drivers/b43
 
 Files: *
 Copyright: 2005-2011 Martin Langer <martin-langer@gmx.de>
-	   2005-2011 Michael Buesch <mbuesch@freenet.de>
+	   2005-2014 Michael Buesch <m@bues.ch>
 	   2005-2011 Alex Beregszaszi <alex@fsn.hu>
 License: BSD-2-Clause
 
