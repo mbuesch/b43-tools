@@ -15,15 +15,5 @@
 *.fw
 *.asm
 
-# stgit generated dirs
-patches-*
-
-# quilt's files
-patches
-series
-
-# cscope files
-cscope.*
-
 *.orig
 *.rej
