@@ -1,0 +1,55 @@
+# German translation of the b43-fwcutter debconf template.
+# Copyright: 2006 Rene Engelhard, 2011 Fabrizio Regalli,2013 Daniel Echeverry.
+# This file is distributed under the same license as the b43-fwcutter package.
+# Translation (C) 2013 by Chris Leick <c.leick@vollbio.de>.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: b43-fwcutter 1:017-2\n"
+"Report-Msgid-Bugs-To: b43-fwcutter@packages.debian.org\n"
+"POT-Creation-Date: 2013-06-06 07:14+0200\n"
+"PO-Revision-Date: 2013-06-06 22:10+0100\n"
+"Last-Translator: Chris Leick <c.leick@vollbio.de>\n"
+"Language-Team: German <debian-l10n-german@lists.debian.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid "Install b43 firmware even if no such device is present?"
+msgstr "B43-Firmware installieren, obwohl kein derartiges Gerät vorhanden ist?"
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid ""
+"The b43 packages are designed to handle firmware for Broadcom 43xx wireless "
+"network cards."
+msgstr ""
+"Die B43-Pakete wurden zur Handhabung der Firmware von drahtlosen "
+"Broadcom-43xx-Netzwerkkarten entworfen."
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid ""
+"Please choose whether they should download and install firmware even if the "
+"corresponding hardware is not currently present on the system."
+msgstr ""
+"Bitte wählen Sie, ob Sie die Firmware herunterladen und installieren "
+"möchten, obwohl die zugehörige Hardware derzeit nicht im System vorhanden "
+"ist."
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid ""
+"This might be useful if you plan to move this installation to different "
+"hardware or share the same installation across multiple systems."
+msgstr ""
+"Dies kann nützlich sein, falls Sie planen, die Installation auf "
+"unterschiedliche Hardware zu verschieben oder dieselbe Installation über "
+"mehrere Systeme hinweg gemeinsam zu benutzen."

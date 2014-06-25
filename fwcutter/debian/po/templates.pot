@@ -1,0 +1,48 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: b43-fwcutter\n"
+"Report-Msgid-Bugs-To: b43-fwcutter@packages.debian.org\n"
+"POT-Creation-Date: 2013-06-06 07:14+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid "Install b43 firmware even if no such device is present?"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid ""
+"The b43 packages are designed to handle firmware for Broadcom 43xx wireless "
+"network cards."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid ""
+"Please choose whether they should download and install firmware even if the "
+"corresponding hardware is not currently present on the system."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid ""
+"This might be useful if you plan to move this installation to different "
+"hardware or share the same installation across multiple systems."
+msgstr ""

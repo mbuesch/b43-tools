@@ -1,0 +1,92 @@
+#!/bin/sh
+
+set -e
+
+. /usr/share/debconf/confmodule
+
+tmp=`mktemp -q -d`
+
+latest_firmware ()
+{
+cd $tmp
+export FIRMWARE_INSTALL_DIR="/lib/firmware"
+
+# use apt proxy
+APT_PROXIES=$(apt-config shell \
+http_proxy Acquire::http::Proxy \
+https_proxy Acquire::https::Proxy \
+ftp_proxy Acquire::ftp::Proxy \
+)
+
+if [ -n "$APT_PROXIES" ]; then
+        eval export $APT_PROXIES
+fi
+
+wget --timeout=60 http://downloads.openwrt.org/sources/wl_apsta-3.130.20.0.o
+if [ $? -ne 0 ]; then
+        echo "Some problem occurred during the firmware download. Please check your internet connection."
+        exit 0
+    else
+	if [ -d /lib/firmware/b43legacy ]; then
+	   echo "Deleting old extracted firmware..."
+	   rm -rf /lib/firmware/b43legacy
+	fi
+fi
+b43-fwcutter -w "$FIRMWARE_INSTALL_DIR" wl_apsta-3.130.20.0.o
+rm -rf $tmp
+}
+
+# check environment
+if [ "$(stat -c %d/%i /)" != "$(stat -Lc %d/%i /proc/1/root 2>/dev/null)" ];
+ then
+    echo "A chroot environment has been detected."
+    echo "Remember this firmware needs kernel >= 2.6.25."
+    latest_firmware
+    exit 0
+ else
+    echo "No chroot environment found. Starting normal installation"
+fi
+
+# install firmware unconditional if the corresponding debconf value is true
+# this is usefull for live-systems or similar systems that should work on
+# changing hardware
+db_get b43-fwcutter/install-unconditional
+if [ "$RET" = "true" ] ; then
+    latest_firmware
+    exit 0
+fi
+
+# Fix for BCM4306 [14e4:4320] (rev 02)
+chip=`lspci -n | grep -o "14e4:4320 (rev 02)"` || true
+if [ "$chip" ] ; then
+   echo "Your card is BCM4306 [14e4:4320] (rev 02), using b43legacy firmware"
+   latest_firmware
+   exit 0
+fi
+
+# check chip
+supported=0
+pci=`lspci -n | grep -o "14e4:[1234567890abcdef]\+"` || true
+
+if [ -n "$pci" ]; then
+        for device in $pci; do
+                device_id=`echo $device | cut -d: -f2`
+                case $device_id in
+                4301 | 4306 | 4320 | 4324 |  4325)
+                        supported=1
+                        break
+                ;;
+		esac
+        done
+fi
+
+if [ "$supported" = 0 ]; then
+        echo "No supported card found."
+        echo "Use b43 firmware. This is just for the b43legacy driver."
+        echo "Aborting."
+        exit 0
+fi
+
+latest_firmware
+
+#DEBHELPER#

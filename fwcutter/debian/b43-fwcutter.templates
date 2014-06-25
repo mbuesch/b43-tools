@@ -1,0 +1,21 @@
+# These templates have been reviewed by the debian-l10n-english
+# team
+#
+# If modifications/additions/rewording are needed, please ask
+# debian-l10n-english@lists.debian.org for advice.
+#
+# Even minor modifications require translation updates and such
+# changes should be coordinated with translators and reviewers.
+
+Template: b43-fwcutter/install-unconditional
+Type: boolean
+Default: true
+_Description: Install b43 firmware even if no such device is present?
+ The b43 packages are designed to handle firmware for Broadcom 43xx
+ wireless network cards.
+ .
+ Please choose whether they should download and install firmware even
+ if the corresponding hardware is not currently present on the system.
+ .
+ This might be useful if you plan to move this installation to different
+ hardware or share the same installation across multiple systems.

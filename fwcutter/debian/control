@@ -1,0 +1,50 @@
+Source: b43-fwcutter
+Section: contrib/utils
+Priority: optional
+Maintainer: Daniel Echeverry <epsilon77@gmail.com>
+Build-Depends: debhelper (>= 9), po-debconf, debconf
+Standards-Version: 3.9.4
+Homepage: http://wireless.kernel.org/en/users/Drivers/b43
+Vcs-Git: git://anonscm.debian.org/collab-maint/b43-fwcutter.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/b43-fwcutter.git
+
+Package: b43-fwcutter
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: utility for extracting Broadcom 43xx firmware
+ This package provides a tool for extracting BCM43xx wireless chip
+ firmware from Broadcom's proprietary driver files.
+ .
+ It is used by the firmware-b43(legacy)-installer packages as part of
+ the automated process of downloading and installing firmware.
+
+Package: firmware-b43-installer
+Section: contrib/kernel
+Architecture: all
+Depends: b43-fwcutter (>= ${source:Version}), bzip2, wget, ${misc:Depends} 
+Replaces: firmware-b43-lpphy-installer (<= 1:015-14)
+Breaks: firmware-b43-lpphy-installer (<= 1:015-14)
+Description: firmware installer for the b43 driver
+ This package downloads and installs the firmware needed by the b43
+ kernel driver for some Broadcom 43xx wireless network cards.
+ .
+ Supported chipsets:
+  * BCM4306/3;
+  * BCM4311;
+  * BCM4318;
+  * BCM4321;
+  * BCM4322 (only 14e4:432b);
+  * BCM4312 (with Low-Power a.k.a. LP-PHY).
+
+Package: firmware-b43legacy-installer
+Section: contrib/kernel
+Architecture: all
+Depends: b43-fwcutter (>= ${source:Version}), wget, ${misc:Depends}
+Description: firmware installer for the b43legacy driver
+ This package downloads and installs the firmware needed by the b43legacy
+ kernel driver for some Broadcom 43xx wireless network cards.
+ .
+ Supported chipsets:
+  * BCM4301;
+  * BCM4306/2;
+  * BCM4306.

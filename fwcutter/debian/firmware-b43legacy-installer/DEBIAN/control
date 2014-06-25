@@ -1,0 +1,18 @@
+Package: firmware-b43legacy-installer
+Source: b43-fwcutter
+Version: 1:018-2
+Architecture: all
+Maintainer: Daniel Echeverry <epsilon77@gmail.com>
+Installed-Size: 55
+Depends: b43-fwcutter (>= 1:018-2), wget
+Section: contrib/kernel
+Priority: optional
+Homepage: http://wireless.kernel.org/en/users/Drivers/b43
+Description: firmware installer for the b43legacy driver
+ This package downloads and installs the firmware needed by the b43legacy
+ kernel driver for some Broadcom 43xx wireless network cards.
+ .
+ Supported chipsets:
+  * BCM4301;
+  * BCM4306/2;
+  * BCM4306.

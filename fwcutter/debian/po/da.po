@@ -1,0 +1,54 @@
+# Danish translation b43-fwcutter.
+# Copyright (C) 2013 b43-fwcutter & nedenstående oversættere.
+# This file is distributed under the same license as the b43-fwcutter package.
+# Joe Hansen <joedalton2@yahoo.dk>, 2013.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: b43-fwcutter\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-06-25 07:12+0200\n"
+"PO-Revision-Date: 2013-07-09 05:26+0100\n"
+"Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
+"Language-Team: Danish <debian-l10n-danish@lists.debian.org>\n"
+"Language: da\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid "Install b43 firmware even if no such device is present?"
+msgstr "Installer b43-firmware selv hvis ingen sådan enhed er til stede?"
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid ""
+"The b43 packages are designed to handle firmware for Broadcom 43xx wireless "
+"network cards."
+msgstr ""
+"b43-pakkerne er designet til at håndtere firmware for Broadcom 43xx trådløse "
+"netværkskort."
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid ""
+"Please choose whether they should download and install firmware even if the "
+"corresponding hardware is not currently present on the system."
+msgstr ""
+"Vælg hvorvidt de skal hente og installere firmware selv hvis det tilsvarende "
+"udstyr ikke aktuelt er til stede på systemet."
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid ""
+"This might be useful if you plan to move this installation to different "
+"hardware or share the same installation across multiple systems."
+msgstr ""
+"Dette kan være nyttigt hvis du planlægger at flytte denne installation til forskelligt udstyr eller "
+"dele den samme installation over flere systemer."
+

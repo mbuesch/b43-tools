@@ -1,0 +1,61 @@
+# Translation of b43-fwcutter to spanish
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Daniel Echeverry <epsilon77@gmail.com>, 2013.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: b43-fwcutter\n"
+"Report-Msgid-Bugs-To: b43-fwcutter@packages.debian.org\n"
+"POT-Creation-Date: 2013-06-06 07:14+0200\n"
+"PO-Revision-Date: 2013-01-31 09:25-0500\n"
+"Last-Translator: Daniel Echeverry <epsilon77@gmail.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid "Install b43 firmware even if no such device is present?"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid ""
+"The b43 packages are designed to handle firmware for Broadcom 43xx wireless "
+"network cards."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid ""
+"Please choose whether they should download and install firmware even if the "
+"corresponding hardware is not currently present on the system."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+#, fuzzy
+#| msgid ""
+#| "Should the installer package download and install firmware for hardware "
+#| "that is not currently present on the system. This is useful if you plan "
+#| "to move this installation to different hardware or share the same "
+#| "installation on different systems."
+msgid ""
+"This might be useful if you plan to move this installation to different "
+"hardware or share the same installation across multiple systems."
+msgstr ""
+"Usted puede descargar e instalar el firmware aun sin tener el hardware "
+"presenteesto es util, si usted planea mover esta instalacion a un hardware "
+"diferenteo compartir esta instalacion en diferentes sistemas."
+
+#~ msgid "Install firmware for hardware not present on this system?"
+#~ msgstr ""
+#~ "¿Desea instalar este firmware en este sistema aun sin tener el hardware "
+#~ "presente?"

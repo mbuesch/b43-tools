@@ -1,0 +1,568 @@
+b43-fwcutter (1:018-2) unstable; urgency=low
+
+  * debian/control
+    + Remove Recommends field allow auto-removal
+      of linux-image-* packages. (Closes: #724567)
+
+ -- Daniel Echeverry <epsilon77@gmail.com>  Wed, 25 Sep 2013 20:39:11 -0500
+
+b43-fwcutter (1:018-1) unstable; urgency=low
+
+  * New upstream release.
+  * Add Danish translation. (Closes: #715489)
+  * debian/patches
+    + Refreshed patch fix-manpage
+
+ -- Daniel Echeverry <epsilon77@gmail.com>  Mon, 12 Aug 2013 19:28:11 -0500
+
+b43-fwcutter (1:017-2) unstable; urgency=low
+
+  * Debconf templates and debian/control reviewed by the debian-l10n-
+    english team as part of the Smith review project. (Closes: #707562)
+  * [Debconf translation updates]
+    + Indonesian (Mahyuddin Susanto). (Closes: #711295)
+    + Czech (Michal Simunek). (Closes: #711509)
+    + French (Julien Patriarca). (Closes: #711857)
+    + Russian (Yuri Kozlov). (Closes: #711885)
+    + Portuguese (Pedro Ribeiro). (Closes: #712135)
+    + German (Chris Leick). (Closes: #712276)
+    + Italian (Beatrice Torracca). (Closes: #712480)
+    + Swedish (Martin Bagge / brother). (Closes: #712651)
+    + Japanese (victory). (Closes: #712874)
+    + Polish (Michał Kułach). (Closes: #712922)
+
+ -- Daniel Echeverry <epsilon77@gmail.com>  Fri, 10 May 2013 11:58:26 +0200
+
+b43-fwcutter (1:017-1) unstable; urgency=low
+
+  * Upload to unstable
+  * debian/firmware-b43legacy-installer.lintian-overrides
+    + Use proper package name in lintian override
+
+ -- Daniel Echeverry <epsilon77@gmail.com>  Mon, 06 May 2013 21:40:30 -0500
+
+b43-fwcutter (1:017-1~experimental2) experimental; urgency=low
+
+  * Fix unowned directory after purge. (Closes: #677154)
+    + Add debian/firmware-b43-installer.dirs file
+    + Add debian/firmware-b43legacy-installer.dirs file
+    + Add *.lintian-overrides file
+    + remove lines from *.postinst to use .dirs files
+
+ -- Daniel Echeverry <epsilon77@gmail.com>  Mon, 18 Feb 2013 21:08:48 -0500
+
+b43-fwcutter (1:017-1~experimental1) experimental; urgency=low
+
+  * New upstream release.
+  * New Maintainer. (Closes: #698759)
+  * debian/control
+    + Set myself as Maintainer.
+    + Remove firmware-b43-lpphy-installer package. (Closes: #657837)
+      + Firmware-b43-installer now supports BCM4312.
+    + Update firmware-b43-installer description.
+    + Change debhelper to 9 in B-D.
+    + Bump Standard Versions 3.9.4.
+    + Switch compat level 8 to 9.
+    + Remove dm-upload field.
+    + Remove conflict field.
+    + Add po-debconf and debconf in B-D.
+  * debian/rules
+    + Add security Flags.
+    + Use tiny rules.
+  * Remove firmware-b43-lpphy-installer.* files.
+  * Firmware-b43-installer now support BCM4331. (Closes: #682427)
+  * Add debconf support. Thanks to Gaudenz. (Closes: #698348)
+    + Allow installation without corresponding hardware.
+    + Add es.po translation.
+  * Update copyright file.
+  * Remove debian/series file.
+  * Update watch file.
+  * Remove README.firmware-b43-lpphy-installer file.
+
+ -- Daniel Echeverry <epsilon77@gmail.com>  Mon, 04 Feb 2013 10:05:30 -0500
+
+b43-fwcutter (1:015-14) unstable; urgency=low
+
+  * Back to original /lib/firmware directory for all
+    firmware versions (Closes: #666522)
+  * Back to origianl directory in firmware-b43-lpphy-installer.postrm
+    script
+  * Update firmware to 5.100.138 version (Closes: #656574)
+  * $FIRMAWARE_INSTALL_DIR is longer used for deletion/creation of directory
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Sat, 31 Mar 2012 20:27:52 +0200
+
+b43-fwcutter (1:015-13) unstable; urgency=low
+
+  * Each firmware has its own folder:
+    /lib/firmware/b43 for firmware-b43-installer package
+    /lib/firmware/b43-lpphy for firmware-b43-lpphy package
+    /lib/firmware/b43legacy for firmware-b43legacy package
+  * Changed directory "/lib/firmware/b43-lpphy" in
+    firmware-b43-lpphy-installer.postrm script
+  * Changed creation of directory FIRMWARE_INSTALL_DIR moving
+    the first control inside the if statement in each posinst
+    scripts
+  * Use 3.130.20.0 firmware for BCM4306 [14e4:4320] (rev 02) (Closes: #666165)
+  * Bump Standards-Version to 3.9.3
+  * Update debian/copyright format as in Debian Policy 3.9.3
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Thu, 29 Mar 2012 18:46:12 +0200
+
+b43-fwcutter (1:015-12) unstable; urgency=low
+
+  * Replaced if-statement using case-statement in
+    firmware-b43legacy-installer.postinst and
+    firmware-b43-lpphy-installer.postinst scripts
+  * Changed "/lib/firmware/b43legacy" directory in
+    firmware-b43legacy-installer.postrm script
+    (Closes: #656166, #653009)
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Tue, 17 Jan 2012 18:34:50 +0100
+
+b43-fwcutter (1:015-11) unstable; urgency=low
+
+  * Using firmware 5.10.56.27.3 for BCM4306 802.11a/b/g
+    [14e4:4324] (rev 03) card instead of previous legacy
+    one (Closes: #652821)
+  * Fixed 'dpkg --compare-versions' in firmware-b43-installer.postinst
+    script.
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Tue, 20 Dec 2011 19:22:53 +0100
+
+b43-fwcutter (1:015-10) unstable; urgency=low
+
+  * Fixed 'dpkg --compare-versions' in firmware-b43-lpphy-installer.postinst
+    script (Closes: #651800)
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Mon, 12 Dec 2011 20:02:53 +0100
+
+b43-fwcutter (1:015-9) unstable; urgency=low
+
+  * Install firmware-b43legacy unconditionally when installed in chroot
+    environment (Closes: #650099)
+  * Fixed again if statement: back from single pipe to original
+    duoble pipes of or condition (Closes: #650103)
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Sat, 26 Nov 2011 17:04:23 +0100
+
+b43-fwcutter (1:015-8) unstable; urgency=low
+
+  * Added missing firmware download for b43legacy driver
+    (Closes: #650083)
+  * Fixed if statement syntax into firmware-b43legacy-installer.postinst
+    script
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Sat, 26 Nov 2011 14:10:41 +0100
+
+b43-fwcutter (1:015-7) unstable; urgency=low
+
+  * Moved tmp=`mktemp -q -d` command on top into postinst scripts
+    for using real /tmp/tmp.* directory.
+  * Fixed check kernel in postinst: replaced 'gt' with 'ge'
+  * Removes old firmware only in case 'purge' or 'remove' options
+    are invoked (Closes: #649130)
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Fri, 18 Nov 2011 12:05:23 +0100
+
+b43-fwcutter (1:015-6) unstable; urgency=low
+
+  * Add support for device 14e4:4325 BCM4306
+    Thanks to Geoff Simmons for the pactch (Closes: #649143)
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Fri, 18 Nov 2011 09:37:09 +0100
+
+b43-fwcutter (1:015-5) unstable; urgency=low
+
+  * Added BCM43224 and BCM43225 chips and moved BCM43224
+    device ID 0576 from the unsupported to nottested list.
+    Thanks to Geoff Simmons for the pactch (Closes: #648917)
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Wed, 16 Nov 2011 10:58:15 +0100
+
+b43-fwcutter (1:015-4) unstable; urgency=low
+
+  * Added README.firmware-b43-lpphy-installer (Closes: #589867)
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Sun, 06 Nov 2011 11:22:28 +0100
+
+b43-fwcutter (1:015-3) unstable; urgency=low
+
+  * Fixed unversioned-copyright-format-url lintian message
+  * Fixed firmware-b43-lpphy-installer posinst script (Closes: #644816)
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Sun, 09 Oct 2011 14:48:19 +0200
+
+b43-fwcutter (1:015-2) unstable; urgency=low
+
+  * Fixed lintian comma-separated-files-in-dep5-copyright message
+  * Added check for chroot environment (Closes: #586605)
+  * Added DM-Upload-Allowed field.
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Mon, 26 Sep 2011 12:06:56 +0200
+
+b43-fwcutter (1:015-1) unstable; urgency=low
+
+  * New upstream version.
+  * Removed BCM4303 as a supported chipset in the long description
+    of the firmware-b43legacy-installer package along with the
+    the reference to it in firmware-b43-installer's postinst. (Closes: #637935)
+  * Removed preinst scripts. The code is moved to postinst scripts.
+    In this way removing of /lib/firmware/b43* directories is only
+    possibile if the firmware was downloaded correctly. (Closes: #638668)
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Tue, 23 Aug 2011 01:33:08 +0200
+
+b43-fwcutter (1:014-9) unstable; urgency=low
+
+  * Match alphabetic characters as well. (Closes: #636503)
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Wed, 03 Aug 2011 19:22:16 +0200
+
+b43-fwcutter (1:014-8) unstable; urgency=low
+
+  * Fixed 'exit' status in *.postinst scripts. (Closes: #636337)
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Wed, 03 Aug 2011 10:13:19 +0200
+
+b43-fwcutter (1:014-7) unstable; urgency=low
+
+  * Fixed firmware-b43-installer.postinst script. (Closes: #636258)
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Tue, 02 Aug 2011 00:41:14 +0200
+
+b43-fwcutter (1:014-6) unstable; urgency=low
+
+  * Install new firmware for BCM4306/3 card. (Closes: #636077)
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Sun, 31 Jul 2011 01:40:29 +0200
+
+b43-fwcutter (1:014-5) unstable; urgency=low
+
+  * firmware-b43-installer is uninstallable on 14e4:4328. Closes: #635577
+  * Added build-arch and build-indep rules
+  * Upgrade compat level to 8
+  * Switch debhelper to (>= 8)
+  * Added myself to d/copyright
+  * Updated all PCI-ID in postinst script
+  * Added support for BCM4306 to b43legacy driver
+  * Added support for cards
+    - BCM4321
+    - BCM4322 (only 14e4:432b)
+  * Removed Daniel Echeverry from Uploaders
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Wed, 27 Jul 2011 09:46:34 +0200
+
+b43-fwcutter (1:014-4) unstable; urgency=low
+
+  * Add proxy support for downloading. (Closes: #628126)
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Tue, 31 May 2011 11:36:49 +0200
+
+b43-fwcutter (1:014-3) unstable; urgency=low
+
+  * Removed *.bz2 files and directory created from installer. Closes: #625876
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Fri, 06 May 2011 16:44:20 +0200
+
+b43-fwcutter (1:014-2) unstable; urgency=low
+
+  [ Fabrizio Regalli ]
+  * Fixed wrong wget url. (Closes: #623703)
+  * Fixed typo. (Closes: #623748)
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Fri, 22 Apr 2011 20:10:57 +0200
+
+b43-fwcutter (1:014-1) unstable; urgency=low
+
+  [ Fabrizio Regalli ]
+  * New maintainers. (Closes: #581798)
+  * Added new firmware 478.104 to some non-lpphy cards. (Closes: #622962)
+  * Added Vcs-* repository.
+  * Removed duplicate 'Homepage' fields to make lintian happy.
+  * Moved to BinNMU.
+
+  [Daniel Echeverry ]
+  * New upstream release.
+  * Update copyright file to DEP5. (Closes: #617688)
+  * Fixed multiple PCI devices with PCI IDS. (Closes: #599741)
+    Thanks to Geoff Simmons for the patches!
+  * Removed BCM4312 as a supported chipset. (Closes: #617394)
+  * Change debhelper to 7.0.50 in B-D.
+  * Bump Standard Versions 3.9.1 .
+  * Switch compat level 4 to 7 .
+
+ -- Daniel Echeverry <epsilon77@gmail.com>  Tue, 19 Apr 2011 20:26:59 -0500
+
+b43-fwcutter (1:013-3) unstable; urgency=low
+
+  * QA upload.
+  * Remove obsolete option --postfix from the manpage (closes: #446770).
+    Thanks to  Daniel Echeverry for the patch!
+
+ -- Ralf Treinen <treinen@debian.org>  Wed, 08 Dec 2010 20:27:41 +0100
+
+b43-fwcutter (1:013-2) unstable; urgency=medium
+
+  * QA upload
+  * Allow 14e4:4320 also for firmware-b43-installer (Closes: #580883)
+  * Fix logic: || -> && (Closes: #579633)
+  * Don't fail in -lpphy-installer when also broadcom ethernet is present
+    (Closes: #580098)
+
+ -- Rene Engelhard <rene@debian.org>  Tue, 11 May 2010 01:52:40 +0200
+
+b43-fwcutter (1:013-1) unstable; urgency=medium
+
+  * QA upload
+  * Update to official 013
+  * Fix lspci, thanks Geoff Simmons (Closes: #578777)
+  * Fix debhelper builddep
+
+ -- Rene Engelhard <rene@debian.org>  Mon, 26 Apr 2010 00:03:48 +0200
+
+b43-fwcutter (1:013~git20100413-2) unstable; urgency=low
+
+  * QA upload
+  * Create /lib/firmware if not existing (Closes: #541810)
+
+ -- Rene Engelhard <rene@debian.org>  Tue, 13 Apr 2010 20:04:37 +0200
+
+b43-fwcutter (1:013~git20100413-1) unstable; urgency=low
+
+  * Remove b43-fwcutters debconf question
+  * Don't try to extract the firmware in b43-fwcutter, split out into
+    extra installer packages (which are then properly versioned and
+    can check for needed kernel/chipsets)
+  * Add debian/source/format ("3.0 (quilt)")
+  * Update from git (Closes: #561450), and package a installer for the
+    LP-PHY
+  * Orphan package (I don't have b43 hw anymore since long)
+
+ -- Rene Engelhard <rene@debian.org>  Tue, 13 Apr 2010 02:44:19 +0200
+
+b43-fwcutter (1:012-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Rene Engelhard <rene@debian.org>  Fri, 05 Jun 2009 14:08:23 +0200
+
+b43-fwcutter (1:011-7) unstable; urgency=low
+
+  * Add ru debconf translation (Closes: #512669)
+
+ -- Rene Engelhard <rene@debian.org>  Thu, 22 Jan 2009 20:18:20 +0100
+
+b43-fwcutter (1:011-6) unstable; urgency=low
+
+  * Add gl debconf translation (Closes: #511728)
+  * Update Homepage field in debian/control
+    (Closes: #499177)
+
+ -- Rene Engelhard <rene@debian.org>  Wed, 14 Jan 2009 00:48:07 +0100
+
+b43-fwcutter (1:011-5) unstable; urgency=high
+
+  * Retrieve firmware for >= 2.6.25 (Closes: #480053)
+
+ -- Rene Engelhard <rene@debian.org>  Sun, 10 Aug 2008 11:39:13 -0300
+
+b43-fwcutter (1:011-4) unstable; urgency=low
+
+  * Add fixed es.po (Closes: #479281)
+
+ -- Rene Engelhard <rene@debian.org>  Sun, 04 May 2008 10:59:39 +0200
+
+b43-fwcutter (1:011-3) unstable; urgency=low
+
+  * Remove homepage from description, add a Homepage field and
+    update it.
+
+ -- Rene Engelhard <rene@debian.org>  Fri, 25 Apr 2008 15:49:54 +0200
+
+b43-fwcutter (1:011-2) unstable; urgency=low
+
+  * Recommend bzip2, install_bcm43xx_firmware.sh does a tar xfvj
+
+ -- Rene Engelhard <rene@debian.org>  Fri, 18 Apr 2008 23:57:28 +0200
+
+b43-fwcutter (1:011-1) unstable; urgency=low
+
+  * New upstream release (Closes: #466941)
+
+ -- Rene Engelhard <rene@debian.org>  Fri, 22 Feb 2008 00:19:26 +0100
+
+b43-fwcutter (1:010-2) unstable; urgency=low
+
+  * Retrieve correct firmware for 2.6.24(-rc)
+
+ -- Rene Engelhard <rene@debian.org>  Sat, 09 Feb 2008 20:48:44 +0100
+
+b43-fwcutter (1:010-1) unstable; urgency=low
+
+  * New upstream release.
+  * Use new v4 firmware
+
+ -- Rene Engelhard <rene@debian.org>  Fri, 08 Feb 2008 21:40:12 +0100
+
+b43-fwcutter (1:009-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Rene Engelhard <rene@debian.org>  Wed, 30 Jan 2008 10:53:21 +0100
+
+b43-fwcutter (1:008-3) unstable; urgency=low
+
+  * Add es debconf translation, thanks Alberto Rivera (Closes: #461358)
+
+ -- Rene Engelhard <rene@debian.org>  Sun, 20 Jan 2008 23:58:43 +0100
+
+b43-fwcutter (1:008-2) unstable; urgency=high
+
+  * Update README.Debian, thanks Bin Zhang (Closes: #446818)
+  * Fix config scriptto not fail if db_get for bcm43xx-fwcutter/cut_firmware
+    fails (Closes: #447152)
+  * Apply patches from Zbyszek Szemek to not use a pre-defined dirname and fix
+    some permissions in install_bcm43xx_fwcutter.sh, thanks (Closes: #450887)
+
+ -- Rene Engelhard <rene@debian.org>  Mon, 26 Nov 2007 03:10:59 +0100
+
+b43-fwcutter (1:008-1) unstable; urgency=low
+
+  * New upstream release (for the mac80211 based version, which
+    will probably hit with 2.6.24)
+  * Depend on wget, remove curl option
+  * Extract both b43 and b43legacy firmware
+
+ -- Rene Engelhard <rene@debian.org>  Sun, 26 Aug 2007 17:38:35 +0200
+
+bcm43xx-fwcutter (1:006-3) unstable; urgency=low
+
+  * Fix wget download, thanks Stefan Lippers-Hollmann
+
+ -- Rene Engelhard <rene@debian.org>  Wed, 15 Aug 2007 18:08:02 +0200
+
+bcm43xx-fwcutter (1:006-2) unstable; urgency=low
+
+  * Retrieve firmware from
+    http://downloads.openwrt.org/sources/wl_apsta-3.130.20.0.o
+    (Closes: #437488)
+  * Re-add lost changelog entry of 20060501-6
+
+ -- Rene Engelhard <rene@debian.org>  Mon, 13 Aug 2007 10:39:19 +0200
+
+bcm43xx-fwcutter (1:006-1) unstable; urgency=low
+
+  * New upstream release (Closes: #406446)
+  * Strip epoch from -DFWCUTTER_VERSION_
+
+ -- Rene Engelhard <rene@debian.org>  Fri, 19 Jan 2007 02:41:43 +0100
+
+bcm43xx-fwcutter (1:005-2) unstable; urgency=high
+
+  * Fix de.po (Closes: #403500)
+
+ -- Rene Engelhard <rene@debian.org>  Sun, 17 Dec 2006 17:40:42 +0100
+
+bcm43xx-fwcutter (1:005-1) unstable; urgency=high
+
+  [ Marcus Better ]
+  * New upstream version. (Closes: #401671)
+  * Don't build-depend on help2man.
+  * debian/rules: Remove useless configure rule.
+
+  [ Rene Engelhard ]
+  * Nump debconf priority to high, since d-i sets it to high....
+  * Retrieve wl_apsta.o from http://boredklink.googlepages.com/wl_apsta.o
+    (Closes: #388280)
+  * Add pt debconf translation, thanks Rui Branco (Closes: #388524)
+  * Add ja debconf translation, thanks Hideki Yamane (Closes: #400142)
+  * Fix minor typo in README.Debian, thanks Santiago Ruano Rincon
+    (Closes: #400855)
+
+ -- Rene Engelhard <rene@debian.org>  Thu,  7 Dec 2006 13:44:13 +0100
+
+bcm43xx-fwcutter (20060108-6) unstable; urgency=low
+
+  * Fix install_bcm43xx_firmware with curl (Closes: #354942)
+
+ -- Rene Engelhard <rene@debian.org>  Thu,  2 Mar 2006 11:36:24 +0100
+
+bcm43xx-fwcutter (20060501-5) unstable; urgency=high
+
+  * Retrieve wl_apsta.o from http://svit.epfl.ch/stuff/wl_apsta.o
+    (Closes: #381088)
+
+ -- Rene Engelhard <rene@debian.org>  Sat,  5 Aug 2006 01:49:52 +0200
+
+bcm43xx-fwcutter (20060501-4) unstable; urgency=low
+
+  * Fix README.Debian location (Closes: #370101)
+
+ -- Rene Engelhard <rene@debian.org>  Tue, 27 Jun 2006 21:19:01 +0200
+
+bcm43xx-fwcutter (20060501-3) unstable; urgency=low
+
+  * Retrieve wl_apsta.org from
+    http://www.nuevascreaciones.com/drinus/airport/wl_apsta.o.
+    Indirectly (Closes: #37470)
+  * Add basic README.Debian (Closes: #370101)
+  * Standards-Version: 3.7.2 (no changes needed)
+
+ -- Rene Engelhard <rene@debian.org>  Fri, 23 Jun 2006 01:00:34 +0200
+
+bcm43xx-fwcutter (20060501-2) unstable; urgency=low
+
+  * Fix curl download again, thanks Guido Günther
+
+ -- Rene Engelhard <rene@debian.org>  Sun, 14 May 2006 16:49:02 -0500
+
+bcm43xx-fwcutter (20060501-1) unstable; urgency=low
+
+  * Update to current SVN
+  * Add sv debconf translation, thanks Daniel Nylander (Closes: #365272)
+
+ -- Rene Engelhard <rene@debian.org>  Mon,  1 May 2006 20:54:24 +0200
+
+bcm43xx-fwcutter (20060108-5) unstable; urgency=low
+
+  * Make fr.po actually affect something.
+
+ -- Rene Engelhard <rene@debian.org>  Mon, 20 Feb 2006 23:22:04 +0100
+
+bcm43xx-fwcutter (20060108-4) unstable; urgency=low
+
+  * Use http://downloads.openwrt.org/sources/kernel-binary-wl-0.5.tar.gz
+    per request of OpenWRT instead of relying on
+    http://openwrt.inf.fh-brs.de/~nbd/$dname
+  * Make the debconf templates follow the recommendations in the developers
+    reference (Closes: #350281)
+  * Add cs debconf template translation, thanks Miroslav Kure
+    (Closes: #253369)
+  * Add fr debconf template translation, thanks Sylvain Archenault
+    (Closes: #353767)
+
+ -- Rene Engelhard <rene@debian.org>  Mon, 20 Feb 2006 23:08:53 +0100
+
+bcm43xx-fwcutter (20060108-3) unstable; urgency=low
+
+  * Fix firmware path in de.po, thanks Alexander Schmehl
+
+ -- Rene Engelhard <rene@debian.org>  Mon, 23 Jan 2006 23:07:03 +0100
+
+bcm43xx-fwcutter (20060108-2) unstable; urgency=low
+
+  * Add debconf-question on extracting the firmware on install
+  * Add install_bcm43xx_firmware.sh script; install it into
+    /usr/share/bcm43xx-fwcutter
+  * Recommend wget | curl
+  * Upload to Debian.
+
+ -- Rene Engelhard <rene@debian.org>  Sun, 22 Jan 2006 20:49:46 +0100
+
+bcm43xx-fwcutter (20060108-1) experimental; urgency=low
+
+  * Initial release
+
+ -- Rene Engelhard <rene@debian.org>  Mon,  9 Jan 2006 01:37:26 +0100
+

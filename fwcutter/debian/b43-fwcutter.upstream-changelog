@@ -1,0 +1,15 @@
+2011-07-27
+
+* Used latest broadcom-wl-5.10.56.27.3_mipsel.tar.bz2 firmware for all card
+  availables.
+
+2011-03-11
+
+* Add details for extracting firmware from
+  http://mirror2.openwrt.org/sources/broadcom-wl-5.10.56.27.3_mipsel.tar.bz2. A
+  firmware source of this vintage is needed for Rev 16 802.11 cores found in the
+  14e4:432b N PHY devices.
+
+2011-02-18
+
+*  FreeBSD support

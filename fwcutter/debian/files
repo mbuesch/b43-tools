@@ -1,0 +1,3 @@
+b43-fwcutter_018-2_amd64.deb contrib/utils optional
+firmware-b43-installer_018-2_all.deb contrib/kernel optional
+firmware-b43legacy-installer_018-2_all.deb contrib/kernel optional

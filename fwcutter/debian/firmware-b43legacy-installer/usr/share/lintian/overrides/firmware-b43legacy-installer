@@ -1,0 +1,2 @@
+# lintian, ignore this please! need to create this directory for the installation of the firmware
+firmware-b43legacy-installer: package-contains-empty-directory 

@@ -1,0 +1,55 @@
+# Czech PO debconf template translation of b43-fwcutter.
+# Copyright (C) 2013 Michal Simunek <michal.simunek@gmail.com>
+# This file is distributed under the same license as the b43-fwcutter package.
+# Michal Simunek <michal.simunek@gmail.com>, 2013.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: b43-fwcutter 1:017-2\n"
+"Report-Msgid-Bugs-To: b43-fwcutter@packages.debian.org\n"
+"POT-Creation-Date: 2013-06-06 07:14+0200\n"
+"PO-Revision-Date: 2013-06-07 12:31+0200\n"
+"Last-Translator: Michal Simunek <michal.simunek@gmail.com>\n"
+"Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid "Install b43 firmware even if no such device is present?"
+msgstr ""
+"Nainstalovat b43 firmware i v případě, že se v systému žádné takové zařízení "
+"nenachází?"
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid ""
+"The b43 packages are designed to handle firmware for Broadcom 43xx wireless "
+"network cards."
+msgstr ""
+"Balíčky b43 jsou určeny k obsluhování firmwaru pro bezdrátové síťové karty "
+"Broadcom 43xx."
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid ""
+"Please choose whether they should download and install firmware even if the "
+"corresponding hardware is not currently present on the system."
+msgstr ""
+"Zvolte si prosím, zda mají firmware stáhnout a nainstalovat i v případě, že "
+"se v systému příslušný hardware nyní nenachází."
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid ""
+"This might be useful if you plan to move this installation to different "
+"hardware or share the same installation across multiple systems."
+msgstr ""
+"To může být užitečné v případě, že tuto instalaci plánujete přemístit na "
+"jiný hardware, nebo stejnou instalaci sdílet mezi vícero systémy."

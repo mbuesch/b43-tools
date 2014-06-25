@@ -1,0 +1,55 @@
+# Portuguese translation messages for b43-fwcutter package.
+# Copyright (C) 2013 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the b43-fwcutter package.
+#
+# Pedro Ribeiro <p.m42.ribeiro@gmail.com>, 2013.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: b43-fwcutter\n"
+"Report-Msgid-Bugs-To: b43-fwcutter@packages.debian.org\n"
+"POT-Creation-Date: 2013-06-06 07:14+0200\n"
+"PO-Revision-Date: 2013-06-13 12:03+0100\n"
+"Last-Translator: Pedro Ribeiro <p.m42.ribeiro@gmail.com>\n"
+"Language-Team: Portuguese <traduz@debianpt.org>\n"
+"Language: pt\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid "Install b43 firmware even if no such device is present?"
+msgstr ""
+"Instalar o firmware b43 ainda que não haja nenhum dispositivo compatível?"
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid ""
+"The b43 packages are designed to handle firmware for Broadcom 43xx wireless "
+"network cards."
+msgstr ""
+"Os pacotes b43 foram desenhados para tratar do firmware para as placas de "
+"rede sem fios Broadcom 43xx."
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid ""
+"Please choose whether they should download and install firmware even if the "
+"corresponding hardware is not currently present on the system."
+msgstr ""
+"Escolha por favor se quer fazer o download e instalação do firmware ainda "
+"que o hardware correspondente não esteja actualmente instalado no sistema."
+
+#. Type: boolean
+#. Description
+#: ../b43-fwcutter.templates:2001
+msgid ""
+"This might be useful if you plan to move this installation to different "
+"hardware or share the same installation across multiple systems."
+msgstr ""
+"Isto pode ser útil se pretender mover esta instalação para hardware "
+"diferente ou partilhar a mesma instalação com diferentes sistemas."
