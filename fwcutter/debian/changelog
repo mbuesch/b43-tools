@@ -1,3 +1,9 @@
+b43-fwcutter (1:019-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+
+ -- Michael Büsch <m@bues.ch>  Wed, 25 Jun 2014 16:00:14 +0200
+
 b43-fwcutter (1:018-2) unstable; urgency=low
 
   * debian/control

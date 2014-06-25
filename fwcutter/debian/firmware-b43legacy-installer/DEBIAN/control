@@ -1,10 +1,10 @@
 Package: firmware-b43legacy-installer
 Source: b43-fwcutter
-Version: 1:018-2
+Version: 1:019-1
 Architecture: all
 Maintainer: Daniel Echeverry <epsilon77@gmail.com>
 Installed-Size: 55
-Depends: b43-fwcutter (>= 1:018-2), wget
+Depends: b43-fwcutter (>= 1:019-1), wget
 Section: contrib/kernel
 Priority: optional
 Homepage: http://wireless.kernel.org/en/users/Drivers/b43
