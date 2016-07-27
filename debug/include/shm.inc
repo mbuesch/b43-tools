@@ -32,7 +32,7 @@
 #define SHM_PHYVER		SHM(0x050) /* PHY version */
 #define SHM_PHYTYPE		SHM(0x052) /* PHY type */
 #define SHM_ANTSWAP		SHM(0x05C) /* Antenna swap threshold */
-#define SHM_HF_LO		SHM(0x05E) /* Hostflags for ucode options (low) */
+
 #define  SHM_HF_LO_ANTDIVHELP	0 /* bit0: ucode antenna div helper */
 #define  SHM_HF_LO_SYMW		1 /* bit1: G-PHY SYM workaround */
 #define  SHM_HF_LO_RXPULLW	2 /* bit2: RX pullup workaround */
@@ -50,7 +50,6 @@
 #define  SHM_HF_LO_RADARW	13 /* bit13: Radar workaround */
 #define  SHM_HF_LO_USEDEFKEYS	14 /* bit14: Enable use of default keys */
 #define  SHM_HF_LO_AFTERBURNER	15 /* bit15: Afterburner enabled */
-#define SHM_HF_MI		SHM(0x060) /* Hostflags for ucode options (middle) */
 #define  SHM_HF_MI_BT4PRIOCOEX	0 /* bit0: Bluetooth 4-priority coexistence */
 #define  SHM_HF_MI_FWKUP	1 /* bit1: Fast wake-up ucode */
 #define  SHM_HF_MI_VCORECALC	2 /* bit2: Force VCO recalculation when powering up synthpu */
@@ -65,11 +64,20 @@
 #define  SHM_HF_MI_ANTSEL	13 /* bit13: Antenna selection (for testing antenna div.) */
 #define  SHM_HF_MI_BT3COEXT	13 /* bit13: Bluetooth 3-wire coexistence (rev >= 13 only) */
 #define  SHM_HF_MI_BTCANT	14 /* bit14: Bluetooth coexistence (antenna mode) (rev >= 13 only) */
-#define SHM_HF_HI		SHM(0x062) /* Hostflags for ucode options (high) */
 #define  SHM_HF_HI_ANTSELEN	0 /* bit0: Antenna selection enabled (rev >= 13 only) */
 #define  SHM_HF_HI_ANTSELMODE	1 /* bit1: Antenna selection mode (rev >= 13 only) */
 #define  SHM_HF_HI_MLADVW	4 /* bit4: N PHY ML ADV workaround (rev >= 13 only) */
 #define  SHM_HF_HI_PR45960W	11 /* bit11: PR 45960 workaround (rev >= 13 only) */
+
+// New SHM addresses; Source: d11.h 578947 2015-08-13 04:46:06Z
+// http://github.com/tuapuikia/asuswrt-phantom/blob/master/release/src-rt-7.14.114.x/src/include/d11.h
+/* Host flags to turn on ucode options */
+#define	SHM_HOST_FLAGS1		SHM(0x05E)
+#define	SHM_HOST_FLAGS2		SHM(0x060)
+#define	SHM_HOST_FLAGS3		SHM(0x062)
+#define	SHM_HOST_FLAGS4		SHM(0x078)
+#define	SHM_HOST_FLAGS5		SHM(0x0D4)
+
 #define SHM_RFATT		SHM(0x064) /* Current radio attenuation value */
 #define SHM_RADAR		SHM(0x066) /* Radar register */
 #define SHM_PHYTXNOI		SHM(0x06E) /* PHY noise directly after TX (lower 8bit only) */
