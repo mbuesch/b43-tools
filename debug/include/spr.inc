@@ -814,37 +814,6 @@
 #define FIFO_MCAST		4 /* Broadcast / Multicast */
 #define FIFO_ATIM		5 /* ATIM window info */
 
-// 802.11 Frame Types; Source: mac_structures.h 578947 2015-08-13 04:46:06Z
-// http://lxr.free-electrons.com/source/drivers/staging/winbond/mac_structures.h?v=2.6.32
-//-----  management : Type of Bits (2, 3) and Subtype of Bits (4, 5, 6, 7)
-#define MAC_SUBTYPE_MNGMNT_ASSOC_REQUEST    0x00
-#define MAC_SUBTYPE_MNGMNT_ASSOC_RESPONSE   0x10
-#define MAC_SUBTYPE_MNGMNT_REASSOC_REQUEST  0x20
-#define MAC_SUBTYPE_MNGMNT_REASSOC_RESPONSE 0x30
-#define MAC_SUBTYPE_MNGMNT_PROBE_REQUEST    0x40
-#define MAC_SUBTYPE_MNGMNT_PROBE_RESPONSE   0x50
-#define MAC_SUBTYPE_MNGMNT_BEACON           0x80
-#define MAC_SUBTYPE_MNGMNT_ATIM             0x90
-#define MAC_SUBTYPE_MNGMNT_DISASSOCIATION   0xA0
-#define MAC_SUBTYPE_MNGMNT_AUTHENTICATION   0xB0
-#define MAC_SUBTYPE_MNGMNT_DEAUTHENTICATION 0xC0
-//-----  control : Type of Bits (2, 3) and Subtype of Bits (4, 5, 6, 7)
-#define MAC_SUBTYPE_CONTROL_PSPOLL          0xA4
-#define MAC_SUBTYPE_CONTROL_RTS             0xB4
-#define MAC_SUBTYPE_CONTROL_CTS             0xC4
-#define MAC_SUBTYPE_CONTROL_ACK             0xD4
-#define MAC_SUBTYPE_CONTROL_CFEND           0xE4
-#define MAC_SUBTYPE_CONTROL_CFEND_CFACK     0xF4
-//-----  data : Type of Bits (2, 3) and Subtype of Bits (4, 5, 6, 7)
-#define MAC_SUBTYPE_DATA                    0x08
-#define MAC_SUBTYPE_DATA_CFACK              0x18
-#define MAC_SUBTYPE_DATA_CFPOLL             0x28
-#define MAC_SUBTYPE_DATA_CFACK_CFPOLL       0x38
-#define MAC_SUBTYPE_DATA_NULL               0x48
-#define MAC_SUBTYPE_DATA_CFACK_NULL         0x58
-#define MAC_SUBTYPE_DATA_CFPOLL_NULL        0x68
-#define MAC_SUBTYPE_DATA_CFACK_CFPOLL_NULL  0x78
-
 
 #endif /* SPECIAL_PURPOSE_REGISTER_H_ */
 
