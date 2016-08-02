@@ -154,7 +154,6 @@
 #define SPR_TXE0_STATUS				spr087
 #define  TXE_STATUS_BUSY			7 /* bit7: TX engine busy */
 #define  TXE_STATUS_MEND			10 /* bit10: TXE M end */
-#define SPR_TXE0_0x16				spr08b
 
 // New Registers; Source: d11.h 578947 2015-08-13 04:46:06Z
 // http://github.com/tuapuikia/asuswrt-phantom/blob/master/release/src-rt-7.14.114.x/src/include/d11.h
@@ -162,6 +161,7 @@
 #define SPR_TXE0_MMPLCP1        spr089
 #define SPR_TXE0_PHY_CTL1       spr08a
 
+#define SPR_TXE0_0x16				spr08b
 #define SPR_TX_STATUS0				spr08c
 #define SPR_TX_STATUS1				spr08d
 #define SPR_TX_STATUS2				spr08e
