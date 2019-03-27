@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 #  Script for creating a "struct extract" list for fwcutter_list.h
 #

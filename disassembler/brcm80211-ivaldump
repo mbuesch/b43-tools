@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 #   A small script to dump the contents of a brcm80211 initvals section
 #
