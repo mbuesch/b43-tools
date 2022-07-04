@@ -161,7 +161,7 @@ def main():
 		except IOError, e:
 			print "Could not read binary file %s: %s" % (binary, e.strerror)
 			sys.exit(1)
-		dasm = Disassembler(bintext, dasmopt + "--paddr").getAsm()
+		dasm = Disassembler(bintext, dasmopt + " --paddr").getAsm()
 		print makeShortDump(dasm, dbg.getPc())
 	else:
 		print "<No binary supplied. See --binary option>"
