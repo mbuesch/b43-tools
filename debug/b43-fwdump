@@ -25,21 +25,21 @@ import re
 
 
 def usage():
-	print "b43 firmware state dumper"
-	print ""
-	print "Copyright (C) 2008 Michael Buesch <m@bues.ch>"
-	print "Licensed under the GNU/GPL version 3"
-	print ""
-	print "Usage: b43-fwdump [OPTIONS]"
-	print ""
-	print "-h|--help            Print this help text"
-	print "-p|--phy WIPHY       The WIPHY to use. For example phy0."
-	print "                     Can be omitted, if there is only one device in the system."
-	print "-b|--binary BIN      The firmware binary. This is required for"
-	print "                     an instruction dump."
-	print "-d|--dasmopt OPT     Additional options to the disassembler."
-	print "-s|--shm             Also dump SHM."
-	print "-S|--shmbin          Do a binary SHM dump, only."
+	print("b43 firmware state dumper")
+	print("")
+	print("Copyright (C) 2008 Michael Buesch <m@bues.ch>")
+	print("Licensed under the GNU/GPL version 3")
+	print("")
+	print("Usage: b43-fwdump [OPTIONS]")
+	print("")
+	print("-h|--help            Print this help text")
+	print("-p|--phy WIPHY       The WIPHY to use. For example phy0.")
+	print("                     Can be omitted, if there is only one device in the system.")
+	print("-b|--binary BIN      The firmware binary. This is required for")
+	print("                     an instruction dump.")
+	print("-d|--dasmopt OPT     Additional options to the disassembler.")
+	print("-s|--shm             Also dump SHM.")
+	print("-S|--shmbin          Do a binary SHM dump, only.")
 	return
 
 def parseArgs():
@@ -145,29 +145,29 @@ def main():
 		stdout.write(shm)
 		sys.exit(0)
 
-	print "--- B43 microcode state dump ---"
-	print "PC: %03X  PSM-COND: %04X" % (dbg.getPc(), psmcond)
-	print "Link registers:"
+	print("--- B43 microcode state dump ---")
+	print("PC: %03X  PSM-COND: %04X" % (dbg.getPc(), psmcond))
+	print("Link registers:")
 	dump_regs("lr", lr)
-	print "Offset registers:"
+	print("Offset registers:")
 	dump_regs("off", off)
-	print "General purpose registers:"
+	print("General purpose registers:")
 	dump_regs("r", gpr)
 
-	print "Code:"
+	print("Code:")
 	if binary:
 		try:
 			bintext = file(binary, "r").read()
-		except IOError, e:
-			print "Could not read binary file %s: %s" % (binary, e.strerror)
+		except IOError as e:
+			print("Could not read binary file %s: %s" % (binary, e.strerror))
 			sys.exit(1)
 		dasm = Disassembler(bintext, dasmopt + " --paddr").getAsm()
-		print makeShortDump(dasm, dbg.getPc())
+		print(makeShortDump(dasm, dbg.getPc()))
 	else:
-		print "<No binary supplied. See --binary option>"
+		print("<No binary supplied. See --binary option>")
 
 	if dumpShm:
-		print "Shared memory:"
+		print("Shared memory:")
 		ascii = ""
 		for i in range(0, len(shm)):
 			if i % 16 == 0 and i != 0:

@@ -103,4 +103,4 @@ for sym in syms:
 
 	print("\t{ .name = \"%s\", .offset = 0x%X, .type = %s, .length = 0x%X }," % (name, pos, type, size))
 print("\tEXTRACT_LIST_END")
-print("};")  
+print("};")
