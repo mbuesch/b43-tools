@@ -33,7 +33,7 @@ import re
 import hashlib
 
 if len(sys.argv) != 2:
-	print "Usage: %s path/to/wl.o" % sys.argv[0]
+	print("Usage: %s path/to/wl.o" % sys.argv[0])
 	sys.exit(1)
 fn = sys.argv[1]
 
@@ -52,13 +52,13 @@ for line in headers:
 		rodata_fileoffset = int(m.group(1), 16)
 		break
 if rodata_fileoffset == None:
-	print "ERROR: Could not find .rodata fileoffset"
+	print("ERROR: Could not find .rodata fileoffset")
 	sys.exit(1)
 
 md5sum = hashlib.md5(file(fn, "r").read())
 
-print "static struct extract _%s[] =" % md5sum.hexdigest()
-print "{"
+print("static struct extract _%s[] =" % md5sum.hexdigest())
+print("{")
 
 sym_re = re.compile(r"([0-9a-fA-F]+)\s+g\s+O\s+\.rodata\s+([0-9a-fA-F]+) d11([-_\s\w0-9]+)")
 ucode_re = re.compile(r"ucode(\d+)")
@@ -81,10 +81,10 @@ for sym in syms:
 	if "pcm" in name:
 		type = "EXT_PCM"
 	if "bommajor" in name:
-		print "\t/* ucode major version at offset 0x%x */" % pos
+		print("\t/* ucode major version at offset 0x%x */" % pos)
 		continue
 	if "bomminor" in name:
-		print "\t/* ucode minor version at offset 0x%x */" % pos
+		print("\t/* ucode minor version at offset 0x%x */" % pos)
 		continue
 	if "ucode_2w" in name:
 		continue
@@ -98,9 +98,9 @@ for sym in syms:
 		else:
 			type = "EXT_UCODE_3"
 	if not type:
-		print "\t/* ERROR: Could not guess data type for: %s */" % name
+		print("\t/* ERROR: Could not guess data type for: %s */" % name)
 		continue
 
-	print "\t{ .name = \"%s\", .offset = 0x%X, .type = %s, .length = 0x%X }," % (name, pos, type, size)
-print "\tEXTRACT_LIST_END"
-print "};"
+	print("\t{ .name = \"%s\", .offset = 0x%X, .type = %s, .length = 0x%X }," % (name, pos, type, size))
+print("\tEXTRACT_LIST_END")
+print("};")
