@@ -678,9 +678,9 @@ static void print_banner(int forceprint)
 			  "Be exceedingly careful with this tool. Improper"
 			  " usage WILL BRICK YOUR DEVICE.\n";
 	if (forceprint)
-		prdata(str);
+		prdata("%s", str);
 	else
-		prinfo(str);
+		prinfo("%s", str);
 }
 
 static void print_usage(int argc, char *argv[])
