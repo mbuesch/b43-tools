@@ -1,6 +1,7 @@
 #ifndef BCM43xx_ASM_UTIL_H_
 #define BCM43xx_ASM_UTIL_H_
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
 
@@ -21,8 +22,6 @@ void dump(const char *data,
 void * xmalloc(size_t size);
 char * xstrdup(const char *str);
 
-
-typedef _Bool bool;
 
 typedef uint16_t be16_t;
 typedef uint32_t be32_t;
