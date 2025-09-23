@@ -1,4 +1,3 @@
-dep
-obj
-
-b43-fwcutter
+/dep/
+/obj/
+/b43-fwcutter
