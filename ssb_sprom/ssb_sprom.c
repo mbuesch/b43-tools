@@ -427,7 +427,7 @@ static void display_value(const uint8_t *sprom,
 {
 	char desc[100];
 	char label[200];
-	char buffer[50];
+	char buffer[150];
 	char tbuf[2];
 	uint16_t offset;
 	uint16_t length;
@@ -451,7 +451,7 @@ static void display_value(const uint8_t *sprom,
 		value |= sprom[offset + 2] << 16;
 		value |= sprom[offset + 3] << 24;
 	}
-	sprintf(buffer, "SPROM(0x%03X), %s,        ", offset, desc);
+	snprintf(buffer, sizeof(buffer), "SPROM(0x%03X), %s,        ", offset, desc);
 	buffer[25] = '\0';
 	p = &(sprom[offset]);
 
@@ -726,28 +726,28 @@ static void print_usage(int argc, char *argv[])
 
 		switch (length) {
 		case 34:
-			sprintf(buffer, "  --%s [MAC-ADDR]%30s", desc, " ");
+			snprintf(buffer, sizeof(buffer), "  --%s [MAC-ADDR]%30s", desc, " ");
 			break;
 		case 33:
-			sprintf(buffer, "  --%s [2 Char String]%30s", desc, " ");
+			snprintf(buffer, sizeof(buffer), "  --%s [2 Char String]%30s", desc, " ");
 			break;
 		case 32:
-			sprintf(buffer, "  --%s [0xFFFFFFFF]%30s", desc, " ");
+			snprintf(buffer, sizeof(buffer), "  --%s [0xFFFFFFFF]%30s", desc, " ");
 			break;
 		case 16:
-			sprintf(buffer, "  --%s [0xFFFF]%30s", desc, " ");
+			snprintf(buffer, sizeof(buffer), "  --%s [0xFFFF]%30s", desc, " ");
 			break;
 		case 8:
-			sprintf(buffer, "  --%s [0xFF]%30s", desc, " ");
+			snprintf(buffer, sizeof(buffer), "  --%s [0xFF]%30s", desc, " ");
 			break;
 		case 5:
-			sprintf(buffer, "  --%s [0x1F]%30s", desc, " ");
+			snprintf(buffer, sizeof(buffer), "  --%s [0x1F]%30s", desc, " ");
 			break;
 		case 4:
-			sprintf(buffer, "  --%s [0xF]%30s", desc, " ");
+			snprintf(buffer, sizeof(buffer), "  --%s [0xF]%30s", desc, " ");
 			break;
 		case 1:
-			sprintf(buffer, "  --%s [BOOL]%30s", desc, " ");
+			snprintf(buffer, sizeof(buffer), "  --%s [BOOL]%30s", desc, " ");
 			break;
 		default:
 			prerror("Program error: Incorrect value of item length (%d)\n", length);
