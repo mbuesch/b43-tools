@@ -1,4 +1,3 @@
-obj
-dep
-
-b43-dasm
+/obj/
+/dep/
+/b43-dasm
