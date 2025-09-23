@@ -91,8 +91,8 @@ static const char * gen_raw_code(unsigned int operand)
 {
 	char *ret;
 
-	ret = xmalloc(6);
-	snprintf(ret, 6, "@%X", operand);
+	ret = xmalloc(32);
+	snprintf(ret, 32, "@%X", operand);
 
 	return ret;
 }
@@ -101,8 +101,8 @@ static const char * disasm_mem_operand(unsigned int operand)
 {
 	char *ret;
 
-	ret = xmalloc(9);
-	snprintf(ret, 9, "[0x%X]", operand);
+	ret = xmalloc(32);
+	snprintf(ret, 32, "[0x%X]", operand);
 
 	return ret;
 }
@@ -124,8 +124,8 @@ static const char * disasm_indirect_mem_operand(unsigned int operand)
 	default:
 		dasm_int_error("disasm_indirect_mem_operand invalid arch");
 	}
-	ret = xmalloc(12);
-	snprintf(ret, 12, "[0x%02X,off%u]", offset, reg);
+	ret = xmalloc(32);
+	snprintf(ret, 32, "[0x%02X,off%u]", offset, reg);
 
 	return ret;
 }
@@ -151,10 +151,10 @@ static const char * disasm_imm_operand(unsigned int operand)
 
 	operand &= mask;
 
-	ret = xmalloc(7);
+	ret = xmalloc(32);
 	if (operand & signmask)
 		operand = (operand | (~mask & 0xFFFF));
-	snprintf(ret, 7, "0x%X", operand);
+	snprintf(ret, 32, "0x%X", operand);
 
 	return ret;
 }
@@ -175,8 +175,8 @@ static const char * disasm_spr_operand(unsigned int operand)
 		dasm_int_error("disasm_spr_operand invalid arch");
 	}
 
-	ret = xmalloc(8);
-	snprintf(ret, 8, "spr%X", (operand & mask));
+	ret = xmalloc(32);
+	snprintf(ret, 32, "spr%X", (operand & mask));
 
 	return ret;
 }
@@ -197,8 +197,8 @@ static const char * disasm_gpr_operand(unsigned int operand)
 		dasm_int_error("disasm_gpr_operand invalid arch");
 	}
 
-	ret = xmalloc(5);
-	snprintf(ret, 5, "r%u", (operand & mask));
+	ret = xmalloc(32);
+	snprintf(ret, 32, "r%u", (operand & mask));
 
 	return ret;
 }
@@ -526,8 +526,8 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 			stmt->u.insn.name = "call";
 			stmt->u.insn.labelref_operand = 1;
 			stmt->u.insn.labeladdr = stmt->u.insn.bin->operands[2];
-			str = xmalloc(4);
-			snprintf(str, 4, "lr%u", stmt->u.insn.bin->operands[0]);
+			str = xmalloc(32);
+			snprintf(str, 32, "lr%u", stmt->u.insn.bin->operands[0]);
 			stmt->u.insn.operands[0] = str;
 			break;
 		case 15:
@@ -541,11 +541,11 @@ static void disasm_constant_opcodes(struct disassembler_context *ctx,
 		char *str;
 
 		stmt->u.insn.name = "ret";
-		str = xmalloc(4);
-		snprintf(str, 4, "lr%u", stmt->u.insn.bin->operands[0]);
+		str = xmalloc(32);
+		snprintf(str, 32, "lr%u", stmt->u.insn.bin->operands[0]);
 		stmt->u.insn.operands[0] = str;
-		str = xmalloc(4);
-		snprintf(str, 4, "lr%u", stmt->u.insn.bin->operands[2]);
+		str = xmalloc(32);
+		snprintf(str, 32, "lr%u", stmt->u.insn.bin->operands[2]);
 		stmt->u.insn.operands[2] = str;
 		break;
 	}
@@ -666,11 +666,11 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 		case 0x200:
 			stmt->u.insn.name = "srx";
 
-			str = xmalloc(3);
-			snprintf(str, 3, "%d", (bin->opcode & 0x0F0) >> 4);
+			str = xmalloc(32);
+			snprintf(str, 32, "%d", (bin->opcode & 0x0F0) >> 4);
 			stmt->u.insn.operands[0] = str;
-			str = xmalloc(3);
-			snprintf(str, 3, "%d", (bin->opcode & 0x00F));
+			str = xmalloc(32);
+			snprintf(str, 32, "%d", (bin->opcode & 0x00F));
 			stmt->u.insn.operands[1] = str;
 
 			disasm_std_operand(stmt, 0, 2);
@@ -680,11 +680,11 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 		case 0x300:
 			stmt->u.insn.name = "orx";
 
-			str = xmalloc(3);
-			snprintf(str, 3, "%d", (bin->opcode & 0x0F0) >> 4);
+			str = xmalloc(32);
+			snprintf(str, 32, "%d", (bin->opcode & 0x0F0) >> 4);
 			stmt->u.insn.operands[0] = str;
-			str = xmalloc(3);
-			snprintf(str, 3, "%d", (bin->opcode & 0x00F));
+			str = xmalloc(32);
+			snprintf(str, 32, "%d", (bin->opcode & 0x00F));
 			stmt->u.insn.operands[1] = str;
 
 			disasm_std_operand(stmt, 0, 2);
@@ -694,11 +694,11 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 		case 0x400:
 			stmt->u.insn.name = "jzx";
 
-			str = xmalloc(3);
-			snprintf(str, 3, "%d", (bin->opcode & 0x0F0) >> 4);
+			str = xmalloc(32);
+			snprintf(str, 32, "%d", (bin->opcode & 0x0F0) >> 4);
 			stmt->u.insn.operands[0] = str;
-			str = xmalloc(3);
-			snprintf(str, 3, "%d", (bin->opcode & 0x00F));
+			str = xmalloc(32);
+			snprintf(str, 32, "%d", (bin->opcode & 0x00F));
 			stmt->u.insn.operands[1] = str;
 
 			disasm_std_operand(stmt, 0, 2);
@@ -709,11 +709,11 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 		case 0x500:
 			stmt->u.insn.name = "jnzx";
 
-			str = xmalloc(3);
-			snprintf(str, 3, "%d", (bin->opcode & 0x0F0) >> 4);
+			str = xmalloc(32);
+			snprintf(str, 32, "%d", (bin->opcode & 0x0F0) >> 4);
 			stmt->u.insn.operands[0] = str;
-			str = xmalloc(3);
-			snprintf(str, 3, "%d", (bin->opcode & 0x00F));
+			str = xmalloc(32);
+			snprintf(str, 32, "%d", (bin->opcode & 0x00F));
 			stmt->u.insn.operands[1] = str;
 
 			disasm_std_operand(stmt, 0, 2);
@@ -724,8 +724,8 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 		case 0x600:
 			stmt->u.insn.name = "jnext";
 
-			str = xmalloc(5);
-			snprintf(str, 5, "0x%02X", (bin->opcode & 0x0FF));
+			str = xmalloc(32);
+			snprintf(str, 32, "0x%02X", (bin->opcode & 0x0FF));
 			stmt->u.insn.operands[0] = str;
 
 			/* We don't disassemble the first and second operand, as
@@ -740,8 +740,8 @@ static void disasm_opcodes(struct disassembler_context *ctx)
 		case 0x700:
 			stmt->u.insn.name = "jext";
 
-			str = xmalloc(5);
-			snprintf(str, 5, "0x%02X", (bin->opcode & 0x0FF));
+			str = xmalloc(32);
+			snprintf(str, 32, "0x%02X", (bin->opcode & 0x0FF));
 			stmt->u.insn.operands[0] = str;
 
 			/* We don't disassemble the first and second operand, as
@@ -813,8 +813,8 @@ static void resolve_labels(struct disassembler_context *ctx)
 	list_for_each_entry(stmt, &ctx->stmt_list, list) {
 		if (stmt->type != STMT_LABEL)
 			continue;
-		stmt->u.label.name = xmalloc(20);
-		snprintf(stmt->u.label.name, 20, "L%u", namecnt);
+		stmt->u.label.name = xmalloc(32);
+		snprintf(stmt->u.label.name, 32, "L%u", namecnt);
 		namecnt++;
 	}
 }
