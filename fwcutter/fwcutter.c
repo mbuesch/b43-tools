@@ -641,7 +641,7 @@ static void print_banner(void)
 
 static void print_file(const struct file *file)
 {
-	char filename[30];
+	char filename[32];
 	char shortname[30];
 
 	if (file->flags & FW_FLAG_V4)
@@ -654,7 +654,7 @@ static void print_file(const struct file *file)
 		shortname[20] = '\0';
 		snprintf(filename, sizeof(filename), "%s..", shortname);
 	} else
-		strcpy (filename, file->name);
+		strcpy(filename, file->name);
 
 	printf("%s\t", filename);
 	if (strlen(filename) < 8) printf("\t");
