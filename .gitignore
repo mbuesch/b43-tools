@@ -8,12 +8,10 @@
 *.i
 *.lst
 *.pyc
-
 *.ucode
 *.initval
 *.initvals
 *.fw
 *.asm
-
 *.orig
 *.rej
