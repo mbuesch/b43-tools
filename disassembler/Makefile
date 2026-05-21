@@ -14,7 +14,7 @@ QUIET_SPARSE	= @/bin/true
 endif
 
 PREFIX		?= /usr/local
-CFLAGS		?= -O2 -fomit-frame-pointer -pipe
+CFLAGS		?= -O2 -pipe
 CFLAGS		+= -std=gnu99 -D_GNU_SOURCE \
 		   -Wall -Wextra -Wformat=2 -Wundef -Wno-unused-parameter \
 		   -Wshadow -Wpointer-arith

@@ -16,7 +16,7 @@ QUIET_SPARSE	= @true
 endif
 
 PREFIX ?= /usr/local
-CFLAGS		?= -Os -fomit-frame-pointer
+CFLAGS		?= -Os
 CFLAGS		+= -std=c99 -Wall -pedantic -D_BSD_SOURCE -D_DEFAULT_SOURCE
 LDFLAGS		?=
 
