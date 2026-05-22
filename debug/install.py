@@ -3,7 +3,7 @@
 # Run this script as root to install the debugging tools
 #
 
-from distutils.core import setup
+from setuptools import setup
 import sys
 
 if len(sys.argv) == 1:
