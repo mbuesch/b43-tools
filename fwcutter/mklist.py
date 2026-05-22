@@ -31,16 +31,22 @@ import sys
 import os
 import re
 import hashlib
+import subprocess
 
 if len(sys.argv) != 2:
 	print("Usage: %s path/to/wl.o" % sys.argv[0])
 	sys.exit(1)
 fn = sys.argv[1]
 
-pipe = os.popen("objdump -t %s" % fn)
-syms = pipe.readlines()
-pipe = os.popen("objdump --headers %s" % fn)
-headers = pipe.readlines()
+syms = subprocess.run(
+	["objdump", "-t", fn],
+	capture_output=True, text=True, check=True
+).stdout.splitlines(keepends=True)
+
+headers = subprocess.run(
+	["objdump", "--headers", fn],
+	capture_output=True, text=True, check=True
+).stdout.splitlines(keepends=True)
 
 # Get the .rodata fileoffset
 rodata_fileoffset = None
