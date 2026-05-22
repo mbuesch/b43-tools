@@ -1,4 +1,3 @@
-.*
 *.o
 *.o.*
 *.a
@@ -15,3 +14,5 @@
 *.asm
 *.orig
 *.rej
+.agent*
+.mcp.json
