@@ -30,7 +30,7 @@ if len(sys.argv) == 3:
 
 try:
 
-	asm = Disassembler(file(infile).read(), "").getAsm()
+	asm = Disassembler(open(infile, "rb").read(), "").getAsm()
 	p = TextPatcher(asm, "c053515533b60977d212fbcfa4fc2546") # TODO adjust the MD5SUM
 
 	# TODO
@@ -38,7 +38,7 @@ try:
 
 	if outfile:
 		bin = Assembler(p.getText(), "--psize").getBinary()
-		file(outfile, "w").write(bin)
+		open(outfile, "wb").write(bin)
 	else:
 		sys.stdout.write(p.getText())
 

@@ -88,14 +88,14 @@ class B43:
 
 		# Open the debugfs files
 		try:
-			self.f_mmio16read = file(b43_path + "/mmio16read", "r+")
-			self.f_mmio16write = file(b43_path + "/mmio16write", "w")
-			self.f_mmio32read = file(b43_path + "/mmio32read", "r+")
-			self.f_mmio32write = file(b43_path + "/mmio32write", "w")
-			self.f_shm16read = file(b43_path + "/shm16read", "r+")
-			self.f_shm16write = file(b43_path + "/shm16write", "w")
-			self.f_shm32read = file(b43_path + "/shm32read", "r+")
-			self.f_shm32write = file(b43_path + "/shm32write", "w")
+			self.f_mmio16read = open(b43_path + "/mmio16read", "r+")
+			self.f_mmio16write = open(b43_path + "/mmio16write", "w")
+			self.f_mmio32read = open(b43_path + "/mmio32read", "r+")
+			self.f_mmio32write = open(b43_path + "/mmio32write", "w")
+			self.f_shm16read = open(b43_path + "/shm16read", "r+")
+			self.f_shm16write = open(b43_path + "/shm16write", "w")
+			self.f_shm32read = open(b43_path + "/shm32read", "r+")
+			self.f_shm32write = open(b43_path + "/shm32write", "w")
 		except IOError as e:
 			print("Could not open debugfs file %s: %s" % (e.filename, e.strerror))
 			raise B43Exception
@@ -105,7 +105,7 @@ class B43:
 
 	# Get the debugfs mountpoint.
 	def __debugfs_find(self):
-		mtab = file("/etc/mtab").read().splitlines()
+		mtab = open("/etc/mtab").read().splitlines()
 		regexp = re.compile(r"^[\w\-_]+\s+([\w/\-_]+)\s+debugfs")
 		path = None
 		for line in mtab:
@@ -267,15 +267,15 @@ class B43:
 		return ret
 
 	def shmSharedRead(self):
-		"""Returns a string containing the SHM contents."""
-		ret = ""
+		"""Returns a bytes object containing the SHM contents."""
+		ret = bytearray()
 		for i in range(0, 4096, 4):
 			val = self.shmRead32(B43_SHM_SHARED, i)
-			ret += "%c%c%c%c" %	(val & 0xFF,
-						 (val >> 8) & 0xFF,
-						 (val >> 16) & 0xFF,
-						 (val >> 24) & 0xFF)
-		return ret
+			ret.append(val & 0xFF)
+			ret.append((val >> 8) & 0xFF)
+			ret.append((val >> 16) & 0xFF)
+			ret.append((val >> 24) & 0xFF)
+		return bytes(ret)
 
 	def getPsmDebug(self):
 		"""Read the PSM-debug register and return an instance of B43PsmDebug."""
@@ -309,7 +309,7 @@ class Disassembler:
 		#FIXME check b43-dasm errors
 		os.system("b43-dasm %s %s %s" % (input.name, output.name, b43DasmOpts))
 
-		self.asmText = output.read()
+		self.asmText = output.read().decode("utf-8", errors="replace")
 
 	def getAsm(self):
 		"""Returns the assembly code."""
@@ -321,6 +321,8 @@ class Assembler:
 		input = NamedTemporaryFile()
 		output = NamedTemporaryFile()
 
+		if isinstance(assemblyText, str):
+			assemblyText = assemblyText.encode("utf-8")
 		input.write(assemblyText)
 		input.flush()
 		#FIXME check b43-asm errors
@@ -343,7 +345,8 @@ class TextPatcher:
 			self.deleted = False
 
 	def __init__(self, text, expected_md5sum):
-		sum = hashlib.md5(text).hexdigest()
+		text_bytes = text.encode("utf-8") if isinstance(text, str) else text
+		sum = hashlib.md5(text_bytes).hexdigest()
 		if sum != expected_md5sum:
 			print("Patcher: The text does not match the expected MD5 sum")
 			print("Expected:   " + expected_md5sum)
@@ -401,7 +404,7 @@ class B43SymbolicSpr:
 		"""The passed header_file parameter is a file path to the
 		assembly file containing the symbolic SPR definitions."""
 		try:
-			defs = file(header_file).readlines()
+			defs = open(header_file).readlines()
 		except IOError as e:
 			print("B43SymbolicSpr: Could not read %s: %s" % (e.filename, e.strerror))
 			B43Exception
@@ -437,7 +440,7 @@ class B43SymbolicShm:
 		"""The passed header_file parameter is a file path to the
 		assembly file containing the symbolic SHM definitions."""
 		try:
-			defs = file(header_file).readlines()
+			defs = open(header_file).readlines()
 		except IOError as e:
 			print("B43SymbolicShm: Could not read %s: %s" % (e.filename, e.strerror))
 			raise B43Exception
@@ -457,7 +460,7 @@ class B43SymbolicShm:
 				continue # unknown line
 			name = m.group(1)
 			offset = int(m.group(2), 16)
-			offset /= 2
+			offset //= 2
 			self.shm_names[offset] = name
 
 	def get(self, shm_wordoffset):
@@ -476,7 +479,7 @@ class B43SymbolicCondition:
 		"""The passed header_file parameter is a file path to the
 		assembly file containing the symbolic condition definitions."""
 		try:
-			defs = file(header_file).readlines()
+			defs = open(header_file).readlines()
 		except IOError as e:
 			print("B43SymbolicCondition: Could not read %s: %s" % (e.filename, e.strerror))
 			raise B43Exception

@@ -72,7 +72,7 @@ def main():
 	parseArgs()
 
 	try:
-		asm = file(opt_asmfile).read()
+		asm = open(opt_asmfile).read()
 	except IOError as e:
 		print("Could not read asmfile %s: %s" % (e.filename, e.strerror))
 		return 1

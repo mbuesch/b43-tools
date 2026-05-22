@@ -59,12 +59,12 @@ def indexToName(index):
 def parseHeader(hdr_data, sortByOffset):
 	sections = []
 	for i in range(0, len(hdr_data), 3 * 4):
-		offset = ord(hdr_data[i + 0]) | (ord(hdr_data[i + 1]) << 8) |\
-			(ord(hdr_data[i + 2]) << 16) | (ord(hdr_data[i + 3]) << 24)
-		length = ord(hdr_data[i + 4]) | (ord(hdr_data[i + 5]) << 8) |\
-			(ord(hdr_data[i + 6]) << 16) | (ord(hdr_data[i + 7]) << 24)
-		index = ord(hdr_data[i + 8]) | (ord(hdr_data[i + 9]) << 8) |\
-			(ord(hdr_data[i + 10]) << 16) | (ord(hdr_data[i + 11]) << 24)
+		offset = hdr_data[i + 0] | (hdr_data[i + 1] << 8) |\
+			(hdr_data[i + 2] << 16) | (hdr_data[i + 3] << 24)
+		length = hdr_data[i + 4] | (hdr_data[i + 5] << 8) |\
+			(hdr_data[i + 6] << 16) | (hdr_data[i + 7] << 24)
+		index = hdr_data[i + 8] | (hdr_data[i + 9] << 8) |\
+			(hdr_data[i + 10] << 16) | (hdr_data[i + 11] << 24)
 
 		sections.append( (offset, length, index) )
 	if sortByOffset:
@@ -74,22 +74,22 @@ def parseHeader(hdr_data, sortByOffset):
 	return sections
 
 def generateHeaderData(sections):
-	data = []
+	data = bytearray()
 	for section in sections:
 		(offset, length, index) = section
-		data.append(chr(offset & 0xFF))
-		data.append(chr((offset >> 8) & 0xFF))
-		data.append(chr((offset >> 16) & 0xFF))
-		data.append(chr((offset >> 24) & 0xFF))
-		data.append(chr(length & 0xFF))
-		data.append(chr((length >> 8) & 0xFF))
-		data.append(chr((length >> 16) & 0xFF))
-		data.append(chr((length >> 24) & 0xFF))
-		data.append(chr(index & 0xFF))
-		data.append(chr((index >> 8) & 0xFF))
-		data.append(chr((index >> 16) & 0xFF))
-		data.append(chr((index >> 24) & 0xFF))
-	return "".join(data)
+		data.append(offset & 0xFF)
+		data.append((offset >> 8) & 0xFF)
+		data.append((offset >> 16) & 0xFF)
+		data.append((offset >> 24) & 0xFF)
+		data.append(length & 0xFF)
+		data.append((length >> 8) & 0xFF)
+		data.append((length >> 16) & 0xFF)
+		data.append((length >> 24) & 0xFF)
+		data.append(index & 0xFF)
+		data.append((index >> 8) & 0xFF)
+		data.append((index >> 16) & 0xFF)
+		data.append((index >> 24) & 0xFF)
+	return bytes(data)
 
 def getSectionByIndex(sections, searchIndex):
 	for section in sections:
@@ -100,7 +100,7 @@ def getSectionByIndex(sections, searchIndex):
 
 def parseHeaderFile(hdr_filepath, sortByOffset=False):
 	try:
-		hdr_data = file(hdr_filepath, "rb").read()
+		hdr_data = open(hdr_filepath, "rb").read()
 	except (IOError) as e:
 		print("Failed to read header file: %s" % e.strerror)
 		return None
@@ -129,12 +129,12 @@ def extractSection(hdr_filepath, bin_filepath, extractIndex, outfilePath):
 		return 1
 	(offset, length, index) = section
 	try:
-		bin_data = file(bin_filepath, "rb").read()
+		bin_data = open(bin_filepath, "rb").read()
 	except (IOError) as e:
 		print("Failed to read bin file: %s" % e.strerror)
 		return 1
 	try:
-		outfile = file(outfilePath, "wb")
+		outfile = open(outfilePath, "wb")
 		outfile.write(bin_data[offset : offset + length])
 	except IndexError:
 		print("Binfile index error.")
@@ -149,12 +149,12 @@ def mergeSection(hdr_filepath, bin_filepath, mergeIndex, mergefilePath):
 	if not sections:
 		return 1
 	try:
-		bin_data = file(bin_filepath, "rb").read()
+		bin_data = open(bin_filepath, "rb").read()
 	except (IOError) as e:
 		print("Failed to read bin file: %s" % e.strerror)
 		return 1
 	try:
-		merge_data = file(mergefilePath, "rb").read()
+		merge_data = open(mergefilePath, "rb").read()
 	except (IOError) as e:
 		print("Failed to open merge output file: %s" % e.strerror)
 		return 1
@@ -184,11 +184,11 @@ def mergeSection(hdr_filepath, bin_filepath, mergeIndex, mergefilePath):
 	if not foundIt:
 		print("Did not find section with index %d" % mergeIndex)
 		return 1
-	newBin = "".join(newBin)
+	newBin = b"".join(newBin)
 	newHdr = generateHeaderData(newSections)
 	try:
-		file(bin_filepath, "wb").write(newBin)
-		file(hdr_filepath, "wb").write(newHdr)
+		open(bin_filepath, "wb").write(newBin)
+		open(hdr_filepath, "wb").write(newHdr)
 	except (IOError) as e:
 		print("Failed to write bin or header file: %s" % e.strerror)
 		return 1
@@ -241,7 +241,7 @@ def main():
 				v = v.split(':')
 				opt_index = int(v[0])
 				opt_outfile = v[1]
-			except IndexError as ValueError:
+			except (IndexError, ValueError):
 				print("Invalid -x|--extract index number\n")
 				usage()
 				return 1
@@ -251,7 +251,7 @@ def main():
 				v = v.split(':')
 				opt_index = int(v[0])
 				opt_mergefile = v[1]
-			except IndexError as ValueError:
+			except (IndexError, ValueError):
 				print("Invalid -m|--merge index and/or merge file name\n")
 				usage()
 				return 1

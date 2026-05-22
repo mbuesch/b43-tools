@@ -36,7 +36,7 @@ if len(sys.argv) != 2:
 filename = sys.argv[1]
 
 try:
-	ivals = file(filename).read()
+	ivals = open(filename, "rb").read()
 except IOError as e:
 	print("Could not read the initvals file: %s" % e.strerror)
 	sys.exit(1)
@@ -50,14 +50,14 @@ if sectname.endswith(".fw"):
 	sectname = sectname[:-3]
 print(".initvals(%s)" % sectname)
 for idx in range(0, len(ivals), 8):
-	addr = ord(ivals[idx + 0])
-	addr |= ord(ivals[idx + 1]) << 8
-	size = ord(ivals[idx + 2])
-	size |= ord(ivals[idx + 3]) << 8
-	value = ord(ivals[idx + 4])
-	value |= ord(ivals[idx + 5]) << 8
-	value |= ord(ivals[idx + 6]) << 16
-	value |= ord(ivals[idx + 7]) << 24
+	addr = ivals[idx + 0]
+	addr |= ivals[idx + 1] << 8
+	size = ivals[idx + 2]
+	size |= ivals[idx + 3] << 8
+	value = ivals[idx + 4]
+	value |= ivals[idx + 5] << 8
+	value |= ivals[idx + 6] << 16
+	value |= ivals[idx + 7] << 24
 
 	if addr == 0xFFFF:
 		break

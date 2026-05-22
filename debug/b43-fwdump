@@ -142,7 +142,7 @@ def main():
 
 	if dumpShmBin:
 		# Only do a binary SHM dump
-		stdout.write(shm)
+		sys.stdout.buffer.write(shm)
 		sys.exit(0)
 
 	print("--- B43 microcode state dump ---")
@@ -157,7 +157,7 @@ def main():
 	print("Code:")
 	if binary:
 		try:
-			bintext = file(binary, "r").read()
+			bintext = open(binary, "rb").read()
 		except IOError as e:
 			print("Could not read binary file %s: %s" % (binary, e.strerror))
 			sys.exit(1)
@@ -175,7 +175,7 @@ def main():
 				ascii = ""
 			if i % 16 == 0:
 				stdout.write("0x%04X:  " % i)
-			c = ord(shm[i])
+			c = shm[i]
 			stdout.write("%02X" % c)
 			if (i % 2 != 0):
 				stdout.write(" ")
