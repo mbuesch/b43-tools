@@ -407,7 +407,7 @@ class B43SymbolicSpr:
 			defs = open(header_file).readlines()
 		except IOError as e:
 			print("B43SymbolicSpr: Could not read %s: %s" % (e.filename, e.strerror))
-			B43Exception
+			raise B43Exception
 		# Parse the definitions
 		self.spr_names = { }
 		r = re.compile(r"#define\s+(\w+)\s+(spr[a-fA-F0-9]+)")
