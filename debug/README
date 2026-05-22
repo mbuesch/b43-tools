@@ -1,9 +1,6 @@
 This is a set of tools for debugging the b43 driver and/or firmware.
 Note that it is licensed under the GNU GPL version 3 ONLY!
 
-Installing:
-	Run the install.py script as root.
-
 *******************************************************************************
 *  b43-fwdump                                                                 *
 *******************************************************************************
