@@ -13,11 +13,11 @@ jobs:
         os:
           - name: linux
             version: ubuntu-latest
-            cflags: -Os -pipe -Werror
+            cflags: -Os -Werror
             ldflags:
           - name: macos
             version: macos-latest
-            cflags: -Os -pipe -I/opt/homebrew/opt/flex/include
+            cflags: -Os -I/opt/homebrew/opt/flex/include
             ldflags: -L/opt/homebrew/opt/flex/lib
     runs-on: ${{ matrix.os.version }}
     env:
