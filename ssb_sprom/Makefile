@@ -14,7 +14,8 @@ QUIET_SPARSE	= @true
 endif
 
 PREFIX		?= /usr/local
-CFLAGS		+= -std=c99 -O2 -Wall -D_BSD_SOURCE -D_DEFAULT_SOURCE
+CFLAGS		?= -Os
+CFLAGS		+= -std=c99 -Wall -pedantic -D_BSD_SOURCE -D_DEFAULT_SOURCE -pipe
 LDFLAGS		?=
 
 SRCS		= ssb_sprom.c utils.c

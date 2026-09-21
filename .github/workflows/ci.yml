@@ -39,32 +39,40 @@ jobs:
       - name: b43-asm
         run: |
           cd assembler
-          make
+          make V=1
+          echo "clean..."
           make clean
+          echo "distclean..."
           make distclean
 
       # b43-dasm
       - name: b43-dasm
         run: |
           cd disassembler
-          make
+          make V=1
+          echo "clean..."
           make clean
+          echo "distclean..."
           make distclean
 
       # b43-fwcutter
       - name: b43-fwcutter
         run: |
           cd fwcutter
-          make
+          make V=1
+          echo "clean..."
           make clean
+          echo "distclean..."
           make distclean
 
       # ssb-sprom
       - name: ssb-sprom
         run: |
           cd ssb_sprom
-          make
+          make V=1
+          echo "clean..."
           make clean
+          echo "distclean..."
           make distclean
 
 # vim: ts=2 sw=2 expandtab

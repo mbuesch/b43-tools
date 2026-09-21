@@ -18,10 +18,10 @@ QUIET_SPARSE	= @true
 endif
 
 PREFIX		?= /usr/local
-CFLAGS		?= -O2 -pipe
+CFLAGS		?= -Os
 CFLAGS		+= -std=gnu99 -D_GNU_SOURCE \
 		   -Wall -Wextra -Wformat=2 -Wundef -Wno-unused-parameter \
-		   -Wshadow -Wpointer-arith
+		   -Wshadow -Wpointer-arith -pipe
 SPARSEFLAGS	= $(CFLAGS) -D__transparent_union__=__unused__ -D_STRING_ARCH_unaligned=1 \
 		  -D__builtin_stpcpy=stpcpy
 LDFLAGS		+= -lfl
