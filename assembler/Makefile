@@ -14,7 +14,7 @@ QUIET_YACC	= $(Q:@=@echo '     YACC     '$@;)$(YACC)
 ifeq ($(C),1)
 QUIET_SPARSE	= $(Q:@=@echo '     SPARSE   '$@;)$(SPARSE)
 else
-QUIET_SPARSE	= @/bin/true
+QUIET_SPARSE	= @true
 endif
 
 PREFIX		?= /usr/local
