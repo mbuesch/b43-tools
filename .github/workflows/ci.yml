@@ -1,0 +1,70 @@
+name: Build and test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  main:
+    name: Main
+    strategy:
+      matrix:
+        os:
+          - name: linux
+            version: ubuntu-latest
+            cflags: -Os -pipe -Werror
+            ldflags:
+          - name: macos
+            version: macos-latest
+            cflags: -Os -pipe -I/opt/homebrew/opt/flex/include
+            ldflags: -L/opt/homebrew/opt/flex/lib
+    runs-on: ${{ matrix.os.version }}
+    env:
+      CFLAGS: ${{ matrix.os.cflags }}
+      LDFLAGS: ${{ matrix.os.ldflags }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      # Install toolchain
+      - if: matrix.os.name == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essential gcc binutils make clang flex libfl-dev bison
+      - if: matrix.os.name == 'macos'
+        run: brew install flex bison
+
+      # b43-asm
+      - name: b43-asm
+        run: |
+          cd assembler
+          make
+          make clean
+          make distclean
+
+      # b43-dasm
+      - name: b43-dasm
+        run: |
+          cd disassembler
+          make
+          make clean
+          make distclean
+
+      # b43-fwcutter
+      - name: b43-fwcutter
+        run: |
+          cd fwcutter
+          make
+          make clean
+          make distclean
+
+      # ssb-sprom
+      - name: ssb-sprom
+        run: |
+          cd ssb_sprom
+          make
+          make clean
+          make distclean
+
+# vim: ts=2 sw=2 expandtab
