@@ -39,7 +39,7 @@ $(call DEPS,$(SRCS)): dep/%.d: %.c
 -include $(call DEPS,$(SRCS))
 
 # Generate object files
-$(call OBJS,$(SRCS)): obj/%.o:
+$(call OBJS,$(SRCS)): obj/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(QUIET_SPARSE) $(SPARSEFLAGS) $<
 	$(QUIET_CC) -o $@ -c $(CFLAGS) $<
