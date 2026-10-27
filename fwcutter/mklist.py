@@ -66,7 +66,7 @@ md5sum = hashlib.md5(open(fn, "rb").read())
 print("static struct extract _%s[] =" % md5sum.hexdigest())
 print("{")
 
-sym_re = re.compile(r"([0-9a-fA-F]+)\s+g\s+O\s+\.rodata\s+([0-9a-fA-F]+) d11([-_\s\w0-9]+)")
+sym_re = re.compile(r"([0-9a-fA-F]+)\s+[lg]\s+O\s+\.rodata\s+([0-9a-fA-F]+) d11([-_\s\w0-9]+)")
 ucode_re = re.compile(r"ucode(\d+)")
 
 for sym in syms:

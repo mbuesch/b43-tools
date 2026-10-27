@@ -1358,6 +1358,254 @@ static struct extract _97c20a19cc67f72db1904ec81c0722cc[] =
 	EXTRACT_LIST_END
 };
 
+static struct extract _6889dbd24abf8006de5cc6eddd138518[] =
+{
+	{ .name = "waken0bsinitvals12", .offset = 0x2FE0D0, .type = EXT_IV, .length = 0xF8 },
+	{ .name = "ucode22_sslpn", .offset = 0x2B4E40, .type = EXT_UCODE_3, .length = 0x8179 },
+	{ .name = "lcn0initvals25", .offset = 0x1A0A40, .type = EXT_IV, .length = 0x10D8 },
+	{ .name = "lcn0initvals24", .offset = 0x19C200, .type = EXT_IV, .length = 0x10E0 },
+	{ .name = "ucode29_mimo", .offset = 0x1E6B60, .type = EXT_UCODE_3, .length = 0xA9B0 },
+	{ .name = "lcn2bsinitvals25", .offset = 0x1A3F20, .type = EXT_IV, .length = 0x118 },
+	{ .name = "ucode21_sslpn_nobt", .offset = 0x2ADAE0, .type = EXT_UCODE_3, .length = 0x7356 },
+	{ .name = "wakelcn402initvals33", .offset = 0x374D00, .type = EXT_IV, .length = 0xF20 },
+	{ .name = "ucode25_mimo", .offset = 0x1C5940, .type = EXT_UCODE_3, .length = 0x7E88 },
+	{ .name = "sslpn0bsinitvals16", .offset = 0x254520, .type = EXT_IV, .length = 0x118 },
+	/* ERROR: Could not guess data type for: aeswakeucode16_mimo */
+	/* ucode minor version at offset 0x2524b4 */
+	/* ERROR: Could not guess data type for: ucode_wowl15 */
+	/* ERROR: Could not guess data type for: ucode_wowl12 */
+	/* ERROR: Could not guess data type for: aeswakeucode42 */
+	{ .name = "waken0bsinitvals16", .offset = 0x323290, .type = EXT_IV, .length = 0xF8 },
+	/* ucode major version at offset 0x2f59a0 */
+	{ .name = "wakelp0bsinitvals15", .offset = 0x3072E0, .type = EXT_IV, .length = 0xF8 },
+	{ .name = "lcn2bsinitvals24", .offset = 0x19F710, .type = EXT_IV, .length = 0x118 },
+	{ .name = "n0initvals22", .offset = 0x25D4D0, .type = EXT_IV, .length = 0xF30 },
+	{ .name = "n0initvals25", .offset = 0x1A4040, .type = EXT_IV, .length = 0x10D8 },
+	{ .name = "ac3initvals43", .offset = 0x21A7F0, .type = EXT_IV, .length = 0x1310 },
+	/* ERROR: Could not guess data type for: aeswakeucode12 */
+	/* ERROR: Could not guess data type for: ucode_wowl24_lcn */
+	{ .name = "sslpn4bsinitvals22", .offset = 0x25F470, .type = EXT_IV, .length = 0x118 },
+	{ .name = "lcn405bsinitvals35", .offset = 0x1B3538, .type = EXT_IV, .length = 0x0 },
+	{ .name = "lcn400bsinitvals33", .offset = 0x1AE410, .type = EXT_IV, .length = 0x118 },
+	{ .name = "n0initvals24", .offset = 0x19F830, .type = EXT_IV, .length = 0x10E0 },
+	{ .name = "sslpn1bsinitvals27", .offset = 0x1AA340, .type = EXT_IV, .length = 0x118 },
+	{ .name = "ucode13", .offset = 0x2E13F0, .type = EXT_UCODE_2, .length = 0x6BD0 },
+	{ .name = "ucode14", .offset = 0x2E7FD0, .type = EXT_UCODE_2, .length = 0x5EF8 },
+	{ .name = "wakelcn402bsinitvals33", .offset = 0x375C30, .type = EXT_IV, .length = 0xF8 },
+	{ .name = "a0g0bsinitvals9", .offset = 0x2CA490, .type = EXT_IV, .length = 0x0 },
+	{ .name = "ucode15", .offset = 0x2EDED0, .type = EXT_UCODE_3, .length = 0x7060 },
+	{ .name = "n16initvals30", .offset = 0x1AB520, .type = EXT_IV, .length = 0xEC0 },
+	/* ERROR: Could not guess data type for: aeswakeucode26_mimo */
+	/* ERROR: Could not guess data type for: aeswakeucode22_mimo */
+	{ .name = "ucode16_sslpn", .offset = 0x268920, .type = EXT_UCODE_3, .length = 0x86E3 },
+	{ .name = "waken0absinitvals26", .offset = 0x3559F0, .type = EXT_IV, .length = 0xF8 },
+	{ .name = "ucode5", .offset = 0x2D4BE0, .type = EXT_UCODE_2, .length = 0x5108 },
+	{ .name = "ucode9", .offset = 0x2D9CEC, .type = EXT_UCODE_2, .length = 0x4 },
+	{ .name = "ucode4", .offset = 0x2CFE90, .type = EXT_UCODE_1, .length = 0x4D40 },
+	{ .name = "wakeac1bsinitvals42", .offset = 0x382A30, .type = EXT_IV, .length = 0x248 },
+	{ .name = "n19bsinitvals34", .offset = 0x1B3400, .type = EXT_IV, .length = 0x118 },
+	{ .name = "waken0absinitvals29", .offset = 0x35FB50, .type = EXT_IV, .length = 0xF8 },
+	/* ERROR: Could not guess data type for: aeswakeucode30_mimo */
+	{ .name = "a0g1initvals13", .offset = 0x2CD540, .type = EXT_IV, .length = 0xBF0 },
+	{ .name = "ac0bsinitvals40", .offset = 0x2179F0, .type = EXT_IV, .length = 0x248 },
+	{ .name = "lcn400initvals33", .offset = 0x1AD530, .type = EXT_IV, .length = 0xED0 },
+	{ .name = "sslpn0initvals16", .offset = 0x253580, .type = EXT_IV, .length = 0xF90 },
+	{ .name = "ucode35_lcn40", .offset = 0x216674, .type = EXT_UCODE_3, .length = 0x1 },
+	{ .name = "lcn401initvals33", .offset = 0x1AE530, .type = EXT_IV, .length = 0xED0 },
+	{ .name = "lcn406initvals37", .offset = 0x1B3550, .type = EXT_IV, .length = 0x0 },
+	{ .name = "n1initvals20", .offset = 0x259390, .type = EXT_IV, .length = 0xF58 },
+	{ .name = "lcn1bsinitvals24", .offset = 0x19E500, .type = EXT_IV, .length = 0x118 },
+	{ .name = "ucode26_mimo", .offset = 0x1D5F60, .type = EXT_UCODE_3, .length = 0x9BF0 },
+	{ .name = "sslpn2initvals19", .offset = 0x257530, .type = EXT_IV, .length = 0xE08 },
+	{ .name = "ucode37_lcn40", .offset = 0x216684, .type = EXT_UCODE_3, .length = 0x1 },
+	/* ucode minor version at offset 0x2c6554 */
+	{ .name = "sslpn3bsinitvals21", .offset = 0x25D3B0, .type = EXT_IV, .length = 0x118 },
+	{ .name = "lcn401bsinitvals33", .offset = 0x1AF410, .type = EXT_IV, .length = 0x118 },
+	{ .name = "waken0initvals30", .offset = 0x368A90, .type = EXT_IV, .length = 0xF30 },
+	/* ERROR: Could not guess data type for: aeswakeucode22_sslpn */
+	{ .name = "b0g0bsinitvals9", .offset = 0x2CA478, .type = EXT_IV, .length = 0x0 },
+	{ .name = "waken0bsinitvals24", .offset = 0x34BB00, .type = EXT_IV, .length = 0xF8 },
+	{ .name = "ucode25_lcn", .offset = 0x1CD7D0, .type = EXT_UCODE_3, .length = 0x877D },
+	/* ERROR: Could not guess data type for: ucode_wowl29_mimo */
+	/* ERROR: Could not guess data type for: aeswakeucode15 */
+	{ .name = "b0g0bsinitvals5", .offset = 0x2C8CF0, .type = EXT_IV, .length = 0x118 },
+	{ .name = "b0g0bsinitvals4", .offset = 0x2C73E0, .type = EXT_IV, .length = 0x30 },
+	{ .name = "lp2initvals19", .offset = 0x258460, .type = EXT_IV, .length = 0xE08 },
+	{ .name = "n20bsinitvals36", .offset = 0x1B3548, .type = EXT_IV, .length = 0x0 },
+	{ .name = "waken0bsinitvals22", .offset = 0x335C70, .type = EXT_IV, .length = 0xF8 },
+	{ .name = "waken0bsinitvals26", .offset = 0x3558F0, .type = EXT_IV, .length = 0xF8 },
+	/* ucode major version at offset 0x2524b0 */
+	/* ucode minor version at offset 0x2f59a4 */
+	/* ucode minor version at offset 0x2166a4 */
+	{ .name = "n0initvals16", .offset = 0x2524C0, .type = EXT_IV, .length = 0xF90 },
+	{ .name = "lcn1bsinitvals25", .offset = 0x1A2D20, .type = EXT_IV, .length = 0x118 },
+	{ .name = "n0initvals17", .offset = 0x255700, .type = EXT_IV, .length = 0xDD8 },
+	{ .name = "lcn1bsinitvals26", .offset = 0x1A7200, .type = EXT_IV, .length = 0x118 },
+	{ .name = "ucode32_mimo", .offset = 0x1FB3F0, .type = EXT_UCODE_3, .length = 0xA100 },
+	/* ucode major version at offset 0x2166a0 */
+	{ .name = "n0initvals11", .offset = 0x2CA4A0, .type = EXT_IV, .length = 0xC10 },
+	{ .name = "wakelcn2bsinitvals24", .offset = 0x34AA30, .type = EXT_IV, .length = 0xF8 },
+	{ .name = "lcn2initvals26", .offset = 0x1A7320, .type = EXT_IV, .length = 0xF48 },
+	{ .name = "lcn2initvals25", .offset = 0x1A2E40, .type = EXT_IV, .length = 0x10D8 },
+	{ .name = "waken0bsinitvals29", .offset = 0x35FA50, .type = EXT_IV, .length = 0xF8 },
+	{ .name = "lcn0bsinitvals24", .offset = 0x19D2F0, .type = EXT_IV, .length = 0x118 },
+	{ .name = "lcn0bsinitvals26", .offset = 0x1A6190, .type = EXT_IV, .length = 0x118 },
+	{ .name = "waken0absinitvals16", .offset = 0x323390, .type = EXT_IV, .length = 0xF8 },
+	{ .name = "lcn2initvals24", .offset = 0x19E620, .type = EXT_IV, .length = 0x10E0 },
+	{ .name = "waken0initvals29", .offset = 0x35EB10, .type = EXT_IV, .length = 0xF38 },
+	{ .name = "lcn0bsinitvals25", .offset = 0x1A1B20, .type = EXT_IV, .length = 0x118 },
+	{ .name = "ac6bsinitvals46", .offset = 0x21D0C0, .type = EXT_IV, .length = 0x248 },
+	{ .name = "waken0initvals22", .offset = 0x334D60, .type = EXT_IV, .length = 0xF00 },
+	/* ERROR: Could not guess data type for: aeswakeucode29_mimo */
+	{ .name = "a0g1bsinitvals9", .offset = 0x2CA498, .type = EXT_IV, .length = 0x0 },
+	{ .name = "waken0initvals24", .offset = 0x34AB30, .type = EXT_IV, .length = 0xFC0 },
+	{ .name = "waken0initvals26", .offset = 0x3549B0, .type = EXT_IV, .length = 0xF38 },
+	{ .name = "wakelcn401initvals33", .offset = 0x373CD0, .type = EXT_IV, .length = 0xF20 },
+	{ .name = "a0g1bsinitvals5", .offset = 0x2CA350, .type = EXT_IV, .length = 0x118 },
+	/* ERROR: Could not guess data type for: aeswakeucode24_mimo */
+	{ .name = "sslpn1bsinitvals20", .offset = 0x25B370, .type = EXT_IV, .length = 0x118 },
+	{ .name = "wakelp0initvals15", .offset = 0x306490, .type = EXT_IV, .length = 0xE48 },
+	{ .name = "a0g1initvals9", .offset = 0x2CA488, .type = EXT_IV, .length = 0x0 },
+	{ .name = "lcn406bsinitvals37", .offset = 0x1B3558, .type = EXT_IV, .length = 0x0 },
+	{ .name = "wakelcn404bsinitvals33", .offset = 0x377C90, .type = EXT_IV, .length = 0xF8 },
+	/* ERROR: Could not guess data type for: ucode_wowl30_mimo */
+	{ .name = "b0g0initvals13", .offset = 0x2CC820, .type = EXT_IV, .length = 0xBF0 },
+	{ .name = "lcn403bsinitvals33", .offset = 0x1B1410, .type = EXT_IV, .length = 0x118 },
+	/* ERROR: Could not guess data type for: aeswakeucode24_lcn */
+	{ .name = "ucode16_mimo", .offset = 0x277F90, .type = EXT_UCODE_3, .length = 0x9978 },
+	{ .name = "ucode38_lcn40", .offset = 0x21668C, .type = EXT_UCODE_3, .length = 0x1 },
+	{ .name = "lp0initvals13", .offset = 0x2CB300, .type = EXT_IV, .length = 0x13F0 },
+	{ .name = "ht0bsinitvals29", .offset = 0x1AB400, .type = EXT_IV, .length = 0x118 },
+	{ .name = "lp0initvals15", .offset = 0x2CEF00, .type = EXT_IV, .length = 0xE68 },
+	{ .name = "lp0initvals14", .offset = 0x2CE260, .type = EXT_IV, .length = 0xB78 },
+	{ .name = "lcn2bsinitvals26", .offset = 0x1A8270, .type = EXT_IV, .length = 0x118 },
+	{ .name = "ht0bsinitvals26", .offset = 0x1A92E0, .type = EXT_IV, .length = 0x118 },
+	{ .name = "waken0bsinitvals30", .offset = 0x3699D0, .type = EXT_IV, .length = 0xF8 },
+	{ .name = "lp0initvals16", .offset = 0x254640, .type = EXT_IV, .length = 0xF90 },
+	{ .name = "wakelcn401bsinitvals33", .offset = 0x374C00, .type = EXT_IV, .length = 0xF8 },
+	{ .name = "n20initvals36", .offset = 0x1B3540, .type = EXT_IV, .length = 0x0 },
+	/* ucode major version at offset 0x19c1f0 */
+	{ .name = "wakelcn2initvals24", .offset = 0x349A60, .type = EXT_IV, .length = 0xFC0 },
+	{ .name = "sslpn2bsinitvals19", .offset = 0x258340, .type = EXT_IV, .length = 0x118 },
+	{ .name = "b0g0bsinitvals13", .offset = 0x2CD420, .type = EXT_IV, .length = 0x118 },
+	{ .name = "lp1bsinitvals22", .offset = 0x2604D0, .type = EXT_IV, .length = 0x118 },
+	{ .name = "ucode20_sslpn_nobt", .offset = 0x29F970, .type = EXT_UCODE_3, .length = 0x6E01 },
+	{ .name = "n2initvals19", .offset = 0x256600, .type = EXT_IV, .length = 0xE08 },
+	{ .name = "ucode16_lp", .offset = 0x2605F0, .type = EXT_UCODE_3, .length = 0x8328 },
+	{ .name = "lp1bsinitvals20", .offset = 0x25C3F0, .type = EXT_IV, .length = 0x118 },
+	{ .name = "wakelcn403bsinitvals33", .offset = 0x376C60, .type = EXT_IV, .length = 0xF8 },
+	/* ucode minor version at offset 0x19c1f4 */
+	/* ERROR: Could not guess data type for: ucode_wowl24_mimo */
+	{ .name = "ucode20_sslpn", .offset = 0x298B60, .type = EXT_UCODE_3, .length = 0x6E01 },
+	{ .name = "lp2bsinitvals19", .offset = 0x259270, .type = EXT_IV, .length = 0x118 },
+	{ .name = "wakelcn1initvals24", .offset = 0x348990, .type = EXT_IV, .length = 0xFC0 },
+	{ .name = "waken0initvals16", .offset = 0x322390, .type = EXT_IV, .length = 0xEF8 },
+	{ .name = "ucode17_mimo", .offset = 0x281910, .type = EXT_UCODE_3, .length = 0x8C80 },
+	{ .name = "waken0initvals12", .offset = 0x2FD290, .type = EXT_IV, .length = 0xE30 },
+	/* ERROR: Could not guess data type for: ucode_wowl26_mimo */
+	/* ERROR: Could not guess data type for: ucode_wowl16_mimo */
+	/* ERROR: Could not guess data type for: aeswakeucode16_lp */
+	{ .name = "ucode11", .offset = 0x2D9D00, .type = EXT_UCODE_2, .length = 0x76E8 },
+	{ .name = "lcn404bsinitvals35", .offset = 0x1B3528, .type = EXT_IV, .length = 0x0 },
+	{ .name = "ucode24_lcn", .offset = 0x1BD0F0, .type = EXT_UCODE_3, .length = 0x8848 },
+	{ .name = "n0bsinitvals17", .offset = 0x2564E0, .type = EXT_IV, .length = 0x118 },
+	{ .name = "ucode19_sslpn_nobt", .offset = 0x292400, .type = EXT_UCODE_3, .length = 0x674E },
+	{ .name = "ucode19_sslpn", .offset = 0x28A5A0, .type = EXT_UCODE_3, .length = 0x7E4D },
+	{ .name = "lcn1initvals25", .offset = 0x1A1C40, .type = EXT_IV, .length = 0x10D8 },
+	{ .name = "n0bsinitvals16", .offset = 0x253460, .type = EXT_IV, .length = 0x118 },
+	{ .name = "lp1initvals22", .offset = 0x25F590, .type = EXT_IV, .length = 0xF30 },
+	{ .name = "lcn1initvals26", .offset = 0x1A62B0, .type = EXT_IV, .length = 0xF48 },
+	{ .name = "ucode16_sslpn_nobt", .offset = 0x271010, .type = EXT_UCODE_3, .length = 0x6F6D },
+	{ .name = "lp1initvals20", .offset = 0x25B490, .type = EXT_IV, .length = 0xF58 },
+	{ .name = "lcn1initvals24", .offset = 0x19D410, .type = EXT_IV, .length = 0x10E0 },
+	{ .name = "n0bsinitvals11", .offset = 0x2CB0C0, .type = EXT_IV, .length = 0x118 },
+	{ .name = "a0g1initvals5", .offset = 0x2C9820, .type = EXT_IV, .length = 0xA08 },
+	{ .name = "n18bsinitvals32", .offset = 0x1AD410, .type = EXT_IV, .length = 0x118 },
+	{ .name = "lcn407bsinitvals38", .offset = 0x1B3568, .type = EXT_IV, .length = 0x0 },
+	{ .name = "lcn402initvals33", .offset = 0x1AF530, .type = EXT_IV, .length = 0xED0 },
+	{ .name = "ucode22_mimo", .offset = 0x2BCFC0, .type = EXT_UCODE_3, .length = 0x9588 },
+	{ .name = "wakelcn404initvals33", .offset = 0x376D60, .type = EXT_IV, .length = 0xF20 },
+	{ .name = "a0g1bsinitvals13", .offset = 0x2CE140, .type = EXT_IV, .length = 0x118 },
+	{ .name = "lcn404bsinitvals33", .offset = 0x1B2410, .type = EXT_IV, .length = 0x118 },
+	{ .name = "ucode34_mimo", .offset = 0x20E6E0, .type = EXT_UCODE_3, .length = 0x7F90 },
+	{ .name = "wakelcn405bsinitvals33", .offset = 0x378CC0, .type = EXT_IV, .length = 0xF8 },
+	/* ucode major version at offset 0x187420 */
+	{ .name = "waken0absinitvals22", .offset = 0x335D70, .type = EXT_IV, .length = 0xF8 },
+	{ .name = "lcn407initvals38", .offset = 0x1B3560, .type = EXT_IV, .length = 0x0 },
+	/* ERROR: Could not guess data type for: ucode_wowl22_sslpn */
+	{ .name = "ucode30_mimo", .offset = 0x1F1520, .type = EXT_UCODE_3, .length = 0x9EC0 },
+	{ .name = "ht0initvals26", .offset = 0x1A8390, .type = EXT_IV, .length = 0xF48 },
+	{ .name = "n2bsinitvals19", .offset = 0x257410, .type = EXT_IV, .length = 0x118 },
+	{ .name = "wakelcn1bsinitvals24", .offset = 0x349960, .type = EXT_IV, .length = 0xF8 },
+	{ .name = "n0absinitvals11", .offset = 0x2CB1E0, .type = EXT_IV, .length = 0x118 },
+	{ .name = "ht0initvals29", .offset = 0x1AA460, .type = EXT_IV, .length = 0xF98 },
+	/* ERROR: Could not guess data type for: ucode_wowl42 */
+	{ .name = "wakelcn405initvals33", .offset = 0x377D90, .type = EXT_IV, .length = 0xF20 },
+	{ .name = "sslpn3initvals21", .offset = 0x25C510, .type = EXT_IV, .length = 0xE98 },
+	{ .name = "wakelcn0bsinitvals24", .offset = 0x348890, .type = EXT_IV, .length = 0xF8 },
+	/* ERROR: Could not guess data type for: ucode_wowl16_sslpn */
+	{ .name = "wakelcn403initvals33", .offset = 0x375D30, .type = EXT_IV, .length = 0xF20 },
+	/* ucode major version at offset 0x2c6550 */
+	{ .name = "ac1bsinitvals42", .offset = 0x21A5A0, .type = EXT_IV, .length = 0x248 },
+	{ .name = "n18initvals32", .offset = 0x1AC510, .type = EXT_IV, .length = 0xEF8 },
+	{ .name = "ucode27_sslpn", .offset = 0x1DFB60, .type = EXT_UCODE_3, .length = 0x6FF2 },
+	{ .name = "a0g0bsinitvals5", .offset = 0x2CA230, .type = EXT_IV, .length = 0x118 },
+	/* ERROR: Could not guess data type for: ucode_wowl33_lcn40 */
+	{ .name = "a0g0bsinitvals4", .offset = 0x2C82A0, .type = EXT_IV, .length = 0x30 },
+	{ .name = "wakelcn400bsinitvals33", .offset = 0x373BD0, .type = EXT_IV, .length = 0xF8 },
+	{ .name = "wakelcn0initvals24", .offset = 0x3478C0, .type = EXT_IV, .length = 0xFC0 },
+	{ .name = "ac1initvals42", .offset = 0x219280, .type = EXT_IV, .length = 0x1310 },
+	/* ERROR: Could not guess data type for: ucode_wowl22_mimo */
+	{ .name = "lcn405initvals35", .offset = 0x1B3530, .type = EXT_IV, .length = 0x0 },
+	{ .name = "ucode33_lcn40", .offset = 0x205500, .type = EXT_UCODE_3, .length = 0x91D3 },
+	{ .name = "lcn403initvals33", .offset = 0x1B0530, .type = EXT_IV, .length = 0xED0 },
+	{ .name = "sslpn4initvals22", .offset = 0x25E530, .type = EXT_IV, .length = 0xF30 },
+	{ .name = "n19initvals34", .offset = 0x1B2530, .type = EXT_IV, .length = 0xEC8 },
+	{ .name = "ucode43", .offset = 0x23D170, .type = EXT_UCODE_3, .length = 0xA980 },
+	{ .name = "ucode42", .offset = 0x2327E0, .type = EXT_UCODE_3, .length = 0xA988 },
+	{ .name = "ucode41", .offset = 0x227D50, .type = EXT_UCODE_3, .length = 0xAA88 },
+	{ .name = "ucode46", .offset = 0x247B00, .type = EXT_UCODE_3, .length = 0xA9A8 },
+	{ .name = "n16bsinitvals30", .offset = 0x1AC3F0, .type = EXT_IV, .length = 0x118 },
+	{ .name = "n0bsinitvals24", .offset = 0x1A0920, .type = EXT_IV, .length = 0x118 },
+	{ .name = "ucode40", .offset = 0x21D310, .type = EXT_UCODE_3, .length = 0xAA38 },
+	{ .name = "n0bsinitvals22", .offset = 0x25E410, .type = EXT_IV, .length = 0x118 },
+	{ .name = "b0g0initvals4", .offset = 0x2C6560, .type = EXT_IV, .length = 0xE70 },
+	{ .name = "lp0bsinitvals15", .offset = 0x2CFD70, .type = EXT_IV, .length = 0x118 },
+	{ .name = "b0g0initvals5", .offset = 0x2C82E0, .type = EXT_IV, .length = 0xA08 },
+	{ .name = "lp0bsinitvals16", .offset = 0x2555E0, .type = EXT_IV, .length = 0x118 },
+	/* ucode minor version at offset 0x187424 */
+	{ .name = "n0bsinitvals25", .offset = 0x1A5120, .type = EXT_IV, .length = 0x118 },
+	{ .name = "ac2bsinitvals41", .offset = 0x219030, .type = EXT_IV, .length = 0x248 },
+	{ .name = "b0g0initvals9", .offset = 0x2CA470, .type = EXT_IV, .length = 0x0 },
+	/* ERROR: Could not guess data type for: aeswakeucode33_lcn40 */
+	{ .name = "lp0bsinitvals13", .offset = 0x2CC700, .type = EXT_IV, .length = 0x118 },
+	{ .name = "lp0bsinitvals14", .offset = 0x2CEDE0, .type = EXT_IV, .length = 0x118 },
+	{ .name = "ac2initvals41", .offset = 0x217C40, .type = EXT_IV, .length = 0x13E0 },
+	{ .name = "wakeac1initvals42", .offset = 0x3819E0, .type = EXT_IV, .length = 0x1048 },
+	{ .name = "ucode24_mimo", .offset = 0x1B3570, .type = EXT_UCODE_3, .length = 0x9B70 },
+	{ .name = "wakelcn400initvals33", .offset = 0x372CA0, .type = EXT_IV, .length = 0xF20 },
+	{ .name = "ac3bsinitvals43", .offset = 0x21BB10, .type = EXT_IV, .length = 0x248 },
+	{ .name = "ac0initvals40", .offset = 0x2166B0, .type = EXT_IV, .length = 0x1330 },
+	{ .name = "n1bsinitvals20", .offset = 0x25A2F0, .type = EXT_IV, .length = 0x118 },
+	{ .name = "ucode21_sslpn", .offset = 0x2A6780, .type = EXT_UCODE_3, .length = 0x7356 },
+	{ .name = "sslpn1initvals20", .offset = 0x25A410, .type = EXT_IV, .length = 0xF58 },
+	{ .name = "ac6initvals46", .offset = 0x21BD60, .type = EXT_IV, .length = 0x1358 },
+	{ .name = "lcn404initvals33", .offset = 0x1B1530, .type = EXT_IV, .length = 0xED0 },
+	/* ERROR: Could not guess data type for: aeswakeucode16_sslpn */
+	{ .name = "a0g0initvals5", .offset = 0x2C8E10, .type = EXT_IV, .length = 0xA08 },
+	{ .name = "lcn404initvals35", .offset = 0x1B3520, .type = EXT_IV, .length = 0x0 },
+	{ .name = "a0g0initvals4", .offset = 0x2C7420, .type = EXT_IV, .length = 0xE70 },
+	{ .name = "lcn402bsinitvals33", .offset = 0x1B0410, .type = EXT_IV, .length = 0x118 },
+	{ .name = "pcm4", .offset = 0x2F4F40, .type = EXT_PCM, .length = 0x520 },
+	{ .name = "pcm5", .offset = 0x2F5470, .type = EXT_PCM, .length = 0x520 },
+	/* ERROR: Could not guess data type for: ucode_wowl16_lp */
+	{ .name = "sslpn1initvals27", .offset = 0x1A9400, .type = EXT_IV, .length = 0xF38 },
+	{ .name = "a0g0initvals9", .offset = 0x2CA480, .type = EXT_IV, .length = 0x0 },
+	{ .name = "lcn0initvals26", .offset = 0x1A5240, .type = EXT_IV, .length = 0xF48 },
+	{ .name = "ucode36_mimo", .offset = 0x21667C, .type = EXT_UCODE_3, .length = 0x4 },
+	EXTRACT_LIST_END
+};
+
 /*
  * Links change, so let's not put them into the README.
  * I still put them here so we know where the file was obtained.
@@ -1487,5 +1735,13 @@ static const struct file files[] =
 		.md5		= "97c20a19cc67f72db1904ec81c0722cc",
 		.flags		= FW_FLAG_LE | FW_FLAG_V4,
 		.extract	= _97c20a19cc67f72db1904ec81c0722cc,
+	},
+	{
+		/* hybrid-v35_64-nodebug-pcoem-6_30_223_271.tar.gz */
+		.name		= "wlc_hybrid.o_shipped",
+		.ucode_version	= "832.127",
+		.md5		= "6889dbd24abf8006de5cc6eddd138518",
+		.flags		= FW_FLAG_LE | FW_FLAG_V4,
+		.extract	= _6889dbd24abf8006de5cc6eddd138518,
 	},
 };
